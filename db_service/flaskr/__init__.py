@@ -22,11 +22,17 @@ def create_app(test_config=None):
     from . import db
     db.init_app(app)
 
+    @app.route('/')
+    def index():
+        return 'This is the index route'
+    
     from . import auth 
     app.register_blueprint(auth.bp)
 
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
+    from . import note 
+    app.register_blueprint(note.bp)
+
+    from . import game
+    app.register_blueprint(game.bp)
     
     return app
