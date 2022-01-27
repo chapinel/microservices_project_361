@@ -2,6 +2,8 @@ from flask import (
     Blueprint, request, url_for, g, jsonify
 )
 
+import sys
+
 from flaskr.db import get_db
 
 bp = Blueprint('note', __name__, url_prefix='/note')
@@ -9,11 +11,11 @@ bp = Blueprint('note', __name__, url_prefix='/note')
 @bp.route('/add', methods=['GET', 'POST'])
 def add_note():
     if request.method == 'POST':
-        title = request.form["title"],
-        description = request.form["description"],
-        url = request.form["url"],
-        game = request.form["game"],
-        banner = request.form["banner"],
+        title = request.form["title"]
+        description = request.form["description"]
+        url = request.form["url"]
+        game = request.form["game"]
+        banner = request.form["banner"]
         date = request.form["date"]
         db = get_db()
         error = None
@@ -31,15 +33,17 @@ def add_note():
 
         if error is None:
             game_id = db.execute(
-            "SELECT id FROM game WHERE name = ?", (game)
+            "SELECT id FROM game WHERE name = ?", (game,)
             ).fetchone()
 
             if game_id is None:
                 error = "Game not found in database"
             else:
+                game_id = game_id["id"]
+                
                 try:
                     db.execute(
-                        "INSERT INTO note (title, description, url, game_id, banner, date) VALUES (?, ?, ?)",
+                        "INSERT INTO note (title, description, url, game, banner, date) VALUES (?, ?, ?, ?, ?, ?)",
                         (title, description, url, game_id, banner, date),
                     )
                     db.commit()
@@ -60,18 +64,23 @@ def get_notes():
         error = 'Must include game name'
 
     game_id = db.execute(
-            "SELECT id FROM game WHERE name = ?", (game)
+            "SELECT id FROM game WHERE name = ?", (game,)
             ).fetchone()
     
     if game_id is None:
         error = 'Game not found in database'
     
+    game_id = game_id["id"]
+
     if error is None:
         notes = db.execute(
-            "SELECT * FROM note WHERE game = ?", (game_id)
+            "SELECT * FROM note WHERE game = ?", (game_id,)
         ).fetchall()
+
+        data = []
+        for note in notes:
+            data.append(list(note))
     
-    if error is None:
-        return jsonify( { "notes": notes }), 200
+        return jsonify( { "notes": data }), 200
 
     return (error, 500)

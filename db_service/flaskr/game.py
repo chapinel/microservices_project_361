@@ -63,4 +63,8 @@ def get_all_games():
         "SELECT * from game"
     ).fetchall()
 
-    return jsonify ( { "game": games} ), 200
+    data = []
+    for game in games:
+        data.append(list(game))
+
+    return jsonify ( { "game": data } ), 200
