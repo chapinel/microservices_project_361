@@ -51,7 +51,9 @@ def get_game():
             error = 'Game not found in database'
     
     if error is None:
-        return jsonify( { "id": game_info["id"], "name": game_info["name"], "url": game_info["url"] }), 200
+        response = jsonify( { "id": game_info["id"], "name": game_info["name"], "url": game_info["url"] })
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
 
     return (error, 500)
 
