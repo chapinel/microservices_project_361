@@ -20,6 +20,7 @@ CREATE TABLE game (
 CREATE TABLE users_games (
     game_id INTEGER NOT NULL,
     user_id INTEGER NOT NULL,
+    mail INTEGER NOT NULL DEFAULT 0,
     FOREIGN KEY (game_id) REFERENCES game(id),
     FOREIGN KEY (user_id) REFERENCES user(id),
     PRIMARY KEY (game_id, user_id)

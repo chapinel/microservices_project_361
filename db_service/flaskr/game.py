@@ -29,7 +29,9 @@ def add_game():
             except db.IntegrityError:
                 error = f"Game {name} already exists"
             else:
-                return jsonify( { "success": True } ), 201
+                response = jsonify( { "success": True } )
+                response.headers.add('Access-Control-Allow-Origin', '*')
+                return response
         
         return (error, 500)
 
@@ -69,4 +71,6 @@ def get_all_games():
     for game in games:
         data.append(list(game))
 
-    return jsonify ( { "game": data } ), 200
+    response = jsonify( { "game": data } )
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response

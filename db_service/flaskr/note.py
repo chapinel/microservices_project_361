@@ -50,8 +50,10 @@ def add_note():
                 except db.IntegrityError:
                     error = f"Note {title} already exists"
                 else:
-                    return jsonify( { "success": True } ), 201
-        
+                    response = jsonify( { "success": True } )
+                    response.headers.add('Access-Control-Allow-Origin', '*')
+                    return response
+
         return (error, 500)
 
 @bp.route('/get', methods=['GET', 'POST'])
@@ -81,6 +83,77 @@ def get_notes():
         for note in notes:
             data.append(list(note))
     
-        return jsonify( { "notes": data }), 200
+        response = jsonify( { "notes": data })
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+    return (error, 500)
+
+@bp.route('/get-latest-date', methods=['GET'])
+def get_latest_date():
+    game = request.args.get("game", None)
+    db = get_db()
+    error = None
+
+    if not game:
+        error = 'Must include game name'
+    
+    game_id = db.execute(
+            "SELECT id FROM game WHERE name = ?", (game,)
+            ).fetchone()
+
+    if game_id is None:
+        error = 'Game not found in database'
+    
+    game_id = game_id["id"]
+
+    if error is None:
+        notes = db.execute(
+            "SELECT date, banner FROM note WHERE game = ? ORDER BY date DESC", (game_id,)
+        ).fetchone()
+
+        if notes is None:
+            error = "No notes found for this game"
+        else:
+            date = notes["date"]
+            banner = notes["banner"]
+    
+            response = jsonify( { "date": date, "banner": banner })
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
+
+    return (error, 500)
+
+@bp.route('/get-count', methods=['GET'])
+def get_count():
+    game = request.args.get("game", None)
+    db = get_db()
+    error = None
+
+    if not game:
+        error = 'Must include game name'
+    
+    game_id = db.execute(
+            "SELECT id FROM game WHERE name = ?", (game,)
+            ).fetchone()
+
+    if game_id is None:
+        error = 'Game not found in database'
+    
+    game_id = game_id["id"]
+
+    if error is None:
+        count = db.execute(
+            "SELECT COUNT(*) FROM note WHERE game = ?", (game_id,)
+        ).fetchone()
+
+        if count is None:
+            error = "No notes found for this game"
+        else:
+            total = count["COUNT(*)"]
+    
+            response = jsonify( { "count": total })
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
 
     return (error, 500)
