@@ -2,6 +2,8 @@ import Head from 'next/head'
 import styles from './layout.module.css'
 import utilStyles from '../styles/utils.module.css'
 import Link from 'next/link'
+import Nav from './nav'
+import Footer from './footer'
 
 export const siteTitle = 'Patch Notes'
 
@@ -10,6 +12,10 @@ export default function Layout({ children, home }) {
     <div className={styles.container}>
       <Head>
         <link rel="icon" href="/favicon.ico" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800;900&family=Varela+Round&display=swap" rel="stylesheet">
+
+          </link>
         <meta
           name="description"
           content="Get updates for your favorite games in one location"
@@ -23,29 +29,9 @@ export default function Layout({ children, home }) {
         <meta name="og:title" content={siteTitle} />
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
-      <header className={styles.header}>
-        {home ? (
-          <>
-            <h1 className={utilStyles.heading2Xl}>Dashboard</h1>
-          </>
-        ) : (
-          <>
-            <h2 className={utilStyles.headingLg}>
-              <Link href="/">
-                <a className={utilStyles.colorInherit}>Dashboard</a>
-              </Link>
-            </h2>
-          </>
-        )}
-      </header>
-      <main>{children}</main>
-      {!home && (
-        <div className={styles.backToHome}>
-          <Link href="/">
-            <a>← Back to home</a>
-          </Link>
-        </div>
-      )}
+      <Nav></Nav>
+      <main className={styles.content}>{children}</main>
+      <Footer></Footer>
     </div>
   )
 }

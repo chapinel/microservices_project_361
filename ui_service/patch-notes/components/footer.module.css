@@ -1,0 +1,10 @@
+.container {
+    width: 50vw;
+    background-color: #080630;
+    max-height: 15vh;
+    color: white;
+    font-weight: 300;
+    font-size: 12px;
+    padding: 16px;
+}
+

@@ -1,22 +1,39 @@
-.emptyCard {
-    border: 2px dashed rgb(197, 197, 197);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.emptyCard:hover {
-   -moz-box-shadow:    inset 0 0 10px #dbdada;
-   -webkit-box-shadow: inset 0 0 10px #dbdada;
-   box-shadow:         inset 0 0 10px #dbdada;
-}
-
-.card, .emptyCard {
-    width: 350px;
-    height: 250px;
+.cardGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
     margin: 16px;
-    border-radius: 5px;
+    width: 90%;
+}
+
+.splashImage, .card {
+    grid-row: 1 / 2;
+}
+
+.splashImage {
+    grid-column: 1 / 3;
+    align-self: center;
+    border-radius: 10px;
+}
+
+.splashImage > img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 10px;
+}
+
+.card {
+    grid-column: 2 / -1;
+    align-self: center;
+    height: 150px;
+    border-radius: 15px;
     cursor: pointer;
+    background: rgb(2,0,36);
+    background: linear-gradient(312deg, rgba(2,0,36,1) 0%, rgba(18,53,91,1) 38%, rgba(233,89,103,1) 100%);
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 24px;
 }
 
 .card {
@@ -27,19 +44,31 @@
     box-shadow: 0 6px 10px 0 rgba(0,0,0,0.4);
 }
 
-.splashImage {
-    box-sizing: content-box;
-    max-height: 166px;
-}
-
-.splashImage > span {
-    border-radius: 5px 5px 0 0;
-}
-
 .titleSection {
-    display: flex;
-    max-height: 84px;
-    padding: 16px 0 16px 16px;
+    align-self: center;
+    width: 75%;
+    display: grid;
+    grid-template-columns: 40% 25% 25% 10%;
+    color: white;
+}
+
+.title {
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: .1em;
+}
+
+.title, .stat1, .stat2, .more {
+    grid-row: 1 / 4;
+}
+
+.stat1, .stat2 {
+    font-size: 1.2rem;
+}
+
+.stat2 {
+    margin-right: 12px;
 }
 
 .stats {
@@ -69,4 +98,9 @@
     opacity: 30%;
     font-weight: 500;
     letter-spacing: .09em;
+}
+
+.more {
+    align-self: center;
+    justify-self: right;
 }

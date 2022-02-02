@@ -1,8 +1,15 @@
 .container {
     max-width: 100vw;
-    padding: 2rem;
-    /* margin: 3rem auto 6rem; */
-  }
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    /* padding: 1rem; */
+}
+
+.gradient {
+  height: 30vh;
+  width: 100vw;
+}
   
 .header {
 display: flex;
@@ -10,6 +17,11 @@ flex-direction: column;
 align-items: center;
 }
 
-.backToHome {
-margin: 3rem 0 0;
+.content {
+  flex: 1 0 auto;
+  margin: 0 2rem 0 2rem;
+}
+
+.footer {
+  flex-shrink: 0;
 }
