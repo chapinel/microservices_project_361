@@ -24,5 +24,8 @@ def create_app(test_config=None):
     
     from . import reddit
     app.register_blueprint(reddit.bp)
+
+    from . import games
+    app.register_blueprint(games.bp)
     
     return app
