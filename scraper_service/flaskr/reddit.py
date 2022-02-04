@@ -8,6 +8,17 @@ from flask import (
 
 bp = Blueprint('reddit', __name__, url_prefix='/reddit')
 
+def check_keyword(text, title, keyword):
+    keyword = " " + keyword + " "
+    keyword = keyword.upper()
+    text = text.upper()
+    title = title.upper()
+
+    if keyword in text or keyword in title:
+        return True
+    
+    return False
+
 @bp.route('/get', methods=['GET', 'POST'])
 def reddit():
     username = request.args.get("username", None)
@@ -25,20 +36,24 @@ def reddit():
 
         page = requests.get(url)
         posts = page.json()
-
+        post_no = 0
         for item in posts["data"]:
             title = item["title"]
             text = item["selftext"]
             author = item["author"]
+            url = item["url"]
+            post_data = {"title": title, "author": author, "url": url, "text": text}
             if username and keyword:
-                if author == username and (keyword in text or keyword in title):
-                    all_posts[title] = {"author": author, "text": text}
+                if author == username and (check_keyword(text, title, keyword)):
+                    all_posts[post_no] = post_data
             elif username:
                 if author == username:
-                    all_posts[title] = {"author": author, "text": text}
+                    all_posts[post_no] = post_data
             else:
-                if (keyword in text or keyword in title):
-                    all_posts[title] = {"author": author, "text": text}
+                if (check_keyword(text, title, keyword)):
+                    all_posts[post_no] = post_data
+            
+            post_no += 1
 
         response = jsonify( { "data": all_posts } )
         response.headers.add('Access-Control-Allow-Origin', '*')

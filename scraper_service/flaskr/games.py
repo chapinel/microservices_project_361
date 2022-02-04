@@ -8,15 +8,16 @@ from flask import (
 
 bp = Blueprint('games', __name__, url_prefix='/games')
 
-def rest_parse(post):
+def rest_parse(post, game):
     title = post["title"]
     description = post["description"]
     url = post["url"]["url"]
     banner = post["banner"]["url"]
     date = post["date"]
     date = date[0:10]
-    post_data = {"title": title, "description": description, "url": url, "banner": banner, "date": date}
-    return post_data
+    post_data = {"title": title, "description": description, "url": url, "game": game, "banner": banner, "date": date}
+    
+    requests.post('http://127.0.0.1:5000/note/add', data=post_data)
 
 def rift_parse(post):
     title = post["title"]
@@ -25,29 +26,28 @@ def rift_parse(post):
     banner = post["featuredImage"]["banner"]["url"]
     date = post["date"]
     post_data = {"title": title, "description": description, "url": url, "banner": banner, "date": date}
-    return post_data
 
-def json_parse(json_data, date, rift):
+    requests.post('http://127.0.0.1:5000/note/add', data=post_data)
+
+def json_parse(json_data, date, game):
     data = dict()
 
     if date is None:
         for i in range(10):
-            if rift:
-                post = rift_parse(json_data[i])
+            if game == "rift":
+                rift_parse(json_data[i], game)
             else:
-                post = rest_parse(json_data[i])
-            data[post["title"]] = {"description": post["description"], "url": post["url"], "banner": post["banner"], "date": post["date"]}
+                rest_parse(json_data[i], game)
     else:
         for article in json_data:
             # need to figure out the best way to compare these strings to make sure the dates are being registered correctly
             if datetime.strptime(article["date"]) > datetime.strptime(date):
                 break
             else:
-                if rift:
-                    post = rift_parse(article)
+                if game == "rift":
+                    rift_parse(article, game)
                 else:
-                    post = rest_parse(article)
-                data[post["title"]] = {"description": post["description"], "url": post["url"], "banner": post["banner"], "date": post["date"]}
+                    rest_parse(article, game)
     
     return data
 
@@ -75,15 +75,15 @@ def get_latest():
         posts = page.json()
 
         if game == "valorant":
-            data = json_parse(posts["result"]["pageContext"]["data"]["articles"], date, False)
+            json_parse(posts["result"]["pageContext"]["data"]["articles"], date, "valorant")
         elif game == "league":
-            data = json_parse(posts["result"]["data"]["all"]["nodes"][0]["articles"], date, False)
+            json_parse(posts["result"]["data"]["all"]["nodes"][0]["articles"], date, "league")
         elif game == "tft":
-            data = json_parse(posts["result"]["data"]["all"]["edges"][0]["node"]["entries"], date, False)
+            json_parse(posts["result"]["data"]["all"]["edges"][0]["node"]["entries"], date, "tft")
         elif game == "rift":
-            data = json_parse(posts["result"]["data"]["allContentstackArticles"]["articles"], date, True)
+            json_parse(posts["result"]["data"]["allContentstackArticles"]["articles"], date, "rift")
 
-        response = jsonify( { "data": data } )
+        response = jsonify( { "success": True } )
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
     
