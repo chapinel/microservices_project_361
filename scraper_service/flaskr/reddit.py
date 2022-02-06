@@ -42,18 +42,20 @@ def reddit():
             text = item["selftext"]
             author = item["author"]
             url = item["url"]
-            post_data = {"title": title, "author": author, "url": url, "text": text}
+            post_data = {"title": title, "username": author, "url": url}
             if username and keyword:
                 if author == username and (check_keyword(text, title, keyword)):
                     all_posts[post_no] = post_data
+                    post_no += 1
             elif username:
                 if author == username:
                     all_posts[post_no] = post_data
+                    post_no += 1
             else:
                 if (check_keyword(text, title, keyword)):
                     all_posts[post_no] = post_data
+                    post_no += 1
             
-            post_no += 1
 
         response = jsonify( { "data": all_posts } )
         response.headers.add('Access-Control-Allow-Origin', '*')

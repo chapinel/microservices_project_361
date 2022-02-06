@@ -9,9 +9,10 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 @bp.route('/add', methods=['GET', 'POST'])
 def add_user():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        email = request.form['email']
+        data = request.get_json()
+        username = data['username']
+        password = data['password']
+        email = data['email']
         db = get_db()
         error = None
 
@@ -25,48 +26,45 @@ def add_user():
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO user (name, email, password) VALUES (?, ?, ?)",
-                    (username, generate_password_hash(password)),
+                    "INSERT INTO user (username, email, password) VALUES (?, ?, ?)",
+                    (username, email, generate_password_hash(password)),
                 )
                 db.commit()
             except db.IntegrityError:
                 error = f"User {username} already registered"
             else:
-                return jsonify( { "success": True } ), 201
+                response = jsonify( { "success": True } )
+                response.headers.add('Access-Control-Allow-Origin', '*')
+                return response
         
         return (error, 500)
 
-@bp.route('/get', methods=['GET'])
+@bp.route('/get-all', methods=['GET'])
 def get_user():
-    username = request.form['id']
 
     db = get_db()
     error = None
 
-    if not username:
-        error = 'user id is required'
-    
-    if error is None:
-        user = db.execute(
-            "SELECT * FROM user WHERE id = ?", (username)
-        ).fetchone()
+    users = db.execute(
+        "SELECT * from user"
+    ).fetchall()
 
-        if user is None:
-            error = "No matching user found"
-    
-    if error is None:
-        return jsonify( { "id": user["id"], "email": user["email"], "service": user["service_id"] }), 200
+    data = []
+    for user in users:
+        data.append(list(user))
 
-    return (error, 500)
+    response = jsonify( { "users": data } )
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
-@bp.route('/login', methods=['GET'])
+@bp.route('/login', methods=['GET', 'POST'])
 def login():
     username = request.form['username']
     password = request.form['password']
     db = get_db()
     error = None
     user = db.execute(
-        'SELECT * FROM user WHERE name = ?', (username,)
+        'SELECT * FROM user WHERE username = ?', (username,)
     ).fetchone()
 
     if user is None:
@@ -75,6 +73,6 @@ def login():
         error = 'Incorrect password.'
 
     if error is None:
-        return jsonify( { "success": True }), 200
+        return jsonify( { "success": True })
 
     return (error, 500)
