@@ -1,4 +1,5 @@
 import Layout from '../components/layout'
+import Modal from '../components/modal'
 import GameCard from '../components/game-card'
 import utilStyles from '../styles/utils.module.css'
 import useSWR from 'swr'
@@ -40,6 +41,8 @@ const getCount = (game) => {
 }
 
 export default function Home(user) {
+  const [controlModal, setControlModal] = useState(false)
+
   const router = useRouter()
   if (user.user === 'not found'){
     router.push("/login")
@@ -51,7 +54,7 @@ export default function Home(user) {
     ReactTooltip.rebuild()
   }, [])
 
-  let count = 0
+  let count = 3
   // get list of games added by user
   // FOR EACH LOOP - 
   // get data
@@ -75,7 +78,7 @@ export default function Home(user) {
           <p>YOUR GAMES</p>
         </div>
         {count != 4 ? (
-          <button className={utilStyles.darkBgButton}>Add Game</button>
+          <button className={utilStyles.darkBgButton} onClick={() => setControlModal(true)}>Add Game</button>
         ) : (
         <>
         <button className={utilStyles.darkBgButtonDisabled} data-tip="You've added all currently available games. Looking for another game?<br />Send us an email at developers@patchporo.com - we're always considering new titles!">Add Game</button>
@@ -93,6 +96,13 @@ export default function Home(user) {
             <GameCard title="rift" splash="https://images.contentstack.io/v3/assets/blt370612131b6e0756/blt3b5bf0bc3256b8c7/61df4da814ef402247ceb708/WR_patch-notes_Article_Banner_SETT3.0.jpg" totalUpdates="12" date="12/22/21"/>
             </div>
         )}
+        <Modal
+          open={controlModal} 
+          onChange={() => setControlModal(false)}
+        >
+          <div>Modal Content Goes Here</div>
+          
+        </Modal>
       </section>
     </Layout>
   )

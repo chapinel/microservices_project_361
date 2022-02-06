@@ -1,0 +1,45 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.5);
+    transition: opacity 200ms;
+}
+
+.modalBody {
+    width: 50vw;
+    max-height: 75vh;
+    background-color: white;
+    margin: auto;
+    border-radius: 5px;
+    padding: 36px;
+    margin-top: 24px;
+}
+
+.modalContent {
+    color: black;
+    margin: auto;
+    padding: 24px;
+    height: 80%;
+}
+
+.modalHeader {
+    color: black;
+    display: flex;
+    justify-content: space-between;
+}
+
+.modalClose {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-weight: 900;
+    width: 50px;
+}
+
+.modalAction {
+    display: flex;
+    justify-content: flex-end;
+}

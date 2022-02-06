@@ -63,7 +63,7 @@
   margin-bottom: 24px;
 }
 
-.darkBgButton, .whiteBgButton, .darkBgButtonDisabled {
+.darkBgButton, .whiteBgButton, .darkBgButtonDisabled, .whiteBgSecondaryButton {
   padding: 12px 24px;
   border: none;
   border-radius: 3px;
@@ -85,6 +85,11 @@
 .whiteBgButton {
   background: rgb(2,0,36);
   background: linear-gradient(167deg, rgba(2,0,36,1) 0%, rgba(18,53,91,1) 38%, rgba(231,57,74,1) 100%);
+}
+
+.whiteBgSecondaryButton {
+  background-color: #be525f;
+  margin-right: 12px;
 }
 
 .emptyState {
