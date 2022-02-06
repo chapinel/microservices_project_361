@@ -59,8 +59,9 @@ def get_user():
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
-    username = request.form['username']
-    password = request.form['password']
+    data = request.get_json()
+    username = data['username']
+    password = data['password']
     db = get_db()
     error = None
     user = db.execute(
@@ -75,4 +76,4 @@ def login():
     if error is None:
         return jsonify( { "success": True })
 
-    return (error, 500)
+    return jsonify( {"error": error }), 400

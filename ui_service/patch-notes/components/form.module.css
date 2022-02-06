@@ -30,3 +30,10 @@
 .switchPages {
     text-align: center;
 }
+
+.error {
+    text-align: center;
+    margin-top: 16px;
+    color: #C9384C;
+    font-weight: 600;
+}

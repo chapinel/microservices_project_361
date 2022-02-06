@@ -56,7 +56,14 @@
     flex-direction: column;
 }
 
-.darkBgButton, .whiteBgButton {
+.headerWButton {
+  display: flex;
+  width: 475px;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.darkBgButton, .whiteBgButton, .darkBgButtonDisabled {
   padding: 12px 24px;
   border: none;
   border-radius: 3px;
@@ -67,11 +74,23 @@
   letter-spacing: .1em;
 }
 
-.darkBgButton {
+.darkBgButton, .darkBgButtonDisabled {
   background-color: #C9384C;
+}
+
+.darkBgButtonDisabled {
+  opacity:75%;
 }
 
 .whiteBgButton {
   background: rgb(2,0,36);
   background: linear-gradient(167deg, rgba(2,0,36,1) 0%, rgba(18,53,91,1) 38%, rgba(231,57,74,1) 100%);
+}
+
+.emptyState {
+  margin: auto;
+  text-align: center;
+  font-weight: 800;
+  letter-spacing: .1em;
+  padding: 200px;
 }

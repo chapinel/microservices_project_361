@@ -3,7 +3,7 @@ import styles from './form.module.css'
 import utilStyles from '../styles/utils.module.css'
 import Link from 'next/link'
 
-export default function Form({ logIn, onSubmit }) {
+export default function Form({ logIn, onSubmit, errorMessage }) {
     return (
         <div className={styles.container}>
             <div className={styles.description}>
@@ -11,6 +11,7 @@ export default function Form({ logIn, onSubmit }) {
             </div>
             {!logIn ? (
                 <>
+                {errorMessage && (<div className={styles.error}>{errorMessage}</div>)}
                 <form className={styles.formBody} onSubmit={onSubmit}>
                     <div className={styles.formItem}>
                         <label>Email</label>
@@ -37,6 +38,7 @@ export default function Form({ logIn, onSubmit }) {
                 </>
             ) : (
                 <>
+                {errorMessage && (<div className={styles.error}>{errorMessage}</div>)}
                 <form className={styles.formBody} onSubmit={onSubmit}>
                     <div className={styles.formItem}>
                         <label>Username</label>

@@ -44,5 +44,9 @@ input {
 }
 
 form {
-  margin: 16px 0px 36px 0px;
+  margin: 8px 0px 36px 0px;
+}
+
+button {
+  cursor: pointer;
 }

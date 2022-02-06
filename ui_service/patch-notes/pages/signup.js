@@ -29,7 +29,7 @@ export default function Signup() {
 
             if (res.status === 200){
                 router.push({
-                    pathname: '/dashboard',
+                    pathname: '/login',
                     query: { firstVisit: true},})
             } else {
                 throw new Error (await res.text())

@@ -3,6 +3,8 @@ import GameCard from '../components/game-card'
 import utilStyles from '../styles/utils.module.css'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
+import ReactTooltip from 'react-tooltip'
+import React, { useEffect, useState } from 'react'
 
 const fetcher = game => fetch(`http://127.0.0.1:5000/note/get-latest-date?game=${game}`).then(r => r.json())
 const countFetcher = game => fetch(`http://127.0.0.1:5000/note/get-latest-date?game=${game}`).then(r => r.json())
@@ -19,10 +21,18 @@ const getCount = (game) => {
 
 export default function Home() {
 
+  const [componentMounted, setComponentMounted] = useState(false);
+  useEffect(() => {
+    setComponentMounted(true)
+    ReactTooltip.rebuild()
+  }, [])
+
+  let count = 0
   // get list of games added by user
   // FOR EACH LOOP - 
   // get data
   // add to a list of games
+  // increment count
   // have a "create game card" function? Creates an object with the name, data from api, etc.?
   // GameCard components should be a MAP - i.e., map each entry in list to gamecard component
   // const countData = getCount('valorant')
@@ -36,18 +46,30 @@ export default function Home() {
   return (
     <Layout loggedIn={true}>
       <section>
-        {router.query.firstVisit === 'true' && (<div>It's the first visit!</div>)}
+        {router.query.walkthrough === 'true' && (<div>Walkthrough goes here</div>)}
+        <div className={utilStyles.headerWButton}>
         <div className={utilStyles.headingXl}>
           <p>YOUR GAMES</p>
         </div>
-        <div className={utilStyles.row}>
-          {/* <GameCard logo="/images/VALORANT_Logo_V.jpg" splash={cardInfo.data.banner} title="valorant" totalUpdates={countData.data.count} date={cardInfo.data.date.slice(0, 10)}/> */}
-          <GameCard splash="https://images.contentstack.io/v3/assets/bltb6530b271fddd0b1/blt180e13a6a1219040/61f4c42f5b8f60514d374fd1/Kayo_Astra_1920x1080.jpg" title="valorant" totalUpdates="12" date="12/22/21"/>
-          <GameCard title="league" splash="https://images.contentstack.io/v3/assets/blt731acb42bb3d1659/blt76aa5627378fc122/61f20c6e5425f4730f02fdf0/020122_LOLPatch1203Notes_Banner.jpg" totalUpdates="12" date="12/22/21"/>
-          <GameCard title="tft" splash="https://images.contentstack.io/v3/assets/blt731acb42bb3d1659/bltb9e768f749944152/61f09153284f0d35bcbb411b/020122_Patch1203Notes_Banner_v1.jpg" totalUpdates="12" date="12/22/21"/>
-          <GameCard title="rift" splash="https://images.contentstack.io/v3/assets/blt370612131b6e0756/blt3b5bf0bc3256b8c7/61df4da814ef402247ceb708/WR_patch-notes_Article_Banner_SETT3.0.jpg" totalUpdates="12" date="12/22/21"/>
+        {count != 4 ? (
+          <button className={utilStyles.darkBgButton}>Add Game</button>
+        ) : (
+        <>
+        <button className={utilStyles.darkBgButtonDisabled} data-tip="You've added all currently available games. Looking for another game?<br />Send us an email at developers@patchporo.com - we're always considering new titles!">Add Game</button>
+        {componentMounted && <ReactTooltip effect="solid" place="bottom" multiline={true}/>}
+        </>)}
         </div>
-        {/* <Footer></Footer> */}
+        {count === 0 ? (
+          <div className={utilStyles.emptyState}>Add your first game to start tracking updates!</div>
+        ) : (
+            <div className={utilStyles.row}>
+            {/* <GameCard logo="/images/VALORANT_Logo_V.jpg" splash={cardInfo.data.banner} title="valorant" totalUpdates={countData.data.count} date={cardInfo.data.date.slice(0, 10)}/> */}
+            <GameCard splash="https://images.contentstack.io/v3/assets/bltb6530b271fddd0b1/blt180e13a6a1219040/61f4c42f5b8f60514d374fd1/Kayo_Astra_1920x1080.jpg" title="valorant" totalUpdates="12" date="12/22/21"/>
+            <GameCard title="league" splash="https://images.contentstack.io/v3/assets/blt731acb42bb3d1659/blt76aa5627378fc122/61f20c6e5425f4730f02fdf0/020122_LOLPatch1203Notes_Banner.jpg" totalUpdates="12" date="12/22/21"/>
+            <GameCard title="tft" splash="https://images.contentstack.io/v3/assets/blt731acb42bb3d1659/bltb9e768f749944152/61f09153284f0d35bcbb411b/020122_Patch1203Notes_Banner_v1.jpg" totalUpdates="12" date="12/22/21"/>
+            <GameCard title="rift" splash="https://images.contentstack.io/v3/assets/blt370612131b6e0756/blt3b5bf0bc3256b8c7/61df4da814ef402247ceb708/WR_patch-notes_Article_Banner_SETT3.0.jpg" totalUpdates="12" date="12/22/21"/>
+            </div>
+        )}
       </section>
     </Layout>
   )
