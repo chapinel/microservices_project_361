@@ -11,7 +11,7 @@ export default function Signup() {
         <Layout>
             <div className={styles.container}>
                 <div className={styles.header}>
-                    <h1 className={utilStyles.headingXl}>Patched</h1>
+                    <h1 className={utilStyles.headingXl}>Patch Poro</h1>
                 </div>
                 <Form logIn={true}></Form>
             </div>

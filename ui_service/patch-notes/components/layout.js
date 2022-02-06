@@ -8,7 +8,7 @@ import Logo from './logo'
 
 export const siteTitle = 'Patch Notes'
 
-export default function Layout({ children, home, loggedIn }) {
+export default function Layout({ children, loggedIn }) {
   if (!loggedIn){
     return (
       <div className={styles.container}>
@@ -31,6 +31,9 @@ export default function Layout({ children, home, loggedIn }) {
           <meta name="og:title" content={siteTitle} />
           <meta name="twitter:card" content="summary_large_image" />
         </Head>
+        <div className={styles.logo}>
+          <Logo/>
+        </div>
         <main className={styles.content}>{children}</main>
       </div>
     )

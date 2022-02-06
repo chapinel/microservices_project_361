@@ -25,3 +25,8 @@ align-items: center;
 .footer {
   flex-shrink: 0;
 }
+
+.logo {
+  margin: auto;
+  padding: 24px;
+}

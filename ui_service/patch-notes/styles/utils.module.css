@@ -55,3 +55,23 @@
     display: flex;
     flex-direction: column;
 }
+
+.darkBgButton, .whiteBgButton {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 3px;
+  color: white;
+  text-transform: uppercase;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: .1em;
+}
+
+.darkBgButton {
+  background-color: #C9384C;
+}
+
+.whiteBgButton {
+  background: rgb(2,0,36);
+  background: linear-gradient(167deg, rgba(2,0,36,1) 0%, rgba(18,53,91,1) 38%, rgba(231,57,74,1) 100%);
+}

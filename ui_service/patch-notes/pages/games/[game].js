@@ -1,4 +1,6 @@
 import { useRouter } from 'next/router'
+import utilStyle from '../../styles/utils.module.css'
+import Layout from '../../components/layout'
 
 export default function Game () {
 
@@ -8,22 +10,15 @@ export default function Game () {
     const games = {
         "valorant": "Valorant",
         "league": "League of Legends",
-        "teamfight-tactics": "Teamfight Tactics",
-        "wild-rift": "Wild Rift"
+        "tft": "Teamfight Tactics",
+        "rift": "Wild Rift"
     }
 
     return (
-        <div>
-            <div>
-                <p>back button</p>
-            </div>
-            <div>
-                <h1>{games[game]}</h1>
-            </div>
-            <div>
-                <p>Patch Notes go here</p>
-            </div>
-            
-        </div>
+        <Layout loggedIn={true}>
+        <section>
+            <h1 className={utilStyle.headingXl}>{games[game]}</h1>
+        </section>
+        </Layout>
     )
 }

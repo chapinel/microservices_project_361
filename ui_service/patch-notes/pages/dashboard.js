@@ -1,10 +1,8 @@
-import Head from 'next/head'
-import Layout, { siteTitle } from '../components/layout'
+import Layout from '../components/layout'
 import GameCard from '../components/game-card'
-import Footer from '../components/footer'
 import utilStyles from '../styles/utils.module.css'
-import homestyles from '../styles/Home.module.css'
 import useSWR from 'swr'
+import { useRouter } from 'next/router'
 
 const fetcher = game => fetch(`http://127.0.0.1:5000/note/get-latest-date?game=${game}`).then(r => r.json())
 const countFetcher = game => fetch(`http://127.0.0.1:5000/note/get-latest-date?game=${game}`).then(r => r.json())
@@ -33,10 +31,12 @@ export default function Home() {
   // if (!countData.data || !cardInfo.data) {
   //   return <div>loading...</div>
   // }
+  const router = useRouter()
 
   return (
-    <Layout home>
+    <Layout loggedIn={true}>
       <section>
+        {router.query.firstVisit === 'true' && (<div>It's the first visit!</div>)}
         <div className={utilStyles.headingXl}>
           <p>YOUR GAMES</p>
         </div>

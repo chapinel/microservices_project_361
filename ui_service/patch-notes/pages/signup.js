@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Router from 'next/router'
+import { useRouter } from 'next/router'
 import Layout from '../components/layout'
 import Logo from '../components/logo'
 import Form from '../components/form'
@@ -7,6 +7,8 @@ import styles from '../styles/signup.module.css'
 import utilStyles from '../styles/utils.module.css'
 
 export default function Signup() {
+
+    const router = useRouter()
 
     async function onSubmit(e){
         console.log("submitting data")
@@ -26,7 +28,9 @@ export default function Signup() {
             })
 
             if (res.status === 200){
-                Router.push('/login')
+                router.push({
+                    pathname: '/dashboard',
+                    query: { firstVisit: true},})
             } else {
                 throw new Error (await res.text())
             }
@@ -38,7 +42,7 @@ export default function Signup() {
         <Layout>
             <div className={styles.container}>
                 <div className={styles.header}>
-                    <h1 className={utilStyles.headingXl}>Patched</h1>
+                    <h1 className={utilStyles.headingXl}>Patch Poro</h1>
                 </div>
                 <Form logIn={false} onSubmit={onSubmit}></Form>
             </div>
