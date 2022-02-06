@@ -5,6 +5,26 @@ import useSWR from 'swr'
 import { useRouter } from 'next/router'
 import ReactTooltip from 'react-tooltip'
 import React, { useEffect, useState } from 'react'
+import { withIronSessionSsr } from 'iron-session/next'
+
+export const getServerSideProps = withIronSessionSsr(
+  async function getServerSideProps({ req }) {
+    const user = req.session.user
+  
+    return {
+      props: {
+        user: user ? user : 'not found',
+      },
+    };
+  },
+  {
+    cookieName: "myapp_cookiename",
+    password: "bu4WtDr89exqLzkFDEvZ1nqhgQzRB1PY",
+    cookieOptions: {
+        secure: process.env.NODE_ENV === "production",
+    }
+  }
+)
 
 const fetcher = game => fetch(`http://127.0.0.1:5000/note/get-latest-date?game=${game}`).then(r => r.json())
 const countFetcher = game => fetch(`http://127.0.0.1:5000/note/get-latest-date?game=${game}`).then(r => r.json())
@@ -19,8 +39,12 @@ const getCount = (game) => {
   return { data: data, error: error }
 }
 
-export default function Home() {
-
+export default function Home(user) {
+  const router = useRouter()
+  if (user.user === 'not found'){
+    router.push("/login")
+  }
+  console.log(user)
   const [componentMounted, setComponentMounted] = useState(false);
   useEffect(() => {
     setComponentMounted(true)
@@ -41,7 +65,6 @@ export default function Home() {
   // if (!countData.data || !cardInfo.data) {
   //   return <div>loading...</div>
   // }
-  const router = useRouter()
 
   return (
     <Layout loggedIn={true}>
