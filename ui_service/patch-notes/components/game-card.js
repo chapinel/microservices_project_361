@@ -1,11 +1,19 @@
 import Image from 'next/image'
 import styles from './card.module.css'
 import Link from 'next/link'
+import Popover from './popover'
+import {useState} from 'react'
 
-export default function GameCard({ empty, title, date, splash, logo, totalUpdates }) {
-
+export default function GameCard({ empty, title, date, splash, logo, totalUpdates, user}) {
     const updateStat = totalUpdates ? totalUpdates : '-'
     const dateStat = date ? date : '-'
+
+    const [controlPopover, setControlPopover] = useState(false)
+
+    const handleClick = (e) => {
+        e.stopPropagation()
+        setControlPopover(!controlPopover)
+    }
 
     const gameName = {
         "valorant": "Valorant",
@@ -13,6 +21,11 @@ export default function GameCard({ empty, title, date, splash, logo, totalUpdate
         "tft": "Teamfight Tactics",
         "rift": "Wild Rift"
     }
+
+    const turnOnNotification = () => alert(`You clicked to turn on notifications for ${title} for ${user.username}`)
+    const removeGame = () => alert(`You clicked to remove ${title} for ${user.username}`)
+
+    const buttons = [{ text: "Turn on notifications", onClick: turnOnNotification}, {text: "Remove game", onClick: removeGame}]
 
     const link = `/games/${title}`
     return (
@@ -38,7 +51,9 @@ export default function GameCard({ empty, title, date, splash, logo, totalUpdate
                         <p className={styles.label}>UPDATES</p>
                     </div>
                     <div className={styles.more}>
+                        <Popover open={controlPopover} onChange={() => setControlPopover(false)} options={buttons}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-vertical"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                        </Popover>
                     </div>
                 </div>
             </div>

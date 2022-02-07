@@ -1,0 +1,32 @@
+.popoverContainer {
+    position: relative;
+}
+
+.popoverContent {
+    position: absolute;
+    background: white;
+    width: 200px;
+    border-radius: 5px;
+    top: calc(100% + 5px);
+    right: calc(50%);
+    display: block;
+    overflow: hidden;
+}
+
+.popoverOption {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: .9rem;
+    letter-spacing: .05em;
+    text-align: left;
+    color: #C9384C;
+    text-transform: uppercase;
+    padding: 12px 24px;
+    width: 100%;
+}
+
+.popoverOption:hover {
+    background: #fcebed;
+}
