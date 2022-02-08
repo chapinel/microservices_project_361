@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styles from './modal.module.css'
+import styles from '../styles/modal.module.css'
 import utilstyles from '../styles/utils.module.css'
 
 export default function Modal({open, onChange, children, actions}){

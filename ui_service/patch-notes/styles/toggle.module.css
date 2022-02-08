@@ -1,0 +1,38 @@
+.container {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    margin-top:10px;
+    margin-left: 16px;
+}
+.toggle {
+    height: 0;
+    width: 0;
+}
+
+.toggleLabel {
+    display: flex;
+    width: 50px;
+    height: 25px;
+    background: rgb(241, 143, 143);
+    border-radius: 20px;
+    position: relative;
+    transition: background-color .2s;
+}
+
+.toggleLabel .switch {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 45px;
+    background: #fff;
+    transition: 0.3s;
+    box-shadow: 3px 1px 3px 0px rgba(0,0,0,.2);
+}
+
+.toggle:checked + .toggleLabel .switch {
+    left: calc(100% - 2px);
+    transform: translateX(-100%);
+}

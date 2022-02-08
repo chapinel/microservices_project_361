@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import styles from './form.module.css'
+import styles from '../styles/form.module.css'
 import utilStyles from '../styles/utils.module.css'
 import Link from 'next/link'
 

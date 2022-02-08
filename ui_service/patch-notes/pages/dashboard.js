@@ -5,7 +5,7 @@ import utilStyles from '../styles/utils.module.css'
 import useSWR from 'swr'
 import { useRouter } from 'next/router'
 import ReactTooltip from 'react-tooltip'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { withIronSessionSsr } from 'iron-session/next'
 
 export const getServerSideProps = withIronSessionSsr(

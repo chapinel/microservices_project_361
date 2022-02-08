@@ -1,0 +1,54 @@
+.container {
+    margin: 16px 0px;
+    width: 90vw;
+    height: 15vh;
+    background: rgb(18,53,91);
+    background: linear-gradient(270deg, rgba(0,0,0,.15) 38%, rgba(255,82,105,.50) 100%);
+    display: flex;
+    color: black;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.image {
+    width: 20%;
+    min-width: 200px;
+}
+
+.image > img {
+    width: 100%;
+    min-height: 15vh;
+    object-fit: cover;
+}
+
+.divider {
+    width: .4%;
+    background-color: #ff5269;
+    margin-right: 16px;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+}
+
+.title {
+    color: #ff5269;
+    font-weight: 700;
+    letter-spacing: .1em;
+    font-size: 1.5rem;
+}
+
+.date {
+    letter-spacing: .2em;
+    color: #ff5269;
+    opacity: 75%;
+}
+.description {
+    margin-top: 16px;
+    color: #fff;
+    font-weight: 400;
+    letter-spacing: .1em;
+    opacity: 85%;
+}

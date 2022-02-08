@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styles from './popover.module.css'
+import styles from '../styles/popover.module.css'
 
 export default function Popover({open, children, onChange, options}){
     const [componentMounted, setComponentMounted] = useState(false);
