@@ -35,8 +35,8 @@ def add_game():
         
         return (error, 500)
 
-@bp.route('/get', methods=['GET', 'POST'])
-def get_game():
+@bp.route('/get-from-name', methods=['GET', 'POST'])
+def get_game_name():
     game = request.args.get("game", None)
     db = get_db()
     error = None
@@ -47,6 +47,30 @@ def get_game():
     if error is None:
         game_info = db.execute(
             "SELECT * FROM game WHERE name = ?", (game,)
+        ).fetchone()
+
+        if game_info is None:
+            error = 'Game not found in database'
+    
+    if error is None:
+        response = jsonify( { "id": game_info["id"], "name": game_info["name"], "url": game_info["url"] })
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+    return (error, 500)
+
+@bp.route('/get-from-id', methods=['GET', 'POST'])
+def get_game_id():
+    game = request.args.get("game", None)
+    db = get_db()
+    error = None
+
+    if not game:
+        error = 'Must include game id'
+    
+    if error is None:
+        game_info = db.execute(
+            "SELECT * FROM game WHERE id = ?", (game,)
         ).fetchone()
 
         if game_info is None:

@@ -89,27 +89,18 @@ def get_notes():
 
     return (error, 500)
 
-@bp.route('/get-latest-date', methods=['GET'])
-def get_latest_date():
+@bp.route('/get-latest', methods=['GET'])
+def get_latest():
     game = request.args.get("game", None)
     db = get_db()
     error = None
 
     if not game:
-        error = 'Must include game name'
-    
-    game_id = db.execute(
-            "SELECT id FROM game WHERE name = ?", (game,)
-            ).fetchone()
-
-    if game_id is None:
-        error = 'Game not found in database'
-    
-    game_id = game_id["id"]
+        error = 'Must include game id'
 
     if error is None:
         notes = db.execute(
-            "SELECT date, banner FROM note WHERE game = ? ORDER BY date DESC", (game_id,)
+            "SELECT date, banner FROM note WHERE game = ? ORDER BY date DESC", (game,)
         ).fetchone()
 
         if notes is None:
@@ -124,6 +115,7 @@ def get_latest_date():
 
     return (error, 500)
 
+
 @bp.route('/get-count', methods=['GET'])
 def get_count():
     game = request.args.get("game", None)
@@ -132,19 +124,10 @@ def get_count():
 
     if not game:
         error = 'Must include game name'
-    
-    game_id = db.execute(
-            "SELECT id FROM game WHERE name = ?", (game,)
-            ).fetchone()
-
-    if game_id is None:
-        error = 'Game not found in database'
-    
-    game_id = game_id["id"]
 
     if error is None:
         count = db.execute(
-            "SELECT COUNT(*) FROM note WHERE game = ?", (game_id,)
+            "SELECT COUNT(*) FROM note WHERE game = ?", (game,)
         ).fetchone()
 
         if count is None:

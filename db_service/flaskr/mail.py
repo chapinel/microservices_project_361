@@ -45,13 +45,15 @@ def add_user_game():
             except db.IntegrityError:
                 error = f"Relationship {user, game} already exists"
             else:
-                return jsonify( { "success": True } ), 201
+                response = jsonify( { "success": True } )
+                response.headers.add('Access-Control-Allow-Origin', '*')
+                return response
         
         return (error, 500)
 
 @bp.route('/get', methods=['GET', 'POST'])
 def get_user_game():
-    user = request.args.get("name", None)
+    user = request.args.get("user", None)
     db = get_db()
     error = None
 
@@ -76,7 +78,9 @@ def get_user_game():
         for user_game in games:
             data.append(list(user_game))
         
-        return jsonify( { "mail": data }), 200
+        response = jsonify( { "mail": data } )
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
 
     return (error, 500)
 
