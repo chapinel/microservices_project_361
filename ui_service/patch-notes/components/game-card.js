@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Popover from './popover'
 import {useState} from 'react'
 
-export default function GameCard({ empty, title, date, splash, logo, totalUpdates, user}) {
+export default function GameCard({ empty, title, date, splash, logo, totalUpdates, user, refreshData}) {
     const updateStat = totalUpdates ? totalUpdates : '-'
     const dateStat = date ? date : '-'
 
@@ -23,7 +23,11 @@ export default function GameCard({ empty, title, date, splash, logo, totalUpdate
     }
 
     const turnOnNotification = () => alert(`You clicked to turn on notifications for ${title} for ${user.username}`)
-    const removeGame = () => alert(`You clicked to remove ${title} for ${user.username}`)
+
+    const removeGame = (e) => {
+        e.stopPropagation()
+        refreshData(title)
+    }
 
     const buttons = [{ text: "Turn on notifications", onClick: turnOnNotification}, {text: "Remove game", onClick: removeGame}]
 

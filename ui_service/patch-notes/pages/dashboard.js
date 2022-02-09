@@ -90,29 +90,10 @@ export const getServerSideProps = withIronSessionSsr(
   }
 )
 
-
-
 export default function Home({user, data, count}) {
   const [controlModal, setControlModal] = useState(false)
   const [componentMounted, setComponentMounted] = useState(false);
 
-  const allGames = ['valorant', 'league', 'tft', 'rift']
-  const chosenGames = []
-
-  for (const name of allGames) {
-    for (const game of data) {
-      if (game.name === name) {
-        chosenGames.push(name)
-        break
-      }
-    }
-  }
-
-  console.log(chosenGames)
-
-  console.log(data)
-  console.log(user)
-  console.log(count)
   const router = useRouter()
   if (user.user === 'not found'){
     router.push("/login")
@@ -120,8 +101,81 @@ export default function Home({user, data, count}) {
 
   useEffect(() => {
     setComponentMounted(true)
-    ReactTooltip.rebuild()
   }, [])
+
+  const refreshData = () => {
+    router.replace(router.asPath);
+  }
+
+  async function addUserGameRelationship(gamesToAdd, user) {
+    for (const game of gamesToAdd){
+      const formData = {
+        user: user,
+        game: game
+      }
+      try {
+        const res = await fetch('http://127.0.0.1:5000/mail/add', { method: 'POST', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
+        if (res.status === 200){
+          refreshData()
+        }
+      } catch(error){
+        console.error(error)
+      }
+    }
+    setControlModal(false)
+  }
+
+  async function removeUserGameRelationship(gameToRemove, user) {
+    const formData = {
+      user: user,
+      game: gameToRemove
+    }
+    try {
+      const res = await fetch('http://127.0.0.1:5000/mail/delete', { method: 'DELETE', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
+      if (res.status === 200) {
+        refreshData()
+      } 
+    } catch(error) {
+        console.error(error)
+    }
+  }
+
+  const allGames = [['valorant', 'Valorant'], ['league', 'League of Legends'], ['tft', 'Teamfight Tactics'], ['rift', 'Wild Rift']]
+  const chosenGames = []
+
+  let gamesToAdd = []
+
+  for (const name of allGames) {
+    for (const game of data) {
+      if (game.name === name[0]) {
+        chosenGames.push(name[1])
+        break
+      }
+    }
+  }
+
+  const handleGameAdd = (e) => {
+    const game = e.target.id
+    if (gamesToAdd.includes(game)){
+      gamesToAdd = gamesToAdd.filter(name => name != game)
+    } else {
+      gamesToAdd.push(game)
+    }
+    console.log(gamesToAdd)
+  }
+
+  const handleCancel = () => {
+    gamesToAdd = []
+    setControlModal(false)
+  }
+
+  const handleConfirm = () => {
+    addUserGameRelationship(gamesToAdd, user.username)
+  }
+
+  const handleRemove = (game) => {
+    removeUserGameRelationship(game, user.username)
+  }
   
   return (
     <>
@@ -145,23 +199,18 @@ export default function Home({user, data, count}) {
           <div className={utilStyles.emptyState}>Add your first game to start tracking updates!</div>
         ) : (
             <div className={utilStyles.row}>
-              {data.map(game => <GameCard user={user.user} splash={game.banner} title={game.name} totalUpdates={game.count} date={game.date} url={game.url}/>)}
+              {data.map(game => <GameCard user={user.user} splash={game.banner} title={game.name} totalUpdates={game.count} date={game.date} url={game.url} refreshData={handleRemove}/>)}
             </div>
         )}
         </div>
         <Modal
           open={controlModal} 
           onChange={() => setControlModal(false)}
+          onCancel={handleCancel}
+          onConfirm={handleConfirm}
         >
           <div className={styles.modalSelection}>
-            {chosenGames.includes('valorant') ? (
-            <><input type="checkbox" disabled id='valorant'/><label htmlFor='valorant'>Valorant</label></>
-            ) : (
-            <><input type="checkbox" id='valorant'/><label htmlFor='valorant'>Valorant</label></>
-            )}
-            <input type="checkbox" id='league'/><label htmlFor='league'>League of Legends</label>
-            <input type="checkbox" id='tft'/><label htmlFor='tft'>Teamfight Tactics</label>
-            <input type="checkbox" id='rift'/><label htmlFor='rift'>Wild Rift</label>
+            {allGames.map(name => <div className={styles.check}><input type="checkbox" onClick={handleGameAdd} disabled={chosenGames.includes(name[1])} id={name[0]}/><label htmlFor={name}>{name[1]}</label></div>)}
           </div>
           
         </Modal>
