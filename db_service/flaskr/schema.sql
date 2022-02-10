@@ -8,7 +8,7 @@ CREATE TABLE user (
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    service_id TEXT UNIQUE
+    service_id INTEGER UNIQUE
 );
 
 CREATE TABLE game (

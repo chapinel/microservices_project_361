@@ -13,9 +13,20 @@ import { withIronSessionSsr } from 'iron-session/next'
 export const getServerSideProps = withIronSessionSsr(
   async function getServerSideProps({ req }) {
     const user = req.session.user
+    const userData = []
     const listOfGameIDs = []
     const listofGameData = []
     let count = 0
+    try {
+      const res = await fetch(`http://127.0.0.1:5000/auth/get-one?user=${user.username}`)
+      if (res.status == 200){
+        const data = await res.json()
+        userData.push(data.email)
+        userData.push(data.service_id)
+      }
+    } catch (error) {
+      console.error(error)
+    }
     try {
       const res = await fetch(`http://127.0.0.1:5000/mail/get?user=${user.username}`)
       if (res.status === 200){
@@ -23,6 +34,7 @@ export const getServerSideProps = withIronSessionSsr(
         count = data.mail.length
         for (const relationship of data.mail) {
         listOfGameIDs.push(relationship[0])
+        // need to make this a tuple, with mail setting as the second part
         }
       }
     } catch (error) {
@@ -76,6 +88,7 @@ export const getServerSideProps = withIronSessionSsr(
     return {
       props: {
         user: user ? user : 'not found',
+        userData: userData,
         data: listofGameData,
         count: count,
       },
@@ -90,14 +103,22 @@ export const getServerSideProps = withIronSessionSsr(
   }
 )
 
-export default function Home({user, data, count}) {
+
+
+export default function Home({user, data, userData, count}) {
   const [controlModal, setControlModal] = useState(false)
-  const [componentMounted, setComponentMounted] = useState(false);
+  const [controlRemoveModal, setControlRemoveModal] = useState(false)
+  const [controlNotifModal, setControlNotifModal] = useState(false)
+  const [gameToRemove, setGameToRemove] = useState("")
+  const [gameNotif, setGameNotif] = useState("")
+  const [componentMounted, setComponentMounted] = useState(false)
 
   const router = useRouter()
   if (user.user === 'not found'){
     router.push("/login")
   }
+
+  console.log(userData)
 
   useEffect(() => {
     setComponentMounted(true)
@@ -140,6 +161,38 @@ export default function Home({user, data, count}) {
     }
   }
 
+  async function addUserGameNotifications(gameToNotify, user, email, service_id, mailChange) {
+    console.log(gameToNotify, user, email, service_id, mailChange)
+    // if (service_id == null){
+    //   const formData = {
+    //     name: user,
+    //     email: email
+    //   }
+    //   try {
+    //     const res = await fetch('dakota service', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData)})
+    //     if (res.status === 200) {
+    //       const data = await res.json()
+    //       try {
+    //         const res = await fetch('http://127.0.0.1:5000/auth/update', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, id: data.id})})
+    //       } catch (error) {
+    //         console.error(error)
+    //       }
+    //     }
+    //   } catch (error) {
+    //     console.error(error)
+    //   }
+    // }
+
+    // try {
+    //   const res = await fetch('http://127.0.0.1:5000/mail/update', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mailChange})})
+    //   if (res.status == 200) {
+    //     console.log('success')
+    //   }
+    // } catch (error) {
+    //   console.error(error)
+    // }
+  }
+
   const allGames = [['valorant', 'Valorant'], ['league', 'League of Legends'], ['tft', 'Teamfight Tactics'], ['rift', 'Wild Rift']]
   const chosenGames = []
 
@@ -174,7 +227,23 @@ export default function Home({user, data, count}) {
   }
 
   const handleRemove = (game) => {
-    removeUserGameRelationship(game, user.username)
+    setGameToRemove(game)
+    setControlRemoveModal(true)
+  }
+
+  const handleRemoveConfirm = () => {
+    removeUserGameRelationship(gameToRemove, user.username)
+    setControlRemoveModal(false)
+  }
+
+  const handleNotifications = (game) => {
+    setGameNotif(game)
+    setControlNotifModal(true)
+  }
+
+  const handleNotifConfirm = () => {
+    addUserGameNotifications(gameNotif, user.username, userData[0], userData[1])
+    setControlNotifModal(false)
   }
   
   return (
@@ -199,20 +268,51 @@ export default function Home({user, data, count}) {
           <div className={utilStyles.emptyState}>Add your first game to start tracking updates!</div>
         ) : (
             <div className={utilStyles.row}>
-              {data.map(game => <GameCard user={user.user} splash={game.banner} title={game.name} totalUpdates={game.count} date={game.date} url={game.url} refreshData={handleRemove}/>)}
+              {/* need to add a prop for notifications on or off after adding notifications to game data */}
+              {data.map(game => <GameCard user={user.user} splash={game.banner} title={game.name} totalUpdates={game.count} date={game.date} url={game.url} menuOption1={handleRemove} menuOption2={handleNotifications}/>)}
             </div>
         )}
         </div>
         <Modal
+          title="Add a game"
           open={controlModal} 
           onChange={() => setControlModal(false)}
           onCancel={handleCancel}
           onConfirm={handleConfirm}
+          confirmText="Add games"
         >
           <div className={styles.modalSelection}>
             {allGames.map(name => <div className={styles.check}><input type="checkbox" onClick={handleGameAdd} disabled={chosenGames.includes(name[1])} id={name[0]}/><label htmlFor={name}>{name[1]}</label></div>)}
           </div>
           
+        </Modal>
+        <Modal
+          title="Are you sure?"
+          open={controlRemoveModal}
+          onChange={() => setControlRemoveModal(false)}
+          onCancel={() => setControlRemoveModal(false)}
+          onConfirm={handleRemoveConfirm}
+          confirmText="yes, i'm sure"
+        >
+          <div className={styles.modalParagraphs}>
+            <p>Removing a game from your dashboard will mean that you can't receive notifications for it until you add it back.</p>
+            <p>You can add a game back to your dashboard at any time and still be able to see all previous updates.</p>
+          </div>
+        </Modal>
+        <Modal
+          title="Turn on notifications"
+          open={controlNotifModal}
+          onChange={() => setControlNotifModal(false)}
+          onCancel={() => setControlNotifModal(false)}
+          onConfirm={handleNotifConfirm}
+          confirmText="Turn On"
+        >
+          <p className={styles.notifInfo}>If you have notifications turned on for a game, we'll send you an email as soon as we know there's been an update!</p>
+          <div className={styles.emailAddress}>
+            <label>Email address</label>
+            <input type="text" value={userData[0]} disabled></input>
+          </div>
+          <p className={styles.emailDefault}>This is the email currently associated with your account. You can change it in user settings.</p>
         </Modal>
       </section>
     </Layout>

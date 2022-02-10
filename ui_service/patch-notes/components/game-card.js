@@ -4,16 +4,11 @@ import Link from 'next/link'
 import Popover from './popover'
 import {useState} from 'react'
 
-export default function GameCard({ empty, title, date, splash, logo, totalUpdates, user, refreshData}) {
+export default function GameCard({ empty, title, date, splash, logo, totalUpdates, menuOption1, menuOption2}) {
     const updateStat = totalUpdates ? totalUpdates : '-'
     const dateStat = date ? date : '-'
 
     const [controlPopover, setControlPopover] = useState(false)
-
-    const handleClick = (e) => {
-        e.stopPropagation()
-        setControlPopover(!controlPopover)
-    }
 
     const gameName = {
         "valorant": "Valorant",
@@ -22,11 +17,16 @@ export default function GameCard({ empty, title, date, splash, logo, totalUpdate
         "rift": "Wild Rift"
     }
 
-    const turnOnNotification = () => alert(`You clicked to turn on notifications for ${title} for ${user.username}`)
+    const turnOnNotification = (e) => {
+        setControlPopover(false)
+        e.stopPropagation()
+        menuOption2(title)
+    }
 
     const removeGame = (e) => {
+        setControlPopover(false)
         e.stopPropagation()
-        refreshData(title)
+        menuOption1(title)
     }
 
     const buttons = [{ text: "Turn on notifications", onClick: turnOnNotification}, {text: "Remove game", onClick: removeGame}]

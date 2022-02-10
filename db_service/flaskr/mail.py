@@ -4,6 +4,9 @@ from flask import (
 
 from flaskr.db import get_db
 
+import traceback
+import sys
+
 bp = Blueprint('mail', __name__, url_prefix='/mail')
 
 @bp.route('/add', methods=['GET', 'POST', 'OPTIONS'])
@@ -45,7 +48,7 @@ def add_user_game():
                 db.commit()
             except db.IntegrityError:
                 error = f"Relationship {user, game} already exists"
-            else:
+            if error is None:
                 response = jsonify( { "success": True } )
                 response.headers.add('Access-Control-Allow-Origin', '*')
                 return response
@@ -88,6 +91,58 @@ def get_user_game():
         return response
 
     return (error, 500)
+
+@bp.route('/update', methods=['PUT'])
+def update_user_game():
+    data = request.get_json()
+    user = data["user"]
+    game = data["game"]
+    mail = data["mail"]
+    db = get_db()
+    error = None
+
+    user = db.execute(
+            "SELECT id from user WHERE username = ?", (user,)
+        ).fetchone()
+
+    if user is None:
+        error = 'User not found in database'
+    
+    game = db.execute("SELECT id from game where name = ?", (game,)
+            ).fetchone()
+
+    if user is None:
+        error = 'User not found in database'
+
+    if game is None:
+        error = 'Game not found in database'
+
+    if error is None:
+        game_id = game["id"]
+        user_id = user["id"]   
+        print(game_id)
+        print(user_id)
+        print(type(mail))
+        try:
+            db.execute(
+                "UPDATE users_games SET mail = ? WHERE user_id = ? AND game_id = ?",
+                (mail, user_id, game_id)
+            )
+            db.commit()
+        except db.Error as er:
+            print('SQLite error: %s' % (' '.join(er.args)))
+            print("Exception class is: ", er.__class__)
+            print('SQLite traceback: ')
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            print(traceback.format_exception(exc_type, exc_value, exc_tb))
+            error = "Unable to update column"
+        
+        if error is None:
+            response = jsonify( { "success": True } )
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
+    return (error, 500)
+        
 
 @bp.route('/delete', methods=['DELETE'])
 def delete_user_game():

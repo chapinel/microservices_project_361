@@ -39,6 +39,28 @@ def add_user():
         
         return (error, 500)
 
+@bp.route('/update', methods=['PUT'])
+def update_user():
+    if request.method == 'PUT':
+        data = request.get_json()
+        username = data['user']
+        service_id = data['id']
+        db = get_db()
+        error = None
+
+        try:
+            db.execute("UPDATE user SET service_id = ? WHERE username = ?", (service_id, username))
+            db.commit()
+        except db.Error:
+            error = "There was an error trying to update the ID"
+        
+        if error is None:
+            response = jsonify( {"success": True } )
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
+            
+        return (error, 500)
+
 @bp.route('/get-all', methods=['GET'])
 def get_user():
 
@@ -56,6 +78,29 @@ def get_user():
     response = jsonify( { "users": data } )
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
+
+@bp.route('/get-one', methods=['GET'])
+def get_one_user():
+    user = request.args.get("user", None)
+    db = get_db()
+    error = None
+
+    if user is None:
+        error = "Username required"
+    
+    if error is None:
+        user = db.execute(
+            "SELECT email, service_id FROM user WHERE username = ?", (user,)
+        ).fetchone()
+    
+        if user is None:
+            error = "Couldn't find that user in the database"
+        else:
+            response = jsonify( {"email": user["email"], "service_id": user["service_id"]})
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
+
+    return (error, 500)
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
