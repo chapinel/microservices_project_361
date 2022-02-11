@@ -3,6 +3,7 @@ from flask import (
 )
 
 import sys
+import traceback
 
 from flaskr.db import get_db
 
@@ -139,4 +140,41 @@ def get_count():
             response.headers.add('Access-Control-Allow-Origin', '*')
             return response
 
+    return (error, 500)
+
+@bp.route('/delete-all', methods=['DELETE'])
+def delete_all():
+    game = request.args.get("game", None)
+    db = get_db()
+    error = None
+
+    if not game:
+        error = 'Must include game name'
+    
+    if error is None:
+        game_id = db.execute(
+            "SELECT id FROM game WHERE name = ?", (game,)
+        ).fetchone()
+
+        if game_id is None:
+            error = "Game not found in database"
+        else:
+            game_id = game_id["id"]
+            try:
+                db.execute(
+                    "DELETE FROM note WHERE game = ?", (game_id,)
+                )
+                db.commit()
+            except db.Error as er:
+                print('SQLite error: %s' % (' '.join(er.args)))
+                print("Exception class is: ", er.__class__)
+                print('SQLite traceback: ')
+                exc_type, exc_value, exc_tb = sys.exc_info()
+                print(traceback.format_exception(exc_type, exc_value, exc_tb))
+                error = "Unable to update column"
+            
+            if error is None:
+                response = jsonify( { "success": True } )
+                response.headers.add('Access-Control-Allow-Origin', '*')
+                return response
     return (error, 500)

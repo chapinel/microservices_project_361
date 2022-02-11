@@ -3,7 +3,7 @@ import styles from '../styles/popover.module.css'
 
 export default function Popover({open, children, onChange, options}){
     const [componentMounted, setComponentMounted] = useState(false);
-    const [openPopover, setOpenPopover] = useState(false);
+    const [openPopover, setOpenPopover] = useState(open);
 
     useEffect(()=>{
         setComponentMounted(true)
@@ -16,6 +16,7 @@ export default function Popover({open, children, onChange, options}){
 
     if (componentMounted) {
         return(
+            <div className={styles.overlay} onClick={() => setOpenPopover(false)}>
             <div className={styles.popoverContainer}>
                 {openPopover && (
                 <div className={styles.popoverContent}>
@@ -25,6 +26,7 @@ export default function Popover({open, children, onChange, options}){
                 <div onClick={handleClick}>
                     {children}
                 </div>
+            </div>
             </div>
         )
     } else {

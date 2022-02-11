@@ -4,7 +4,7 @@ import Link from 'next/link'
 import Popover from './popover'
 import {useState} from 'react'
 
-export default function GameCard({ empty, title, date, splash, logo, totalUpdates, menuOption1, menuOption2}) {
+export default function GameCard({ empty, title, date, splash, notifications, totalUpdates, url, menuOption1, menuOption2}) {
     const updateStat = totalUpdates ? totalUpdates : '-'
     const dateStat = date ? date : '-'
 
@@ -17,10 +17,10 @@ export default function GameCard({ empty, title, date, splash, logo, totalUpdate
         "rift": "Wild Rift"
     }
 
-    const turnOnNotification = (e) => {
+    const turnOnOffNotification = (e) => {
         setControlPopover(false)
         e.stopPropagation()
-        menuOption2(title)
+        menuOption2(title, notifications)
     }
 
     const removeGame = (e) => {
@@ -29,9 +29,8 @@ export default function GameCard({ empty, title, date, splash, logo, totalUpdate
         menuOption1(title)
     }
 
-    const buttons = [{ text: "Turn on notifications", onClick: turnOnNotification}, {text: "Remove game", onClick: removeGame}]
+    const buttons = [{ text: `Turn ${notifications} notifications`, onClick: turnOnOffNotification}, {text: "Remove game", onClick: removeGame}]
 
-    const link = `/games/${title}`
     return (
         <>
         { empty ? (
@@ -39,7 +38,7 @@ export default function GameCard({ empty, title, date, splash, logo, totalUpdate
                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#d9d9d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </div>
         ) : (
-        <Link href={link}>
+        <Link href={`/games/${title}?url=${url}`}>
         <div className={styles.cardGrid}>
             <div className={styles.card}>
                 <div className={styles.titleSection}>
@@ -55,7 +54,7 @@ export default function GameCard({ empty, title, date, splash, logo, totalUpdate
                         <p className={styles.label}>UPDATES</p>
                     </div>
                     <div className={styles.more}>
-                        <Popover open={controlPopover} onChange={() => setControlPopover(false)} options={buttons}>
+                        <Popover open={controlPopover} options={buttons}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-vertical"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
                         </Popover>
                     </div>

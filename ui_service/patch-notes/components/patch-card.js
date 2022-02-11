@@ -1,11 +1,23 @@
 import Image from 'next/image'
 import styles from '../styles/patch.module.css'
-import Link from 'next/link'
-import {useState} from 'react'
 
-export default function PatchCard({banner, title, description, date}) {
+
+export default function PatchCard({banner, title, description, date, parentUrl, url, onClick}) {
+
+    let noteUrl; 
+    if (url.includes("youtube") || url.includes("https")) {
+        noteUrl = url
+    } else {
+        noteUrl = parentUrl+url
+    }
+
+    const handlePanel = () => {
+        console.log(noteUrl);
+        onClick(noteUrl)
+    }
+
     return (
-        <div className={styles.container}>
+        <div className={styles.container} onClick={handlePanel}>
             <div className={styles.image}>
                 <img src={banner}></img>
             </div>

@@ -3,7 +3,6 @@ import Modal from '../components/modal'
 import GameCard from '../components/game-card'
 import utilStyles from '../styles/utils.module.css'
 import styles from '../styles/dashboard.module.css'
-import useSWR from 'swr'
 import { useRouter } from 'next/router'
 import ReactTooltip from 'react-tooltip'
 import { useEffect, useState } from 'react'
@@ -33,7 +32,8 @@ export const getServerSideProps = withIronSessionSsr(
         const data = await res.json()
         count = data.mail.length
         for (const relationship of data.mail) {
-        listOfGameIDs.push(relationship[0])
+          console.log(relationship)
+          listOfGameIDs.push([relationship[0], relationship[2]])
         // need to make this a tuple, with mail setting as the second part
         }
       }
@@ -43,9 +43,15 @@ export const getServerSideProps = withIronSessionSsr(
 
     if (listOfGameIDs.length > 0) {
       for (const game of listOfGameIDs){
+        console.log(game)
         const cardData = {}
+        if (game[1]){
+          cardData.notif = "off"
+        } else {
+          cardData.notif = "on"
+        }
         try{
-          const res = await fetch(`http://127.0.0.1:5000/game/get-from-id?game=${game}`,{
+          const res = await fetch(`http://127.0.0.1:5000/game/get-from-id?game=${game[0]}`,{
             method: 'GET',
           })
           if (res.status === 200){
@@ -57,7 +63,7 @@ export const getServerSideProps = withIronSessionSsr(
           console.error(error)
         }
         try {
-          const res = await fetch(`http://127.0.0.1:5000/note/get-latest?game=${game}`, {
+          const res = await fetch(`http://127.0.0.1:5000/note/get-latest?game=${game[0]}`, {
             method: 'GET',
         })
           if (res.status === 200){
@@ -70,7 +76,7 @@ export const getServerSideProps = withIronSessionSsr(
         }
     
         try {
-          const res = await fetch(`http://127.0.0.1:5000/note/get-count?game=${game}`, {
+          const res = await fetch(`http://127.0.0.1:5000/note/get-count?game=${game[0]}`, {
             method: 'GET',
           })
           if (res.status === 200){
@@ -110,15 +116,13 @@ export default function Home({user, data, userData, count}) {
   const [controlRemoveModal, setControlRemoveModal] = useState(false)
   const [controlNotifModal, setControlNotifModal] = useState(false)
   const [gameToRemove, setGameToRemove] = useState("")
-  const [gameNotif, setGameNotif] = useState("")
+  const [gameNotif, setGameNotif] = useState([])
   const [componentMounted, setComponentMounted] = useState(false)
 
   const router = useRouter()
   if (user.user === 'not found'){
     router.push("/login")
   }
-
-  console.log(userData)
 
   useEffect(() => {
     setComponentMounted(true)
@@ -162,8 +166,13 @@ export default function Home({user, data, userData, count}) {
   }
 
   async function addUserGameNotifications(gameToNotify, user, email, service_id, mailChange) {
-    console.log(gameToNotify, user, email, service_id, mailChange)
-    // if (service_id == null){
+    let mail;
+    if (mailChange === "on"){
+      mail = 1
+    } else {
+      mail = 0
+    }
+    // if (mailChange === "on" && service_id == null){
     //   const formData = {
     //     name: user,
     //     email: email
@@ -183,14 +192,15 @@ export default function Home({user, data, userData, count}) {
     //   }
     // }
 
-    // try {
-    //   const res = await fetch('http://127.0.0.1:5000/mail/update', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mailChange})})
-    //   if (res.status == 200) {
-    //     console.log('success')
-    //   }
-    // } catch (error) {
-    //   console.error(error)
-    // }
+    try {
+      const res = await fetch('http://127.0.0.1:5000/mail/update', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
+      if (res.status == 200) {
+        console.log('success')
+        refreshData()
+      }
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   const allGames = [['valorant', 'Valorant'], ['league', 'League of Legends'], ['tft', 'Teamfight Tactics'], ['rift', 'Wild Rift']]
@@ -236,13 +246,13 @@ export default function Home({user, data, userData, count}) {
     setControlRemoveModal(false)
   }
 
-  const handleNotifications = (game) => {
-    setGameNotif(game)
+  const handleNotifications = (game, type) => {
+    setGameNotif([game, type])
     setControlNotifModal(true)
   }
 
   const handleNotifConfirm = () => {
-    addUserGameNotifications(gameNotif, user.username, userData[0], userData[1])
+    addUserGameNotifications(gameNotif[0], user.username, userData[0], userData[1], gameNotif[1])
     setControlNotifModal(false)
   }
   
@@ -269,7 +279,7 @@ export default function Home({user, data, userData, count}) {
         ) : (
             <div className={utilStyles.row}>
               {/* need to add a prop for notifications on or off after adding notifications to game data */}
-              {data.map(game => <GameCard user={user.user} splash={game.banner} title={game.name} totalUpdates={game.count} date={game.date} url={game.url} menuOption1={handleRemove} menuOption2={handleNotifications}/>)}
+              {data.map(game => <GameCard user={user.user} splash={game.banner} title={game.name} totalUpdates={game.count} date={game.date} url={game.url} notifications={game.notif} menuOption1={handleRemove} menuOption2={handleNotifications}/>)}
             </div>
         )}
         </div>
@@ -300,19 +310,29 @@ export default function Home({user, data, userData, count}) {
           </div>
         </Modal>
         <Modal
-          title="Turn on notifications"
+          title={`Turn ${gameNotif[1]} notifications`}
           open={controlNotifModal}
           onChange={() => setControlNotifModal(false)}
           onCancel={() => setControlNotifModal(false)}
           onConfirm={handleNotifConfirm}
-          confirmText="Turn On"
+          confirmText={`Turn ${gameNotif[1]}`}
         >
-          <p className={styles.notifInfo}>If you have notifications turned on for a game, we'll send you an email as soon as we know there's been an update!</p>
-          <div className={styles.emailAddress}>
-            <label>Email address</label>
-            <input type="text" value={userData[0]} disabled></input>
-          </div>
-          <p className={styles.emailDefault}>This is the email currently associated with your account. You can change it in user settings.</p>
+          {gameNotif[1] === "on" ? (
+            <>
+            <p className={styles.notifInfo}>If you have notifications turned on for a game, we'll send you an email as soon as we know there's been an update!</p>
+            <div className={styles.emailAddress}>
+              <label>Email address</label>
+              <input type="text" value={userData[0]} disabled></input>
+            </div>
+            <p className={styles.emailDefault}>This is the email currently associated with your account. You can change it in user settings.</p>
+            </>
+          ) : (
+            <>
+              <p className={styles.notifInfo}>Are you sure? If you turn off notifications, you will no longer receive email updates.</p>
+              <p className={styles.notifInfo}>You can turn notifications back on at any time.</p>
+            </>
+          )}
+          
         </Modal>
       </section>
     </Layout>

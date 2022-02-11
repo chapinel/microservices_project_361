@@ -59,6 +59,47 @@ def add_user_game():
         response = "success"
         return response
 
+@bp.route('/get-one', methods=['GET'])
+def get_one():
+    user=request.args.get("user", None)
+    game=request.args.get("game", None)
+    db = get_db()
+    error = None
+    if not user:
+            error = 'username is required'
+    elif not game:
+        error = 'game is required'
+
+    if error is None:
+        game_id = db.execute("SELECT id from game where name = ?", (game,)
+        ).fetchone()
+        
+        if game_id is None:
+            error = "game not found in database"
+        
+        user_id = db.execute("SELECT id from user where username = ?", (user,)
+        ).fetchone()
+
+        if user_id is None:
+            error = "user not found in database"
+
+    if error is None:
+        game_id = game_id["id"]
+        user_id = user_id["id"]
+    
+    try:
+        mail = db.execute("SELECT mail from users_games where user_id = ? and game_id = ?", (user_id, game_id)).fetchone()
+    except db.Error:
+        error = str(db.Error)
+    
+    if error is None:
+        mail_id = mail["mail"]
+        response = jsonify({"mail": mail_id})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+    
+    return (error, 500)
+
 @bp.route('/get', methods=['GET', 'POST'])
 def get_user_game():
     user = request.args.get("user", None)
@@ -120,9 +161,6 @@ def update_user_game():
     if error is None:
         game_id = game["id"]
         user_id = user["id"]   
-        print(game_id)
-        print(user_id)
-        print(type(mail))
         try:
             db.execute(
                 "UPDATE users_games SET mail = ? WHERE user_id = ? AND game_id = ?",

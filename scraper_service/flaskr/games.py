@@ -1,6 +1,7 @@
 import functools
 import requests
 import datetime
+from bs4 import BeautifulSoup
 
 from flask import (
     Blueprint, flash, g, redirect, request, session, jsonify
@@ -11,7 +12,12 @@ bp = Blueprint('games', __name__, url_prefix='/games')
 def rest_parse(post, game):
     title = post["title"]
     description = post["description"]
-    url = post["url"]["url"]
+    if post["youtube_link"] != "":
+        url = post["youtube_link"]
+    elif post["external_link"] != "":
+        url = post["external_link"]
+    else:
+        url = post["url"]["url"]
     banner = post["banner"]["url"]
     date = post["date"]
     date = date[0:10]
@@ -22,7 +28,12 @@ def rest_parse(post, game):
 def rift_parse(post):
     title = post["title"]
     description = post["description"]
-    url = post["link"]["url"]
+    if post["youtubeLink"] != "":
+        url = post["youtubeLink"]
+    elif post["externalLink"] != "":
+        url = post["externalLink"]
+    else:
+        url = post["url"]["url"]
     banner = post["featuredImage"]["banner"]["url"]
     date = post["date"]
     post_data = {"title": title, "description": description, "url": url, "banner": banner, "date": date}
@@ -89,5 +100,22 @@ def get_latest():
     
     return (error, 500)
 
-
-
+# @bp.route('/get-note', methods=['GET'])
+# def get_note_text():
+#     url = request.args.get("url", None)
+#     error = None
+#     if url is None:
+#         error = "url is required"
+    
+#     if error is None:
+#         headers = {'User-Agent':'Mozilla/5.0'}
+#         htmlData = requests.get(url, headers=headers)
+#         soup = BeautifulSoup(htmlData.content,'lxml')
+#         body = soup.select('.type-article_html')
+#         if body == []:
+#             body = soup.find("div", {"id": "patch-notes-container"})
+#         body = str(body)
+#         response = jsonify( { "html": body } )
+#         response.headers.add('Access-Control-Allow-Origin', '*')
+#         return response
+#     return (error, 500)
