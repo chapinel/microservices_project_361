@@ -53,10 +53,10 @@
 }
 
 .title {
-    font-size: 1.3rem;
+    font-size: 1.7rem;
     text-transform: uppercase;
-    font-weight: 800;
     letter-spacing: .1em;
+    font-family: 'Roboto Condensed';
 }
 
 .title, .stat1, .stat2, .more {
@@ -90,7 +90,8 @@
 
 .statNum {
     font-size: 1em;
-    font-weight: 700;
+    letter-spacing: .08em;
+    font-family: 'Roboto Condensed';
 }
 
 .label {

@@ -83,6 +83,7 @@ const getAllNotes = (game) => {
 export default function Game ({user, userData, notif, game, url}) {
     const [searchValue, setSearchValue] = useState("")
     const [controlNotifModal, setControlNotifModal] = useState(false)
+    const [modalSuccess, setModalSuccess] = useState(false)
     // const [controlPanel, setControlPanel] = useState(false);
     // const [panelData, setPanelData] = useState([]);
     // const [componentMounted, setComponentMounted] = useState(false);
@@ -127,11 +128,17 @@ export default function Game ({user, userData, notif, game, url}) {
           const res = await fetch('http://127.0.0.1:5000/mail/update', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
           if (res.status == 200) {
             console.log('success')
+            setModalSuccess(true)
             refreshData()
           }
         } catch (error) {
           console.error(error)
         }
+        setTimeout(()=>{
+          setControlNotifModal(false)
+          setModalSuccess(false)
+        }, 1000)
+        refreshData()
     }
     
     const handleSearchOnChange = (e) => {
@@ -162,15 +169,25 @@ export default function Game ({user, userData, notif, game, url}) {
 
     const handleNotifConfirm = () => {
         addUserGameNotifications(game, user.username, userData[0], userData[1], notif)
-        setControlNotifModal(false)
     }
 
     return (
         <Layout loggedIn={true}>
         <section>
-            <div className={styles.header}>
+            <div className={utilStyle.headerWButton}>
                 <h1 className={utilStyle.headingXl}>{games[game]}</h1>
-                <button className={utilStyle.darkBgButton} data-tip="Tooltip for notifications" onClick={() => setControlNotifModal(true)}>{`Turn ${notif} notifications`}</button>
+                <div className={styles.headerButton}>
+                  {notif == 'on' ? (
+                      <button className={utilStyle.svgButton} data-tip="Tooltip for notifications" onClick={() => setControlNotifModal(true)}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                      </button>
+                  ):(
+                    <button className={utilStyle.svgButton} data-tip="Tooltip for notifications" onClick={() => setControlNotifModal(true)}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell-off"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    </button>
+                  )}
+                
+                </div>
             </div>
             <div className={styles.search}><input onChange={handleSearchOnChange} placeholder="Search for a specific title"></input></div>
             {(!finalList) ? (<div>Loading...</div>)
@@ -188,6 +205,7 @@ export default function Game ({user, userData, notif, game, url}) {
                 onCancel={() => setControlNotifModal(false)}
                 onConfirm={handleNotifConfirm}
                 confirmText={`Turn ${notif}`}
+                success={modalSuccess}
                 >
                 {notif === "on" ? (
                     <>

@@ -118,6 +118,7 @@ export default function Home({user, data, userData, count}) {
   const [gameToRemove, setGameToRemove] = useState("")
   const [gameNotif, setGameNotif] = useState([])
   const [componentMounted, setComponentMounted] = useState(false)
+  const [modalSuccess, setModalSuccess] = useState(false)
 
   const router = useRouter()
   if (user.user === 'not found'){
@@ -141,13 +142,17 @@ export default function Home({user, data, userData, count}) {
       try {
         const res = await fetch('http://127.0.0.1:5000/mail/add', { method: 'POST', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
         if (res.status === 200){
-          refreshData()
+          setModalSuccess(true)
         }
       } catch(error){
         console.error(error)
       }
     }
-    setControlModal(false)
+    setTimeout(() => {
+      setControlModal(false)
+      setModalSuccess(false)
+    }, 1000)
+    refreshData()
   }
 
   async function removeUserGameRelationship(gameToRemove, user) {
@@ -158,11 +163,16 @@ export default function Home({user, data, userData, count}) {
     try {
       const res = await fetch('http://127.0.0.1:5000/mail/delete', { method: 'DELETE', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
       if (res.status === 200) {
-        refreshData()
+        setModalSuccess(true)
       } 
     } catch(error) {
         console.error(error)
     }
+    setTimeout(() => {
+      setControlRemoveModal(false)
+      setModalSuccess(false)
+    }, 1000)
+    refreshData()
   }
 
   async function addUserGameNotifications(gameToNotify, user, email, service_id, mailChange) {
@@ -196,11 +206,17 @@ export default function Home({user, data, userData, count}) {
       const res = await fetch('http://127.0.0.1:5000/mail/update', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
       if (res.status == 200) {
         console.log('success')
-        refreshData()
+        setModalSuccess(true)
       }
     } catch (error) {
       console.error(error)
     }
+    setTimeout(() => {
+      console.log("setting modal off")
+      setControlNotifModal(false)
+      setModalSuccess(false)
+    }, 1000)
+    refreshData()
   }
 
   const allGames = [['valorant', 'Valorant'], ['league', 'League of Legends'], ['tft', 'Teamfight Tactics'], ['rift', 'Wild Rift']]
@@ -243,7 +259,6 @@ export default function Home({user, data, userData, count}) {
 
   const handleRemoveConfirm = () => {
     removeUserGameRelationship(gameToRemove, user.username)
-    setControlRemoveModal(false)
   }
 
   const handleNotifications = (game, type) => {
@@ -253,7 +268,6 @@ export default function Home({user, data, userData, count}) {
 
   const handleNotifConfirm = () => {
     addUserGameNotifications(gameNotif[0], user.username, userData[0], userData[1], gameNotif[1])
-    setControlNotifModal(false)
   }
   
   return (
@@ -266,7 +280,11 @@ export default function Home({user, data, userData, count}) {
           <p>YOUR GAMES</p>
         </div>
         {count != 4 ? (
-          <button className={utilStyles.darkBgButton} onClick={() => setControlModal(true)}>Add Game</button>
+          <div className={styles.headerComponent}>
+            <button className={utilStyles.svgButton} onClick={() => setControlModal(true)}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-square"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            </button>
+          </div>
         ) : (
         <>
         <button className={utilStyles.darkBgButtonDisabled} data-tip="You've added all currently available games. Looking for another game?<br />Send us an email at developers@patchporo.com - we're always considering new titles!">Add Game</button>
@@ -290,6 +308,7 @@ export default function Home({user, data, userData, count}) {
           onCancel={handleCancel}
           onConfirm={handleConfirm}
           confirmText="Add games"
+          success={modalSuccess}
         >
           <div className={styles.modalSelection}>
             {allGames.map(name => <div className={styles.check}><input type="checkbox" onClick={handleGameAdd} disabled={chosenGames.includes(name[1])} id={name[0]}/><label htmlFor={name}>{name[1]}</label></div>)}
@@ -304,6 +323,7 @@ export default function Home({user, data, userData, count}) {
           onCancel={() => setControlRemoveModal(false)}
           onConfirm={handleRemoveConfirm}
           confirmText="yes, i'm sure"
+          success={modalSuccess}
         >
           <div className={styles.modalParagraphs}>
             <p>Removing a game from your dashboard will mean that you can't receive notifications for it until you add it back.</p>
@@ -317,6 +337,7 @@ export default function Home({user, data, userData, count}) {
           onCancel={() => setControlNotifModal(false)}
           onConfirm={handleNotifConfirm}
           confirmText={`Turn ${gameNotif[1]}`}
+          success={modalSuccess}
         >
           {gameNotif[1] === "on" ? (
             <>

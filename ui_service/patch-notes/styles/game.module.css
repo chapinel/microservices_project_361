@@ -1,7 +1,16 @@
+.container {
+    width: 100vw;
+}
+
 .header {
     display: flex;
     align-items: center;
     height: 50px;
+}
+
+.headerButton {
+    display: flex;
+    align-items: center;
 }
 .search {
     margin: 24px 0px;

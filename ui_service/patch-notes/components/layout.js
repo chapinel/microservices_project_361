@@ -14,7 +14,7 @@ export default function Layout({ children, loggedIn }) {
       <div className={styles.container}>
           <Head>
           <link rel="icon" href="/favicon.ico" />
-          <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet"> </link>
+          <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Montserrat:wght@300;400;500;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet"/>
           <meta
             name="description"
             content="Get updates for your favorite games in one location"
@@ -39,7 +39,7 @@ export default function Layout({ children, loggedIn }) {
       <div className={styles.container}>
         <Head>
           <link rel="icon" href="/favicon.ico" />
-          <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet"> </link>
+          <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700&family=Montserrat:wght@300;400;500;600;700;800;900&family=Varela+Round&display=swap" rel="stylesheet"/>
           <meta
             name="description"
             content="Get updates for your favorite games in one location"
