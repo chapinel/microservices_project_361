@@ -54,7 +54,7 @@ export default function Form({ logIn, onSubmit, errorMessage }) {
                 </form>
                 <div className={styles.switchPages}>
                     <p>Don't have an account yet?</p>
-                    <Link href="/login">
+                    <Link href="/signup">
                         <a>Sign up</a>
                     </Link>
                 </div>

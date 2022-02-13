@@ -294,6 +294,7 @@ export default function Home({user, data, userData, count}) {
           <div className={styles.modalSelection}>
             {allGames.map(name => <div className={styles.check}><input type="checkbox" onClick={handleGameAdd} disabled={chosenGames.includes(name[1])} id={name[0]}/><label htmlFor={name}>{name[1]}</label></div>)}
           </div>
+          <div className={styles.modalSubtext}>Don't see what you're looking for? Send us an <a>email</a> and let us know what games you'd like to track!</div>
           
         </Modal>
         <Modal

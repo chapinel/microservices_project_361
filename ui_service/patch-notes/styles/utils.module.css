@@ -57,6 +57,11 @@
     flex-direction: column;
 }
 
+.rowAcross {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 .headerWButton {
   display: flex;
   width: 475px;

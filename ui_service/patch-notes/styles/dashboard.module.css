@@ -3,6 +3,12 @@
     flex-direction: column;
 }
 
+.modalSubtext {
+    margin-top: 16px;
+    font-style: italic;
+    color: rgba(0,0,0,.5);
+}
+
 .check > input {
     margin: 8px;
     padding: 8px;

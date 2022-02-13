@@ -175,9 +175,11 @@ export default function Game ({user, userData, notif, game, url}) {
             <div className={styles.search}><input onChange={handleSearchOnChange} placeholder="Search for a specific title"></input></div>
             {(!finalList) ? (<div>Loading...</div>)
             : (
-                finalList.filter((note) => note[1].toLowerCase().includes(searchValue.toLowerCase())).map((note) => 
+              <div className={utilStyle.rowAcross}>
+                {finalList.filter((note) => note[1].toLowerCase().includes(searchValue.toLowerCase())).map((note) => 
                     <PatchCard title={note[1]} date={note[6]} description={note[2]} banner={note[5]} parentUrl={url} url={note[3]} onClick={handleNoteClick}></PatchCard>
-                )
+                )}
+              </div>
             )}
             <Modal
                 title={`Turn ${notif} notifications`}
