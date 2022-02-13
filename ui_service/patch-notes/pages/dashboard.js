@@ -8,7 +8,8 @@ import ReactTooltip from 'react-tooltip'
 import { useEffect, useState } from 'react'
 import { withIronSessionSsr } from 'iron-session/next'
 
-
+// code to set up user session is modeled from the examples provided by NextJs: https://github.com/vvo/iron-session#usage-nextjs
+// and https://github.com/vercel/next.js/tree/canary/examples/with-passport
 export const getServerSideProps = withIronSessionSsr(
   async function getServerSideProps({ req }) {
     const user = req.session.user
@@ -182,6 +183,7 @@ export default function Home({user, data, userData, count}) {
     } else {
       mail = 0
     }
+    // THIS CODE WILL BE SENDING / REQUESTING DATA FROM TEAMMATE'S SERVICE WHEN AVAILABLE
     // if (mailChange === "on" && service_id == null){
     //   const formData = {
     //     name: user,
