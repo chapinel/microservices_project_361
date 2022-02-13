@@ -178,12 +178,9 @@ export default function Home({user, data, userData, count}) {
 
   async function addUserGameNotifications(gameToNotify, user, email, service_id, mailChange) {
     let mail;
-    if (mailChange === "on"){
-      mail = 1
-    } else {
-      mail = 0
-    }
-    // THIS CODE WILL BE SENDING / REQUESTING DATA FROM TEAMMATE'S SERVICE WHEN AVAILABLE
+    mailChange === "on" ? mail = 1 : mail = 0
+
+    //THIS CODE WILL BE SENDING / REQUESTING DATA FROM TEAMMATE'S SERVICE WHEN AVAILABLE
     // if (mailChange === "on" && service_id == null){
     //   const formData = {
     //     name: user,
