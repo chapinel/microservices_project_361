@@ -22,8 +22,10 @@
   }
   
   .headingMd {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     line-height: 1.5;
+    font-family: 'Roboto Condensed';
+    color: #e9475d;
   }
   
   .borderCircle {
@@ -71,7 +73,7 @@
   margin-bottom: 24px;
 }
 
-.darkBgButton, .whiteBgButton, .darkBgButtonDisabled, .whiteBgSecondaryButton {
+.darkBgButton, .whiteBgButton, .darkBgButtonDisabled, .whiteBgSecondaryButton, .darkBgSecondaryButton {
   padding: 12px 24px;
   border: none;
   border-radius: 3px;
@@ -89,6 +91,11 @@
 
 .darkBgButtonDisabled {
   opacity:75%;
+}
+
+.darkBgSecondaryButton {
+  background-color: rgb(161, 161, 161);
+  margin-right: 12px;
 }
 
 .svgButton {

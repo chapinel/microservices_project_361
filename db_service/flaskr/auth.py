@@ -1,6 +1,8 @@
 from flask import (
     Blueprint, request, url_for, g, jsonify
 )
+import sys
+import traceback
 from werkzeug.security import check_password_hash, generate_password_hash
 from flaskr.db import get_db
 
@@ -61,6 +63,35 @@ def update_user():
             
         return (error, 500)
 
+@bp.route('/update-all', methods=['PUT'])
+def update_all_user_data():
+    if request.method == 'PUT':
+        data = request.get_json()
+        username = data['user']
+        service_id = data['id']
+        new_name = data['name']
+        new_email = data['email']
+        db = get_db()
+        error = None
+
+        try:
+            db.execute("UPDATE user SET service_id = ?, username = ?, email = ? WHERE username = ?", (service_id, new_name, new_email, username))
+            db.commit()
+        except db.Error as er:
+            print('SQLite error: %s' % (' '.join(er.args)))
+            print("Exception class is: ", er.__class__)
+            print('SQLite traceback: ')
+            exc_type, exc_value, exc_tb = sys.exc_info()
+            print(traceback.format_exception(exc_type, exc_value, exc_tb))
+            error = "Unable to update column"
+        
+        if error is None:
+            response = jsonify( {"success": True } )
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
+            
+        return (error, 500)
+
 @bp.route('/get-all', methods=['GET'])
 def get_user():
 
@@ -97,6 +128,29 @@ def get_one_user():
             error = "Couldn't find that user in the database"
         else:
             response = jsonify( {"email": user["email"], "service_id": user["service_id"]})
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
+
+    return (error, 500)
+
+@bp.route('/get-one-id', methods=['GET'])
+def get_one_from_id():
+    user = request.args.get("user", None)
+    db = get_db()
+    error = None
+
+    if user is None:
+        error = "User id required"
+    
+    if error is None:
+        user = db.execute(
+            "SELECT service_id FROM user WHERE id = ?", (user,)
+        ).fetchone()
+    
+        if user is None:
+            error = "Couldn't find that user in the database"
+        else:
+            response = jsonify( {"service_id": user["service_id"]})
             response.headers.add('Access-Control-Allow-Origin', '*')
             return response
 

@@ -61,17 +61,7 @@ export default function GameCard({ empty, title, date, splash, notifications, to
                 </div>
             </div>
             <div className={styles.splashImage}>
-                {splash ? (
-                    <img src={splash}></img>
-                ) : (
-                    <Image 
-                    src="/images/riot-pairedlogo-white-red-rgb.png"
-                    height={170}
-                    width={350}
-                    alt={title}
-                    />
-                )
-                }
+                <img src={splash}></img>
             </div>
         </div>
         </Link>

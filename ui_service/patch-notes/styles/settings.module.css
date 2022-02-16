@@ -1,0 +1,14 @@
+.headerSvg {
+    display: flex;
+    align-items: center;
+}
+
+.settingItem {
+    margin: 24px 0px;
+    width: 20vw;
+    min-width: 250px;
+}
+
+.settingItem > input {
+    width: 100%;
+}

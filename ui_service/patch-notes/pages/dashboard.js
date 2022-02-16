@@ -121,6 +121,8 @@ export default function Home({user, data, userData, count}) {
   const [componentMounted, setComponentMounted] = useState(false)
   const [modalSuccess, setModalSuccess] = useState(false)
 
+  console.log(userData)
+
   const router = useRouter()
   if (user.user === 'not found'){
     router.push("/login")
@@ -181,41 +183,52 @@ export default function Home({user, data, userData, count}) {
     mailChange === "on" ? mail = 1 : mail = 0
 
     //THIS CODE WILL BE SENDING / REQUESTING DATA FROM TEAMMATE'S SERVICE WHEN AVAILABLE
-    // if (mailChange === "on" && service_id == null){
-    //   const formData = {
-    //     name: user,
-    //     email: email
-    //   }
-    //   try {
-    //     const res = await fetch('dakota service', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData)})
-    //     if (res.status === 200) {
-    //       const data = await res.json()
-    //       try {
-    //         const res = await fetch('http://127.0.0.1:5000/auth/update', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, id: data.id})})
-    //       } catch (error) {
-    //         console.error(error)
-    //       }
-    //     }
-    //   } catch (error) {
-    //     console.error(error)
-    //   }
-    // }
-
-    try {
-      const res = await fetch('http://127.0.0.1:5000/mail/update', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
-      if (res.status == 200) {
-        console.log('success')
-        setModalSuccess(true)
+    if (mailChange === "on" && service_id == null){
+      console.log('sending to galactus')
+      const formData = {
+        name: user,
+        email: email
       }
-    } catch (error) {
-      console.error(error)
+      try {
+        const res = await fetch('/api/email', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData)})
+        if (res.status === 200) {
+          try {
+            console.log('adding mail relationship')
+            const res = await fetch('http://127.0.0.1:5000/mail/update', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
+            if (res.status == 200) {
+              setModalSuccess(true)
+              setTimeout(() => {
+                console.log("setting modal off")
+                setControlNotifModal(false)
+                setModalSuccess(false)
+              }, 1000)
+              refreshData()
+            }
+          } catch (error) {
+            console.log('error on mail update')
+            res.status(500).end(error.message)
+          }
+        }
+      } catch(error) {
+        console.error(error)
+      }
+    } else {
+      try {
+        const res = await fetch('http://127.0.0.1:5000/mail/update', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
+        if (res.status == 200) {
+          console.log('success')
+          setModalSuccess(true)
+          setTimeout(() => {
+            console.log("setting modal off")
+            setControlNotifModal(false)
+            setModalSuccess(false)
+          }, 1000)
+          refreshData()
+        }
+      } catch (error) {
+        console.error(error)
+      }
     }
-    setTimeout(() => {
-      console.log("setting modal off")
-      setControlNotifModal(false)
-      setModalSuccess(false)
-    }, 1000)
-    refreshData()
   }
 
   const allGames = [['valorant', 'Valorant'], ['league', 'League of Legends'], ['tft', 'Teamfight Tactics'], ['rift', 'Wild Rift']]

@@ -133,6 +133,39 @@ def get_user_game():
 
     return (error, 500)
 
+@bp.route('/get-users', methods=['GET', 'POST'])
+def get_users():
+    game = request.args.get("game", None)
+    db = get_db()
+    error = None
+
+    if not game:
+        error = 'Must include game'
+    
+    if error is None:
+        game = db.execute(
+            "SELECT id from game WHERE name = ?", (game,)
+        ).fetchone()
+
+        if game is None:
+            error = 'Game not found in database'
+    
+    if error is None:
+        game_id = game["id"]
+
+        users = db.execute("SELECT user_id from users_games where game_id = ?", (game_id,)
+        ).fetchall()
+
+        data = []
+        for user in users:
+            data.append(user["user_id"])
+        
+        response = jsonify( { "mail": data } )
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        return response
+
+    return (error, 500)
+
 @bp.route('/update', methods=['PUT'])
 def update_user_game():
     data = request.get_json()

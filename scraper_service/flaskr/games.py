@@ -12,7 +12,7 @@ bp = Blueprint('games', __name__, url_prefix='/games')
 def rest_parse(post, game):
     title = post["title"]
     description = post["description"]
-    if post["youtube_link"] != "":
+    if game != "valorant" and post["youtube_link"] != "":
         url = post["youtube_link"]
     elif post["external_link"] != "":
         url = post["external_link"]
@@ -36,12 +36,13 @@ def rift_parse(post):
         url = post["url"]["url"]
     banner = post["featuredImage"]["banner"]["url"]
     date = post["date"]
+    date = date[0:10]
     post_data = {"title": title, "description": description, "url": url, "banner": banner, "date": date}
 
     requests.post('http://127.0.0.1:5000/note/add', data=post_data)
 
 def json_parse(json_data, date, game):
-    data = dict()
+    count = 0
 
     if date is None:
         for i in range(10):
@@ -49,18 +50,21 @@ def json_parse(json_data, date, game):
                 rift_parse(json_data[i], game)
             else:
                 rest_parse(json_data[i], game)
+            count += 1
     else:
         for article in json_data:
+            article_date = article["date"][0:10]
             # need to figure out the best way to compare these strings to make sure the dates are being registered correctly
-            if datetime.strptime(article["date"]) > datetime.strptime(date):
+            if datetime.datetime.strptime(article_date, "%Y-%m-%d") <= datetime.datetime.strptime(date, "%Y-%m-%d"):
                 break
             else:
                 if game == "rift":
                     rift_parse(article, game)
                 else:
                     rest_parse(article, game)
+                count += 1
     
-    return data
+    return count
 
 
 @bp.route('/get', methods=['GET', 'POST'])
@@ -86,15 +90,15 @@ def get_latest():
         posts = page.json()
 
         if game == "valorant":
-            json_parse(posts["result"]["pageContext"]["data"]["articles"], date, "valorant")
+            count = json_parse(posts["result"]["pageContext"]["data"]["articles"], date, "valorant")
         elif game == "league":
-            json_parse(posts["result"]["data"]["all"]["nodes"][0]["articles"], date, "league")
+            count = json_parse(posts["result"]["data"]["all"]["nodes"][0]["articles"], date, "league")
         elif game == "tft":
-            json_parse(posts["result"]["data"]["all"]["edges"][0]["node"]["entries"], date, "tft")
+            count = json_parse(posts["result"]["data"]["all"]["edges"][0]["node"]["entries"], date, "tft")
         elif game == "rift":
-            json_parse(posts["result"]["data"]["allContentstackArticles"]["articles"], date, "rift")
+            count = json_parse(posts["result"]["data"]["allContentstackArticles"]["articles"], date, "rift")
 
-        response = jsonify( { "success": True } )
+        response = jsonify( { "count": count } )
         response.headers.add('Access-Control-Allow-Origin', '*')
         return response
     

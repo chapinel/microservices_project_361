@@ -21,7 +21,7 @@ export default withIronSessionApiRoute(
             res.status(200).send({ done: true })
         } catch (error) {
             console.error(error)
-            res.status(500).end(error.emssage)
+            res.status(500).end(error.message)
         }
     },
     {
