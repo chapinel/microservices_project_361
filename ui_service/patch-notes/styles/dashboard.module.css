@@ -49,3 +49,35 @@
     font-style: italic;
     margin-bottom: 16px;
 }
+
+.initialWalkthroughContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.initialWalkthroughContent > h1 {
+    margin: 16px;
+}
+
+.walkthroughInstruction {
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+.walkthroughImg {
+    display:flex;
+    justify-content: center;
+    margin: 24px 0px;
+}
+
+.walkthroughImg > img {
+    width: 90%;
+    
+}
+
+.walkthroughInstruction > p {
+    margin: 12px 0px;
+}

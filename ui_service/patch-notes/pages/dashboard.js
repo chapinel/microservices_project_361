@@ -13,12 +13,14 @@ import { withIronSessionSsr } from 'iron-session/next'
 export const getServerSideProps = withIronSessionSsr(
   async function getServerSideProps({ req }) {
     const user = req.session.user
+    console.log('user on dashbaord is', user)
     const userData = []
     const listOfGameIDs = []
     const listofGameData = []
     let count = 0
     try {
-      const res = await fetch(`http://127.0.0.1:5000/auth/get-one?user=${user.username}`)
+      const url = process.env.DATABASE_URL + `auth/get-one?user=${user.username}`
+      const res = await fetch(url)
       if (res.status == 200){
         const data = await res.json()
         userData.push(data.email)
@@ -28,7 +30,8 @@ export const getServerSideProps = withIronSessionSsr(
       console.error(error)
     }
     try {
-      const res = await fetch(`http://127.0.0.1:5000/mail/get?user=${user.username}`)
+      const url = process.env.DATABASE_URL + `mail/get-games-for-user?user=${user.username}`
+      const res = await fetch(url)
       if (res.status === 200){
         const data = await res.json()
         count = data.mail.length
@@ -52,9 +55,8 @@ export const getServerSideProps = withIronSessionSsr(
           cardData.notif = "on"
         }
         try{
-          const res = await fetch(`http://127.0.0.1:5000/game/get-from-id?game=${game[0]}`,{
-            method: 'GET',
-          })
+          const url = process.env.DATABASE_URL + `game/get-from-id?game=${game[0]}`
+          const res = await fetch(url)
           if (res.status === 200){
             const data = await res.json()
             cardData.name = data.name
@@ -64,24 +66,12 @@ export const getServerSideProps = withIronSessionSsr(
           console.error(error)
         }
         try {
-          const res = await fetch(`http://127.0.0.1:5000/note/get-latest?game=${game[0]}`, {
-            method: 'GET',
-        })
+          const url = process.env.DATABASE_URL + `note/get-latest-and-count?game=${game[0]}`
+          const res = await fetch(url)
           if (res.status === 200){
             const data = await res.json()
             cardData.banner = data.banner
             cardData.date = data.date
-          }
-        } catch (error) {
-          console.error(error)
-        }
-    
-        try {
-          const res = await fetch(`http://127.0.0.1:5000/note/get-count?game=${game[0]}`, {
-            method: 'GET',
-          })
-          if (res.status === 200){
-            const data = await res.json()
             cardData.count = data.count
           }
         } catch (error) {
@@ -102,8 +92,8 @@ export const getServerSideProps = withIronSessionSsr(
     };
   },
   {
-    cookieName: "myapp_cookiename",
-    password: "bu4WtDr89exqLzkFDEvZ1nqhgQzRB1PY",
+    cookieName: process.env.COOKIE,
+    password: process.env.PASSWORD,
     cookieOptions: {
         secure: process.env.NODE_ENV === "production",
     }
@@ -143,7 +133,7 @@ export default function Home({user, data, userData, count}) {
         game: game
       }
       try {
-        const res = await fetch('http://127.0.0.1:5000/mail/add', { method: 'POST', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
+        const res = await fetch('api/add-user-game', { method: 'POST', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
         if (res.status === 200){
           setModalSuccess(true)
         }
@@ -164,7 +154,7 @@ export default function Home({user, data, userData, count}) {
       game: gameToRemove
     }
     try {
-      const res = await fetch('http://127.0.0.1:5000/mail/delete', { method: 'DELETE', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
+      const res = await fetch('api/delete-user-game', { method: 'DELETE', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
       if (res.status === 200) {
         setModalSuccess(true)
       } 

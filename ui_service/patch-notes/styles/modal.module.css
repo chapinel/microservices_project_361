@@ -9,8 +9,7 @@
 }
 
 .modalBody {
-    width: 50vw;
-    max-height: 75vh;
+    width: 45vw;
     min-height: 350px;
     background-color: white;
     margin: auto;

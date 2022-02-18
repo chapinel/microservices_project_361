@@ -8,8 +8,8 @@ export default withIronSessionApiRoute(
         res.send({ user: req.session.user })
     },
     {
-        cookieName: "myapp_cookiename",
-        password: "bu4WtDr89exqLzkFDEvZ1nqhgQzRB1PY",
+        cookieName: process.env.COOKIE,
+        password: process.env.PASSWORD,
         cookieOptions: {
             secure: process.env.NODE_ENV === "production",
         }
