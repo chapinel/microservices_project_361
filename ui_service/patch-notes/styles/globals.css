@@ -65,26 +65,20 @@ input {
   font-family: inherit;
 }
 
-input[type="checkbox"] {
-  /* Add if not using autoprefixer */
-  -webkit-appearance: none;
-  /* Remove most all native input styles */
-  appearance: none;
-  /* For iOS < 15 */
-  background-color: var(--form-background);
-  /* Not removed via appearance */
-  margin: 0;
+/* checkbox styling based on tutorial from: https://moderncss.dev/pure-css-custom-checkbox-style/ */
 
-  font: inherit;
-  color: currentColor;
+input[type="checkbox"] {
+  appearance: none;
+  margin: 0;
   width: 1.15em;
   height: 1.15em;
-  border: 0.15em solid currentColor;
-  border-radius: 0.15em;
+  border: 0.14em solid #d4d4d4;
+  border-radius: 0.19em;
   transform: translateY(-0.075em);
-
+  background-color: #fff;
   display: grid;
   place-content: center;
+  cursor: pointer;
 }
 
 input[type="checkbox"]::before {
@@ -93,13 +87,17 @@ input[type="checkbox"]::before {
   height: 0.65em;
   clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
   transform: scale(0);
-  transform-origin: bottom left;
-  transition: 120ms transform ease-in-out;
-  box-shadow: inset 1em 1em var(--form-control-color);
-  /* Windows High Contrast Mode */
-  background-color: CanvasText;
+  transition: 80ms transform ease-in-out;
+  box-shadow: inset 1em 1em #C9384C;
+  background-color: #C9384C;
 }
 
 input[type="checkbox"]:checked::before {
   transform: scale(1);
+}
+
+input[type="checkbox"]:disabled {
+  transform: scale(1);
+  background-color: #f4f4f4;
+  cursor: default;
 }
