@@ -73,7 +73,7 @@
   margin-bottom: 24px;
 }
 
-.darkBgButton, .whiteBgButton, .darkBgButtonDisabled, .whiteBgSecondaryButton, .darkBgSecondaryButton {
+.darkBgButton, .whiteBgButton, .darkBgButtonDisabled, .whiteBgSecondaryButton, .darkBgSecondaryButton, .whiteBgButtonDisabled {
   padding: 12px 24px;
   border: none;
   border-radius: 3px;
@@ -89,8 +89,9 @@
   background-color: #e9475d;
 }
 
-.darkBgButtonDisabled {
+.darkBgButtonDisabled, .whiteBgButtonDisabled {
   opacity:75%;
+  cursor: default;
 }
 
 .darkBgSecondaryButton {
@@ -103,7 +104,7 @@
   border: none;
 }
 
-.whiteBgButton {
+.whiteBgButton, .whiteBgButtonDisabled {
   background: rgb(2,0,36);
   background: linear-gradient(167deg, rgba(2,0,36,1) 0%, rgba(18,53,91,1) 38%, rgba(231,57,74,1) 100%);
 }
@@ -120,3 +121,13 @@
   letter-spacing: .1em;
   padding: 200px;
 }
+
+/* checkbox styling based on tutorial from: https://moderncss.dev/pure-css-custom-checkbox-style/ */
+.formControl {
+  font-size: 1rem;
+  display: grid;
+  grid-template-columns: 1em auto;
+  gap: 0.5em;
+  margin-bottom: 16px;
+}
+

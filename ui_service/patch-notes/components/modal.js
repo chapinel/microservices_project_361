@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import styles from '../styles/modal.module.css'
 import utilstyles from '../styles/utils.module.css'
 
-export default function Modal({title, open, onChange, children, onCancel, onConfirm, confirmText, success}){
+export default function Modal({title, open, onChange, children, onCancel, onConfirm, confirmText, cancelText, success}){
     const [componentMounted, setComponentMounted] = useState(false);
+    
     useEffect(()=>{
         setComponentMounted(true)
     }, [])
@@ -39,7 +40,7 @@ export default function Modal({title, open, onChange, children, onCancel, onConf
                             {children}
                         </div>
                         <div className={styles.modalAction}>
-                            <button className={utilstyles.whiteBgSecondaryButton} onClick={onCancel}>Cancel</button>
+                            <button className={utilstyles.whiteBgSecondaryButton} onClick={onCancel}>{cancelText ? cancelText : "Cancel"}</button>
                             <button className={utilstyles.whiteBgButton} onClick={onConfirm}>{confirmText}</button>
                         </div>
                     </div>

@@ -10,7 +10,8 @@ export const getServerSideProps = withIronSessionSsr(
       const user = req.session.user
       let userEmail;
       try {
-        const res = await fetch(`http://127.0.0.1:5000/auth/get-one?user=${user.username}`)
+        const url = process.env.DATABASE_URL + `auth/get-one?user=${user.username}`
+        const res = await fetch(url)
         if (res.status == 200){
           const data = await res.json()
           userEmail = data.email
@@ -61,7 +62,8 @@ export default function Settings ({user, userEmail}) {
             } 
         } else {
             try {
-                const response = await fetch(`http://127.0.0.1:5000/auth/get-one?user=${name}`)
+                const url = process.env.DATABASE_URL + `auth/get-one?user=${name}`
+                const response = await fetch(url)
                 if (response.status === 200){
                     setErrorMessage('Oops - it looks like that username is already taken. Try a different one.')
                     return
@@ -105,10 +107,8 @@ export default function Settings ({user, userEmail}) {
                     </button>
                 </div>
             </div>
-            {errorMessage ? (
+            {errorMessage && (
                 <div>{errorMessage}</div>
-            ) : (
-                <div></div>
             )}
             {!editMode ? (
                 <div>

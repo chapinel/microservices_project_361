@@ -12,7 +12,8 @@ async function helper(req, res){
           console.log(galactus)
           try {
             console.log('updating user with id')
-            const response = await fetch('http://127.0.0.1:5000/auth/update-all', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: data.old, id: galactus.id, name: data.name, email: data.email})})
+            const url = process.env.DATABASE_URL + `auth/update-all`
+            const response = await fetch(url, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: data.old, id: galactus.id, name: data.name, email: data.email})})
             if (response.status === 200){
               console.log('success')
                 req.session.user = {

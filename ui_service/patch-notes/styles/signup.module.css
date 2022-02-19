@@ -6,4 +6,20 @@
 .header {
     margin: auto;
     text-align: center;
+    width: 40vw;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.successMessage {
+    margin: 16px 0px;
+    height: 32px;
+    background-color: #C9384C;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    font-weight: 600;
 }

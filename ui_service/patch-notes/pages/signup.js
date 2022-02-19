@@ -8,6 +8,8 @@ import utilStyles from '../styles/utils.module.css'
 
 export default function Signup() {
 
+    const [errorMessage, setErrorMessage] = useState("")
+
     const router = useRouter()
 
     async function onSubmit(e){
@@ -21,22 +23,34 @@ export default function Signup() {
         }
 
         try {
-            const res = await fetch('/api/signup', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(body),
-            })
-
-            if (res.status === 200){
-                router.push({
-                    pathname: '/login',
-                    query: { firstVisit: true},})
-            } else {
-                throw new Error (await res.text())
-            }
+                try {
+                    const res = await fetch('/api/signup', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(body),
+                    })
+        
+                    if (res.status === 200){
+                        router.push({
+                            pathname: '/login',
+                            query: { firstVisit: true},})
+                    } else {
+                        throw new Error (await res.text())
+                    }
+                } catch (error) {
+                    if (error.message.includes('username')) {
+                        setErrorMessage('Oops - it looks like that username is already taken. Try a different one.')
+                    } else {
+                        setErrorMessage('Oops - something went wrong. Please try again.')
+                    }
+                    console.error('Error:', error)
+                }
         } catch (error) {
-            console.error('Error:', error)
+            setErrorMessage('Oops - something went wrong. Please try again.')
+            console.error(error)
+            return
         }
+
     }
     return (
         <Layout>
@@ -44,7 +58,7 @@ export default function Signup() {
                 <div className={styles.header}>
                     <h1 className={utilStyles.headingXl}>Patch Poro</h1>
                 </div>
-                <Form logIn={false} onSubmit={onSubmit}></Form>
+                <Form logIn={false} onSubmit={onSubmit} errorMessage={errorMessage}></Form>
             </div>
         </Layout>
     )

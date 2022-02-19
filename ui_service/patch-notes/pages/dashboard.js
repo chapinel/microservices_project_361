@@ -13,13 +13,12 @@ import { withIronSessionSsr } from 'iron-session/next'
 export const getServerSideProps = withIronSessionSsr(
   async function getServerSideProps({ req }) {
     const user = req.session.user
-    console.log('user on dashbaord is', user)
     const userData = []
     const listOfGameIDs = []
     const listofGameData = []
     let count = 0
     try {
-      const url = process.env.DATABASE_URL + `auth/get-one?user=${user.username}`
+      const url = process.env.DATABASE_URL + `auth/get-one?user=${user.username}`   
       const res = await fetch(url)
       if (res.status == 200){
         const data = await res.json()
@@ -30,7 +29,7 @@ export const getServerSideProps = withIronSessionSsr(
       console.error(error)
     }
     try {
-      const url = process.env.DATABASE_URL + `mail/get-games-for-user?user=${user.username}`
+      const url = process.env.DATABASE_URL + `mail/get-games-for-user?user=${user.username}`  
       const res = await fetch(url)
       if (res.status === 200){
         const data = await res.json()
@@ -38,7 +37,6 @@ export const getServerSideProps = withIronSessionSsr(
         for (const relationship of data.mail) {
           console.log(relationship)
           listOfGameIDs.push([relationship[0], relationship[2]])
-        // need to make this a tuple, with mail setting as the second part
         }
       }
     } catch (error) {
@@ -54,7 +52,7 @@ export const getServerSideProps = withIronSessionSsr(
         } else {
           cardData.notif = "on"
         }
-        try{
+        try {
           const url = process.env.DATABASE_URL + `game/get-from-id?game=${game[0]}`
           const res = await fetch(url)
           if (res.status === 200){
@@ -103,6 +101,13 @@ export const getServerSideProps = withIronSessionSsr(
 
 
 export default function Home({user, data, userData, count}) {
+
+  const router = useRouter()
+  if (user.user === 'not found'){
+    router.push("/login")
+  }
+
+
   const [controlModal, setControlModal] = useState(false)
   const [controlRemoveModal, setControlRemoveModal] = useState(false)
   const [controlNotifModal, setControlNotifModal] = useState(false)
@@ -110,13 +115,13 @@ export default function Home({user, data, userData, count}) {
   const [gameNotif, setGameNotif] = useState([])
   const [componentMounted, setComponentMounted] = useState(false)
   const [modalSuccess, setModalSuccess] = useState(false)
+  const [modalWalkthrough, setModalWalkthrough] = useState(router.query.walkthrough ? true : false)
+  const [modalWalkthroughFirstScreen, setModalWalkthroughFirstScreen]  = useState(router.query.walkthrough ? true : false)
+  const [modalWalkthroughSecondScreen, setModalWalkthroughSecondScreen] = useState(false)
+  const [modalWalkthroughThirdScreen, setModalWalkthroughThirdScreen] = useState(false)
+  const [modalWalkthroughFourthScreen, setModalWalkthroughFourthScreen] = useState(false)
 
   console.log(userData)
-
-  const router = useRouter()
-  if (user.user === 'not found'){
-    router.push("/login")
-  }
 
   useEffect(() => {
     setComponentMounted(true)
@@ -154,7 +159,7 @@ export default function Home({user, data, userData, count}) {
       game: gameToRemove
     }
     try {
-      const res = await fetch('api/delete-user-game', { method: 'DELETE', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
+      const res = await fetch('api/delete-user-game', { method: 'POST', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
       if (res.status === 200) {
         setModalSuccess(true)
       } 
@@ -171,8 +176,6 @@ export default function Home({user, data, userData, count}) {
   async function addUserGameNotifications(gameToNotify, user, email, service_id, mailChange) {
     let mail;
     mailChange === "on" ? mail = 1 : mail = 0
-
-    //THIS CODE WILL BE SENDING / REQUESTING DATA FROM TEAMMATE'S SERVICE WHEN AVAILABLE
     if (mailChange === "on" && service_id == null){
       console.log('sending to galactus')
       const formData = {
@@ -184,7 +187,7 @@ export default function Home({user, data, userData, count}) {
         if (res.status === 200) {
           try {
             console.log('adding mail relationship')
-            const res = await fetch('http://127.0.0.1:5000/mail/update', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
+            const res = await fetch('/api/update-email', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
             if (res.status == 200) {
               setModalSuccess(true)
               setTimeout(() => {
@@ -204,7 +207,7 @@ export default function Home({user, data, userData, count}) {
       }
     } else {
       try {
-        const res = await fetch('http://127.0.0.1:5000/mail/update', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
+        const res = await fetch('/api/update-email', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
         if (res.status == 200) {
           console.log('success')
           setModalSuccess(true)
@@ -242,7 +245,11 @@ export default function Home({user, data, userData, count}) {
     } else {
       gamesToAdd.push(game)
     }
-    console.log(gamesToAdd)
+    if (gamesToAdd.length === 0){
+      console.log('no games')
+    } else {
+      console.log(gamesToAdd)
+    }
   }
 
   const handleCancel = () => {
@@ -251,7 +258,11 @@ export default function Home({user, data, userData, count}) {
   }
 
   const handleConfirm = () => {
-    addUserGameRelationship(gamesToAdd, user.username)
+    if (gamesToAdd.length === 0){
+      console.log('no games to add')
+    } else {
+      addUserGameRelationship(gamesToAdd, user.username)
+    }
   }
 
   const handleRemove = (game) => {
@@ -271,12 +282,27 @@ export default function Home({user, data, userData, count}) {
   const handleNotifConfirm = () => {
     addUserGameNotifications(gameNotif[0], user.username, userData[0], userData[1], gameNotif[1])
   }
+
+  const handleWalkthroughConfirm = () => {
+    if (modalWalkthroughFirstScreen) {
+      setModalWalkthroughFirstScreen(false)
+      setModalWalkthroughSecondScreen(true)
+    } else if (modalWalkthroughSecondScreen) {
+      setModalWalkthroughSecondScreen(false)
+      setModalWalkthroughThirdScreen(true)
+    } else if (modalWalkthroughThirdScreen) {
+      setModalWalkthroughThirdScreen(false)
+      setModalWalkthroughFourthScreen(true)
+    } else {
+      setModalWalkthrough(false)
+    }
+  }
   
+  console.log('games to add length is', gamesToAdd.length)
   return (
     <>
       <Layout loggedIn={true}>
       <section>
-        {router.query.walkthrough === 'true' && (<div>Walkthrough goes here</div>)}
         <div className={utilStyles.headerWButton}>
         <div className={utilStyles.headingXl}>
           <p>YOUR GAMES</p>
@@ -313,7 +339,7 @@ export default function Home({user, data, userData, count}) {
           success={modalSuccess}
         >
           <div className={styles.modalSelection}>
-            {allGames.map(name => <div className={styles.check}><input type="checkbox" onClick={handleGameAdd} disabled={chosenGames.includes(name[1])} id={name[0]}/><label htmlFor={name}>{name[1]}</label></div>)}
+            {allGames.map(name => <div className={styles.check}><label className={utilStyles.formControl} htmlFor={name}><input type="checkbox" onClick={handleGameAdd} disabled={chosenGames.includes(name[1])} id={name[0]}/>{name[1]}</label></div>)}
           </div>
           <div className={styles.modalSubtext}>Don't see what you're looking for? Send us an <a>email</a> and let us know what games you'd like to track!</div>
           
@@ -356,10 +382,59 @@ export default function Home({user, data, userData, count}) {
               <p className={styles.notifInfo}>You can turn notifications back on at any time.</p>
             </>
           )}
+        </Modal>
+        <Modal
+          title=""
+          open={modalWalkthrough}
+          onChange={() => setModalWalkthrough(false)}
+          onCancel={() => setModalWalkthrough(false)}
+          onConfirm={handleWalkthroughConfirm}
+          confirmText={modalWalkthroughFirstScreen? "I'd Love That" : "Got It"}
+          cancelText={modalWalkthroughFirstScreen? "No Thanks" : "Cancel"}
+        >
+          {modalWalkthroughSecondScreen && (
+            <>
+            <p className={styles.walkthroughHeader}>Great! You can get started in three easy steps:</p>
+            <div className={styles.walkthroughInstruction}>
+            <h1 className={utilStyles.headingMd}>Add a game</h1>
+            <p>Add as many or as few games as you'd like to your dashboard.</p>
+            <div className={styles.walkthroughImg}>
+                <img src="/images/addAGame.gif"/>
+            </div>
+            </div>
+            </>
+          )}
+          {modalWalkthroughThirdScreen && (
+              <div className={styles.walkthroughInstruction}>
+              <h1 className={utilStyles.headingMd}>Click in to see more information</h1>
+              <p>Click into an individual game's page to see a list of its updates</p>
+              <div className={styles.walkthroughImg}>
+                <img src="/images/clickIn.gif"/>
+              </div>
+              </div>
+          )}
+
+          {modalWalkthroughFourthScreen && (
+              <div className={styles.walkthroughInstruction}>
+              <h1 className={utilStyles.headingMd}>Turn on notifications to get email updates</h1>
+              <p>When you have notifications turned on, we'll let you know whenever a game you're tracking posts something new!</p>
+              <div className={styles.walkthroughImg}>
+                <img src="/images/notifications.gif"/>
+              </div>
+              </div>
+          )}
+            
+          {!modalWalkthroughSecondScreen && !modalWalkthroughThirdScreen && !modalWalkthroughFourthScreen && (
+            <div className={styles.initialWalkthroughContent}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0C223B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+            <h1 className={utilStyles.headingMd}>Welcome!</h1>
+            <p>It looks like this is your first time here - would you like a quick overview of how Patch Poro works?</p>
+            </div>
+          )}
           
         </Modal>
       </section>
-    </Layout>
+      </Layout>
     </>
   )
 }

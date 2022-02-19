@@ -16,10 +16,12 @@ export const getServerSideProps = withIronSessionSsr(
       const user = req.session.user
       const game = query.game
       const userData = []
-      let url;
+      let gameUrl;
       let notif;
+      let notes;
       try {
-        const res = await fetch(`http://127.0.0.1:5000/auth/get-one?user=${user.username}`)
+        const url = process.env.DATABASE_URL + `auth/get-one?user=${user.username}`
+        const res = await fetch(url)
         if (res.status == 200){
           const data = await res.json()
           userData.push(data.email)
@@ -30,7 +32,8 @@ export const getServerSideProps = withIronSessionSsr(
       }
 
       try {
-        const res = await fetch(`http://127.0.0.1:5000/mail/get-one?user=${user.username}&game=${game}`)
+        const url = process.env.DATABASE_URL + `mail/get-mail?user=${user.username}&game=${game}`
+        const res = await fetch(url)
         if (res.status === 200){
             const data = await res.json()
             if (data.mail){
@@ -40,21 +43,31 @@ export const getServerSideProps = withIronSessionSsr(
             }
             
         }
-        } catch (error) {
-        console.error(error)
-        }
+      } catch (error) {
+      console.error(error)
+      }
     
-        try{
-            const res = await fetch(`http://127.0.0.1:5000/game/get-from-name?game=${game}`,{
-                method: 'GET',
-            })
-            if (res.status === 200){
-                const data = await res.json()
-                url = data.url
+      try{
+          const url = process.env.DATABASE_URL + `game/get-from-name?game=${game}`
+          const res = await fetch(url)
+          if (res.status === 200){
+              const data = await res.json()
+              gameUrl = data.url
+      }
+      } catch (error) {
+          console.error(error)
+      }
+
+      try{
+        const url = process.env.DATABASE_URL + `note/get?game=${game}`
+        const res = await fetch(url)
+        if (res.status === 200){
+          const data = await res.json()
+          notes = data.notes
         }
-        } catch (error) {
-            console.error(error)
-        }
+      } catch (error) {
+          console.error(error)
+      }
         
       return {
         props: {
@@ -62,7 +75,8 @@ export const getServerSideProps = withIronSessionSsr(
           userData: userData,
           notif: notif,
           game: game,
-          url: url
+          url: gameUrl,
+          notes: notes
         },
       };
     },
@@ -82,7 +96,7 @@ const getAllNotes = (game) => {
     return { data: data, error: error }
   }
 
-export default function Game ({user, userData, notif, game, url}) {
+export default function Game ({user, userData, notif, game, url, notes}) {
     const [searchValue, setSearchValue] = useState("")
     const [controlNotifModal, setControlNotifModal] = useState(false)
     const [modalSuccess, setModalSuccess] = useState(false)
@@ -106,28 +120,38 @@ export default function Game ({user, userData, notif, game, url}) {
         } else {
           mail = 0
         }
-        // if (mailChange === "on" && service_id == null){
-        //   const formData = {
-        //     name: user,
-        //     email: email
-        //   }
-        //   try {
-        //     const res = await fetch('dakota service', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData)})
-        //     if (res.status === 200) {
-        //       const data = await res.json()
-        //       try {
-        //         const res = await fetch('http://127.0.0.1:5000/auth/update', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, id: data.id})})
-        //       } catch (error) {
-        //         console.error(error)
-        //       }
-        //     }
-        //   } catch (error) {
-        //     console.error(error)
-        //   }
-        // }
+        if (notifChange === "on" && service_id == null){
+          const formData = {
+            name: user,
+            email: email
+          }
+          try {
+            const res = await fetch('/api/email', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData)})
+            if (res.status === 200) {
+              try {
+                console.log('adding mail relationship')
+                const res = await fetch('/api/update-email', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
+                if (res.status == 200) {
+                  setModalSuccess(true)
+                  setTimeout(() => {
+                    console.log("setting modal off")
+                    setControlNotifModal(false)
+                    setModalSuccess(false)
+                    refreshData()
+                  }, 1000)
+                }
+              } catch (error) {
+                console.log('error on mail update')
+                res.status(500).end(error.message)
+              }
+            }
+          } catch (error) {
+            console.error(error)
+          }
+        }
     
         try {
-          const res = await fetch('http://127.0.0.1:5000/mail/update', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
+          const res = await fetch('/api/update-email', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
           if (res.status == 200) {
             console.log('success')
             setModalSuccess(true)
@@ -139,8 +163,8 @@ export default function Game ({user, userData, notif, game, url}) {
         setTimeout(()=>{
           setControlNotifModal(false)
           setModalSuccess(false)
+          refreshData()
         }, 1000)
-        refreshData()
     }
     
     const handleSearchOnChange = (e) => {
@@ -148,11 +172,7 @@ export default function Game ({user, userData, notif, game, url}) {
         console.log(e.target.value)
     }
 
-    let finalList = null;
-    const notes = getAllNotes(game)
-    if (notes.data){
-        finalList = notes.data.notes.filter(note => !(note[2].includes("This article will not be visible")))
-    }
+    const finalList = notes.filter(note => !(note[2].includes("This article will not be visible")))
 
     const games = {
         "valorant": "Valorant",
