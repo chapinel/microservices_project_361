@@ -10,82 +10,94 @@ import { withIronSessionSsr } from 'iron-session/next'
 
 // code to set up user session is modeled from the examples provided by NextJs: https://github.com/vvo/iron-session#usage-nextjs
 // and https://github.com/vercel/next.js/tree/canary/examples/with-passport
+
+const getUserData = async (username) => {
+  try {
+    const url = process.env.DATABASE_URL + `auth/get-one?user=${username}`   
+    const res = await fetch(url)
+    if (res.status == 200){
+      const data = await res.json()
+      return data
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const getUserGames = async (username) => {
+  const listOfGameIDs = []
+
+  try {
+    const url = process.env.DATABASE_URL + `mail/get-games-for-user?user=${username}`  
+    const res = await fetch(url)
+    if (res.status === 200){
+      const data = await res.json()
+      for (const relationship of data.mail) {
+        listOfGameIDs.push({ id: relationship[0], notifications: relationship[2]})
+      }
+      return listOfGameIDs
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const getGameNameUrl = async (gameId) => {
+  try {
+    const url = process.env.DATABASE_URL + `game/get-from-id?game=${gameId}`
+    const res = await fetch(url)
+    if (res.status === 200){
+      const data = await res.json()
+      return data
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const getGameStats = async (gameId) => {
+  try {
+    const url = process.env.DATABASE_URL + `note/get-latest-and-count?game=${gameId}`
+    const res = await fetch(url)
+    if (res.status === 200){
+      const data = await res.json()
+      return data
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const getEachGame = async (listOfGames) => {
+  const listOfGameData = []
+  for (const game of listOfGames) {
+    const { name, url } = await getGameNameUrl(game.id)
+    const { banner, date, count } = await getGameStats(game.id)
+    const cardData = {name: name, url: url, banner: banner, date: date, count: count, notifications: game.notifications ? "on" : "off",}
+    listOfGameData.push(cardData)
+  }
+  return listOfGameData
+}
+
+const getGameData = async (username) => {
+  const gameRelationships = await getUserGames(username)
+  const gameData = await getEachGame(gameRelationships)
+  return gameData
+}
+
 export const getServerSideProps = withIronSessionSsr(
   async function getServerSideProps({ req }) {
     const user = req.session.user
-    const userData = []
-    const listOfGameIDs = []
-    const listofGameData = []
-    let count = 0
-    try {
-      const url = process.env.DATABASE_URL + `auth/get-one?user=${user.username}`   
-      const res = await fetch(url)
-      if (res.status == 200){
-        const data = await res.json()
-        userData.push(data.email)
-        userData.push(data.service_id)
-      }
-    } catch (error) {
-      console.error(error)
-    }
-    try {
-      const url = process.env.DATABASE_URL + `mail/get-games-for-user?user=${user.username}`  
-      const res = await fetch(url)
-      if (res.status === 200){
-        const data = await res.json()
-        count = data.mail.length
-        for (const relationship of data.mail) {
-          console.log(relationship)
-          listOfGameIDs.push([relationship[0], relationship[2]])
-        }
-      }
-    } catch (error) {
-      console.error(error)
-    }
 
-    if (listOfGameIDs.length > 0) {
-      for (const game of listOfGameIDs){
-        console.log(game)
-        const cardData = {}
-        if (game[1]){
-          cardData.notif = "off"
-        } else {
-          cardData.notif = "on"
-        }
-        try {
-          const url = process.env.DATABASE_URL + `game/get-from-id?game=${game[0]}`
-          const res = await fetch(url)
-          if (res.status === 200){
-            const data = await res.json()
-            cardData.name = data.name
-            cardData.url = data.url
-          }
-        } catch (error) {
-          console.error(error)
-        }
-        try {
-          const url = process.env.DATABASE_URL + `note/get-latest-and-count?game=${game[0]}`
-          const res = await fetch(url)
-          if (res.status === 200){
-            const data = await res.json()
-            cardData.banner = data.banner
-            cardData.date = data.date
-            cardData.count = data.count
-          }
-        } catch (error) {
-          console.error(error)
-        }
-    
-        listofGameData.push(cardData)
-      }
-    }
+    const userData = await getUserData(user.username)
+    const gameData = await getGameData(user.username)
   
     return {
       props: {
-        user: user ? user : 'not found',
+        user: user,
         userData: userData,
-        data: listofGameData,
-        count: count,
+        data: gameData,
+        count:  gameData.length,
       },
     };
   },
@@ -97,8 +109,6 @@ export const getServerSideProps = withIronSessionSsr(
     }
   }
 )
-
-
 
 export default function Home({user, data, userData, count}) {
 
