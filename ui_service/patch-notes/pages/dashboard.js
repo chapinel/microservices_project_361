@@ -89,6 +89,15 @@ export const getServerSideProps = withIronSessionSsr(
   async function getServerSideProps({ req }) {
     const user = req.session.user
 
+    if (!user.username) {
+      return {
+        redirect : {
+          destination: '/login',
+          permanent: false,
+        }
+      }
+    }
+
     const userData = await getUserData(user.username)
     const gameData = await getGameData(user.username)
   
@@ -113,10 +122,6 @@ export const getServerSideProps = withIronSessionSsr(
 export default function Home({user, data, userData, count}) {
 
   const router = useRouter()
-  if (user.user === 'not found'){
-    router.push("/login")
-  }
-
 
   const [controlModal, setControlModal] = useState(false)
   const [controlRemoveModal, setControlRemoveModal] = useState(false)
@@ -131,13 +136,28 @@ export default function Home({user, data, userData, count}) {
   const [modalWalkthroughThirdScreen, setModalWalkthroughThirdScreen] = useState(false)
   const [modalWalkthroughFourthScreen, setModalWalkthroughFourthScreen] = useState(false)
 
-  console.log(userData)
+  // We need a mapping of game names for our checkbox selection in the Add Game modal
+  const allGames = [['valorant', 'Valorant'], ['league', 'League of Legends'], ['tft', 'Teamfight Tactics'], ['rift', 'Wild Rift']]
+  const chosenGames = []
 
+  for (const name of allGames) {
+    for (const game of data) {
+      if (game.name === name[0]) {
+        chosenGames.push(name[1])
+        break
+      }
+    }
+  }
+
+  // This will be how we track what games the user has selected when they go to add a game
+  let gamesToAdd = []
+
+  // We need this check to make sure that the Tooltip component loads properly
   useEffect(() => {
     setComponentMounted(true)
   }, [])
 
-  const refreshData = () => {
+  const refreshPageData = () => {
     router.replace(router.asPath);
   }
 
@@ -156,11 +176,12 @@ export default function Home({user, data, userData, count}) {
         console.error(error)
       }
     }
+    // wait a bit so that the user can register the success message
     setTimeout(() => {
       setControlModal(false)
       setModalSuccess(false)
+      refreshPageData()
     }, 1000)
-    refreshData()
   }
 
   async function removeUserGameRelationship(gameToRemove, user) {
@@ -179,72 +200,48 @@ export default function Home({user, data, userData, count}) {
     setTimeout(() => {
       setControlRemoveModal(false)
       setModalSuccess(false)
+      refreshPageData()
     }, 1000)
-    refreshData()
+  }
+
+  async function getFirstServiceId (user, email) {
+    const formData = {
+      name: user,
+      email: email
+    }
+    try {
+      const res = await fetch('/api/email', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData)})
+      if (res.status === 200) {
+        return true
+      }
+    } catch (error) {
+      console.error(error)
+      return false
+    }
   }
 
   async function addUserGameNotifications(gameToNotify, user, email, service_id, mailChange) {
     let mail;
     mailChange === "on" ? mail = 1 : mail = 0
-    if (mailChange === "on" && service_id == null){
-      console.log('sending to galactus')
-      const formData = {
-        name: user,
-        email: email
-      }
-      try {
-        const res = await fetch('/api/email', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData)})
-        if (res.status === 200) {
-          try {
-            console.log('adding mail relationship')
-            const res = await fetch('/api/update-email', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
-            if (res.status == 200) {
-              setModalSuccess(true)
-              setTimeout(() => {
-                console.log("setting modal off")
-                setControlNotifModal(false)
-                setModalSuccess(false)
-              }, 1000)
-              refreshData()
-            }
-          } catch (error) {
-            console.log('error on mail update')
-            res.status(500).end(error.message)
-          }
-        }
-      } catch(error) {
-        console.error(error)
-      }
-    } else {
-      try {
-        const res = await fetch('/api/update-email', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
-        if (res.status == 200) {
-          console.log('success')
-          setModalSuccess(true)
-          setTimeout(() => {
-            console.log("setting modal off")
-            setControlNotifModal(false)
-            setModalSuccess(false)
-          }, 1000)
-          refreshData()
-        }
-      } catch (error) {
-        console.error(error)
+    if (mail && service_id == null){
+      const response = await getFirstServiceId(user, email)
+      if (!response) {
+        console.log('There was an error getting and setting the service id')
+        return
       }
     }
-  }
-
-  const allGames = [['valorant', 'Valorant'], ['league', 'League of Legends'], ['tft', 'Teamfight Tactics'], ['rift', 'Wild Rift']]
-  const chosenGames = []
-
-  let gamesToAdd = []
-
-  for (const name of allGames) {
-    for (const game of data) {
-      if (game.name === name[0]) {
-        chosenGames.push(name[1])
-        break
+    try {
+      const res = await fetch('/api/update-email', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
+      if (res.status == 200) {
+        setModalSuccess(true)
+        setTimeout(() => {
+          setControlNotifModal(false)
+          setModalSuccess(false)
+          refreshPageData()
+        }, 1000)
       }
+    } catch (error) {
+      console.error(error)
     }
   }
 
@@ -255,14 +252,10 @@ export default function Home({user, data, userData, count}) {
     } else {
       gamesToAdd.push(game)
     }
-    if (gamesToAdd.length === 0){
-      console.log('no games')
-    } else {
-      console.log(gamesToAdd)
-    }
   }
 
   const handleCancel = () => {
+    // reset the list of games that the user wants to add
     gamesToAdd = []
     setControlModal(false)
   }
@@ -308,7 +301,6 @@ export default function Home({user, data, userData, count}) {
     }
   }
   
-  console.log('games to add length is', gamesToAdd.length)
   return (
     <>
       <Layout loggedIn={true}>
