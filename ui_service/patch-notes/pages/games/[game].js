@@ -3,77 +3,89 @@ import utilStyle from '../../styles/utils.module.css'
 import styles from '../../styles/game.module.css'
 import Layout from '../../components/layout'
 import { withIronSessionSsr } from 'iron-session/next'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import PatchCard from '../../components/patch-card'
-import useSWR from 'swr'
 import Modal from '../../components/modal'
-// import Panel from '../../components/panel'
 
 // code to set up user session is modeled from the examples provided by NextJs: https://github.com/vvo/iron-session#usage-nextjs
 // and https://github.com/vercel/next.js/tree/canary/examples/with-passport
+const getUserData = async (username) => {
+  try {
+    const url = process.env.DATABASE_URL + `auth/get-one?user=${username}`   
+    const res = await fetch(url)
+    if (res.status == 200){
+      const data = await res.json()
+      return data
+    }
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const getUserGameNotifications = async (username, game) => {
+  try {
+    const url = process.env.DATABASE_URL + `mail/get-mail?user=${username}&game=${game}`
+    const res = await fetch(url)
+    if (res.status === 200){
+        const data = await res.json()
+        return data.mail ? "off" : "on"
+    }
+  } catch (error) {
+  console.error(error)
+  }
+}
+
+const getGameUrl = async (game) => {
+  try{
+    const url = process.env.DATABASE_URL + `game/get-from-name?game=${game}`
+    const res = await fetch(url)
+    if (res.status === 200){
+        const data = await res.json()
+        return data.url
+  }
+  } catch (error) {
+      console.error(error)
+  }
+}
+
+const getGameNotes = async (game) => {
+  try{
+    const url = process.env.DATABASE_URL + `note/get?game=${game}`
+    const res = await fetch(url)
+    if (res.status === 200){
+      const data = await res.json()
+      return data.notes
+    }
+  } catch (error) {
+      console.error(error)
+  }
+}
+
 export const getServerSideProps = withIronSessionSsr(
     async function getServerSideProps({ req, query }) {
       const user = req.session.user
+
+      if (!user.username) {
+        return {
+          redirect : {
+            destination: '/login',
+            permanent: false,
+          }
+        }
+      }
+
       const game = query.game
-      const userData = []
-      let gameUrl;
-      let notif;
-      let notes;
-      try {
-        const url = process.env.DATABASE_URL + `auth/get-one?user=${user.username}`
-        const res = await fetch(url)
-        if (res.status == 200){
-          const data = await res.json()
-          userData.push(data.email)
-          userData.push(data.service_id)
-        }
-      } catch (error) {
-        console.error(error)
-      }
 
-      try {
-        const url = process.env.DATABASE_URL + `mail/get-mail?user=${user.username}&game=${game}`
-        const res = await fetch(url)
-        if (res.status === 200){
-            const data = await res.json()
-            if (data.mail){
-                notif = "off"
-            } else {
-                notif = "on"
-            }
-            
-        }
-      } catch (error) {
-      console.error(error)
-      }
-    
-      try{
-          const url = process.env.DATABASE_URL + `game/get-from-name?game=${game}`
-          const res = await fetch(url)
-          if (res.status === 200){
-              const data = await res.json()
-              gameUrl = data.url
-      }
-      } catch (error) {
-          console.error(error)
-      }
-
-      try{
-        const url = process.env.DATABASE_URL + `note/get?game=${game}`
-        const res = await fetch(url)
-        if (res.status === 200){
-          const data = await res.json()
-          notes = data.notes
-        }
-      } catch (error) {
-          console.error(error)
-      }
+      const userData = await getUserData(user.username)
+      const gameNotifications = await getUserGameNotifications(user.username, game)
+      const gameUrl = await getGameUrl(game)
+      const notes = await getGameNotes(game)
         
       return {
         props: {
-          user: user ? user : 'not found',
+          user: user,
           userData: userData,
-          notif: notif,
+          notif: gameNotifications,
           game: game,
           url: gameUrl,
           notes: notes
@@ -89,99 +101,58 @@ export const getServerSideProps = withIronSessionSsr(
     }
 )
 
-const fetcher = game => fetch(`http://127.0.0.1:5000/note/get?game=${game}`).then(r => r.json())
-
-const getAllNotes = (game) => {
-    const { data, error } = useSWR(game, fetcher)
-    return { data: data, error: error }
-  }
-
 export default function Game ({user, userData, notif, game, url, notes}) {
     const [searchValue, setSearchValue] = useState("")
     const [controlNotifModal, setControlNotifModal] = useState(false)
     const [modalSuccess, setModalSuccess] = useState(false)
-    // const [controlPanel, setControlPanel] = useState(false);
-    // const [panelData, setPanelData] = useState([]);
-    // const [componentMounted, setComponentMounted] = useState(false);
 
     const router = useRouter()
-    if (user.user === 'not found'){
-        router.push("/login")
+
+    const finalList = notes.filter(note => !(note.description.includes("This article will not be visible")))
+
+    const games = {
+      "valorant": "Valorant",
+      "league": "League of Legends",
+      "tft": "Teamfight Tactics",
+      "rift": "Wild Rift"
     }
 
-    const refreshData = () => {
+    const refreshPageData = () => {
         router.replace(router.asPath);
     }
 
     async function addUserGameNotifications(gameToNotify, user, email, service_id, notifChange) {
         let mail;
-        if (notifChange === "on"){
-          mail = 1
-        } else {
-          mail = 0
-        }
-        if (notifChange === "on" && service_id == null){
-          const formData = {
-            name: user,
-            email: email
-          }
-          try {
-            const res = await fetch('/api/email', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData)})
-            if (res.status === 200) {
-              try {
-                console.log('adding mail relationship')
-                const res = await fetch('/api/update-email', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
-                if (res.status == 200) {
-                  setModalSuccess(true)
-                  setTimeout(() => {
-                    console.log("setting modal off")
-                    setControlNotifModal(false)
-                    setModalSuccess(false)
-                    refreshData()
-                  }, 1000)
-                }
-              } catch (error) {
-                console.log('error on mail update')
-                res.status(500).end(error.message)
-              }
-            }
-          } catch (error) {
-            console.error(error)
+        notifChange === "on" ? mail = 1 : mail = 0
+        
+        // First, we check to see if this is the first time a user has turned on notifications
+        // If it is, we need to make a call to Galactus to get a new service ID for them and update their user data in our DB
+        if (mail && service_id === null){
+          const response = await getFirstServiceId(user, email)
+          if (!response) {
+            console.log('There was an error getting and setting the service id')
+            return
           }
         }
-    
         try {
           const res = await fetch('/api/update-email', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
           if (res.status == 200) {
-            console.log('success')
             setModalSuccess(true)
-            refreshData()
+            setTimeout(() => {
+              setControlNotifModal(false)
+              setModalSuccess(false)
+              refreshPageData()
+            }, 1000)
           }
         } catch (error) {
           console.error(error)
         }
-        setTimeout(()=>{
-          setControlNotifModal(false)
-          setModalSuccess(false)
-          refreshData()
-        }, 1000)
-    }
+  }
     
     const handleSearchOnChange = (e) => {
         setSearchValue(e.target.value)
         console.log(e.target.value)
     }
-
-    const finalList = notes.filter(note => !(note[2].includes("This article will not be visible")))
-
-    const games = {
-        "valorant": "Valorant",
-        "league": "League of Legends",
-        "tft": "Teamfight Tactics",
-        "rift": "Wild Rift"
-    }
-
-    
 
     const handleNoteClick = (url) => {
         console.log(url)
@@ -190,7 +161,7 @@ export default function Game ({user, userData, notif, game, url, notes}) {
     }
 
     const handleNotifConfirm = () => {
-        addUserGameNotifications(game, user.username, userData[0], userData[1], notif)
+        addUserGameNotifications(game, user.username, userData.email, userData.service_id, notif)
     }
 
     return (
@@ -199,24 +170,19 @@ export default function Game ({user, userData, notif, game, url, notes}) {
             <div className={utilStyle.headerWButton}>
                 <h1 className={utilStyle.headingXl}>{games[game]}</h1>
                 <div className={styles.headerButton}>
-                  {notif == 'on' ? (
                       <button className={utilStyle.svgButton} data-tip="Tooltip for notifications" onClick={() => setControlNotifModal(true)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        {notif == 'on' ? (<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        ):( <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell-off"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        )}
                       </button>
-                  ):(
-                    <button className={utilStyle.svgButton} data-tip="Tooltip for notifications" onClick={() => setControlNotifModal(true)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell-off"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                    </button>
-                  )}
-                
                 </div>
             </div>
             <div className={styles.search}><input onChange={handleSearchOnChange} placeholder="Search for a specific title"></input></div>
             {(!finalList) ? (<div>Loading...</div>)
             : (
               <div className={utilStyle.rowAcross}>
-                {finalList.filter((note) => note[1].toLowerCase().includes(searchValue.toLowerCase())).map((note) => 
-                    <PatchCard title={note[1]} date={note[6]} description={note[2]} banner={note[5]} parentUrl={url} url={note[3]} onClick={handleNoteClick}></PatchCard>
+                {finalList.filter((note) => note.title.toLowerCase().includes(searchValue.toLowerCase())).map((note) => 
+                    <PatchCard title={note.title} date={note.date} description={note.description} banner={note.banner} parentUrl={url} url={note.url} onClick={handleNoteClick}></PatchCard>
                 )}
               </div>
             )}

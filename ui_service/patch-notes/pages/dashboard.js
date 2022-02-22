@@ -122,7 +122,7 @@ export const getServerSideProps = withIronSessionSsr(
 export default function Home({user, data, userData, count}) {
 
   const router = useRouter()
-
+  
   const [controlModal, setControlModal] = useState(false)
   const [controlRemoveModal, setControlRemoveModal] = useState(false)
   const [controlNotifModal, setControlNotifModal] = useState(false)
@@ -130,7 +130,7 @@ export default function Home({user, data, userData, count}) {
   const [gameNotif, setGameNotif] = useState([])
   const [componentMounted, setComponentMounted] = useState(false)
   const [modalSuccess, setModalSuccess] = useState(false)
-  const [modalWalkthrough, setModalWalkthrough] = useState(router.query.walkthrough ? true : false)
+  const [modalWalkthrough, setModalWalkthrough] = useState(router.query.walkthrough === true ? true : false)
   const [modalWalkthroughFirstScreen, setModalWalkthroughFirstScreen]  = useState(router.query.walkthrough ? true : false)
   const [modalWalkthroughSecondScreen, setModalWalkthroughSecondScreen] = useState(false)
   const [modalWalkthroughThirdScreen, setModalWalkthroughThirdScreen] = useState(false)
@@ -223,6 +223,8 @@ export default function Home({user, data, userData, count}) {
   async function addUserGameNotifications(gameToNotify, user, email, service_id, mailChange) {
     let mail;
     mailChange === "on" ? mail = 1 : mail = 0
+    // First, we check to see if this is the first time a user has turned on notifications
+    // If it is, we need to make a call to Galactus to get a new service ID for them and update their user data in our DB
     if (mail && service_id == null){
       const response = await getFirstServiceId(user, email)
       if (!response) {
@@ -245,6 +247,7 @@ export default function Home({user, data, userData, count}) {
     }
   }
 
+  // This function gets called whenever a user checks or unchecks a game in the Add Game modal
   const handleGameAdd = (e) => {
     const game = e.target.id
     if (gamesToAdd.includes(game)){
@@ -278,6 +281,7 @@ export default function Home({user, data, userData, count}) {
   }
 
   const handleNotifications = (game, type) => {
+    // "type" corresponds to whether we're turning it off or on
     setGameNotif([game, type])
     setControlNotifModal(true)
   }
@@ -326,7 +330,6 @@ export default function Home({user, data, userData, count}) {
           <div className={utilStyles.emptyState}>Add your first game to start tracking updates!</div>
         ) : (
             <div className={utilStyles.row}>
-              {/* need to add a prop for notifications on or off after adding notifications to game data */}
               {data.map(game => <GameCard user={user.user} splash={game.banner} title={game.name} totalUpdates={game.count} date={game.date} url={game.url} notifications={game.notif} menuOption1={handleRemove} menuOption2={handleNotifications}/>)}
             </div>
         )}

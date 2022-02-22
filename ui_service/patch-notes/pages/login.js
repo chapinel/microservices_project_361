@@ -6,6 +6,33 @@ import Form from '../components/form'
 import styles from '../styles/signup.module.css'
 import utilStyles from '../styles/utils.module.css'
 
+async function attemptLogin(body) {
+    try {
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body),
+        })
+
+        if (res.status === 200){
+            return 'success'
+        } else if (res.status === 400) {
+            const data = await res.json()
+            console.log(data.error)
+            if (data.error === 'Incorrect username'){
+                return "Hmm...we couldn't find anyone by that username."
+            } else {
+                return "Oops - that password isn't correct."
+            }
+        } else {
+            throw new Error (await res.text())
+        }
+    } catch (error) {
+        console.error(error)
+        return error
+    }
+}
+
 export default function Login() {
     const router = useRouter()
 
@@ -25,29 +52,19 @@ export default function Login() {
             password: e.currentTarget.password.value
         }
 
-        try {
-            const res = await fetch('/api/login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(body),
-            })
+        const response = await attemptLogin(body)
+        console.log(response)
 
-            if (res.status === 200){
-                router.push({
-                    pathname: '/dashboard',
-                    query: { walkthrough: firstVisit},})
-            } else if (res.status === 400) {
-                const data = await res.json()
-                if (data.error === 'Incorrect username.'){
-                    setErrorMessage("Hmm...we couldn't find anyone by that username.")
-                } else {
-                    setErrorMessage("Oops - that password isn't correct.")
-                }
+        if (response === 'success') {
+            router.push({
+                pathname: '/dashboard',
+                query: { walkthrough: firstVisit },})
+        } else {
+            if (typeof response === "string" && (response.includes('username') || response.includes('password'))){
+                setErrorMessage(response)
             } else {
-                throw new Error (await res.text())
+                setErrorMessage('Oops - something went wrong. Please try again.')
             }
-        } catch (error) {
-            console.error(error)
         }
     }
 

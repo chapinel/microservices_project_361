@@ -5,24 +5,37 @@ import { useState } from 'react'
 import { withIronSessionSsr } from 'iron-session/next'
 import { useRouter } from 'next/router'
 
-export const getServerSideProps = withIronSessionSsr(
-    async function getServerSideProps({ req, query }) {
-      const user = req.session.user
-      let userEmail;
-      try {
-        const url = process.env.DATABASE_URL + `auth/get-one?user=${user.username}`
+const getUserEmail = async (username) => {
+    try {
+        const url = process.env.DATABASE_URL + `auth/get-one?user=${username}`
         const res = await fetch(url)
         if (res.status == 200){
           const data = await res.json()
-          userEmail = data.email
+          return data.email
         }
       } catch (error) {
         console.error(error)
       }
+}
+
+export const getServerSideProps = withIronSessionSsr(
+    async function getServerSideProps({ req, query }) {
+      const user = req.session.user
+
+      if (!user.username) {
+        return {
+          redirect : {
+            destination: '/login',
+            permanent: false,
+          }
+        }
+      }
+
+      const userEmail = await getUserEmail(user.username)
         
       return {
         props: {
-          user: user ? user : 'not found',
+          user: user,
           userEmail: userEmail,
         },
       };
@@ -36,6 +49,46 @@ export const getServerSideProps = withIronSessionSsr(
     }
 )
 
+const checkFormValues = (name, email) => {
+    if (name === '') {
+        if (email === ''){
+            console.log('no changes made')
+            return false
+        } 
+    } else if (email == '') {
+        return true
+    } 
+}
+
+const checkValidUsername = async (name) => {
+    try {
+        const url = `/api/get-user-data?user=${name}`
+        const response = await fetch(url)
+        if (response.status === 200){
+            return 'Oops - it looks like that username is already taken. Try a different one.'
+        } else if (response.status === 500) {
+            return true
+        }
+    } catch (error) {
+        console.error(error)
+        return 'Oops - something went wrong. Please try again.'
+    }
+}
+
+const updateUser = async (body) => {
+    try {
+        const response = await fetch('/api/updateUser', { method: 'POST', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(body) })
+        if (response.status === 200){
+            return true
+        } else {
+            return false
+        }
+    } catch (error){
+        console.error(error)
+        return false
+    }
+}
+
 export default function Settings ({user, userEmail}) {
 
     const [editMode, setEditMode] = useState(false)
@@ -44,6 +97,7 @@ export default function Settings ({user, userEmail}) {
     const router = useRouter()
     
     const refreshData = () => {
+        setEditMode(false)
         router.replace(router.asPath);
     }
 
@@ -55,44 +109,32 @@ export default function Settings ({user, userEmail}) {
         let name = e.currentTarget.username.value;
         let email = e.currentTarget.email.value;
 
-        if (name === '') {
-            if (email === ''){
-                console.log('no changes made')
-                return
-            } 
-        } else {
-            try {
-                const url = process.env.DATABASE_URL + `auth/get-one?user=${name}`
-                const response = await fetch(url)
-                if (response.status === 200){
-                    setErrorMessage('Oops - it looks like that username is already taken. Try a different one.')
-                    return
-                }
-            } catch (error) {
-                setErrorMessage('Oops - something went wrong. Please try again.')
-                console.error(error)
-                return
-            }
-
-            if (email === ''){
-                email = userEmail
-            }
-
+        const check = checkFormValues(name, email)
+        if (!check) {
+            setErrorMessage('You must change one or both values before submitting.')
+            return
+        } else if (check === true) {
+            email = userEmail
         }
 
-        const body = {
-            old: user.username,
-            name: name,
-            email: email,
-        }
+        const validName = await checkValidUsername(name)
 
-        try {
-            const response = await fetch('/api/updateUser', { method: 'POST', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(body) })
-            if (response.status === 200){
+        if (validName === true) {
+            const body = {
+                old: user.username,
+                name: name,
+                email: email,
+            }
+
+            const response = await updateUser(body)
+            if(response === true){
                 refreshData()
+            } else {
+                setErrorMessage('Oops - something went wrong. Please try again.')
             }
-        } catch (error){
-            console.error(error)
+
+        } else {
+            setErrorMessage(validName)
         }
     }
 

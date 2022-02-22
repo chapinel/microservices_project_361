@@ -6,10 +6,32 @@ import Form from '../components/form'
 import styles from '../styles/signup.module.css'
 import utilStyles from '../styles/utils.module.css'
 
+async function signUpUser(body) {
+    try {
+        const res = await fetch('/api/signup', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body),
+        })
+        // if user creation is successful, we'll navigate the user to the login page
+        if (res.status === 200){
+            return 'success'
+        } else {
+            throw new Error (await res.text())
+        }
+    } catch (error) {
+        console.error('Error:', error)
+        if (error.message.includes('username')) {
+            return 'Oops - it looks like that username is already taken. Try a different one.'
+        } else {
+            return 'error'
+        }
+    }
+}
+
 export default function Signup() {
 
     const [errorMessage, setErrorMessage] = useState("")
-
     const router = useRouter()
 
     async function onSubmit(e){
@@ -22,36 +44,23 @@ export default function Signup() {
             password: e.currentTarget.password.value
         }
 
-        try {
-                try {
-                    const res = await fetch('/api/signup', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify(body),
-                    })
-        
-                    if (res.status === 200){
-                        router.push({
-                            pathname: '/login',
-                            query: { firstVisit: true},})
-                    } else {
-                        throw new Error (await res.text())
-                    }
-                } catch (error) {
-                    if (error.message.includes('username')) {
-                        setErrorMessage('Oops - it looks like that username is already taken. Try a different one.')
-                    } else {
-                        setErrorMessage('Oops - something went wrong. Please try again.')
-                    }
-                    console.error('Error:', error)
-                }
-        } catch (error) {
-            setErrorMessage('Oops - something went wrong. Please try again.')
-            console.error(error)
-            return
-        }
+        const response = await signUpUser(body)
 
+        if (response !== 'success') {
+            if (response.includes('username')){
+                setErrorMessage(response)
+            } else {
+                setErrorMessage('Oops - something went wrong. Please try again.')
+            }
+        } else {
+            router.push({
+                pathname: '/login',
+                query: { firstVisit: true},})
+        }
+        
     }
+
+
     return (
         <Layout>
             <div className={styles.container}>

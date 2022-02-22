@@ -9,16 +9,16 @@ export default withIronSessionApiRoute(
         try {
             const response = await validateUser(req.body)
             const data = await response.json()
-            if (response.status === 400){
+            if (response.status === 200){
+                req.session.user = {
+                    id: 230,
+                    username: req.body.username
+                };
+                await req.session.save();
+                res.status(200).send({ done: true })
+            } else {
                 res.status(400).send({error: data.error})
             }
-            //success
-            req.session.user = {
-                id: 230,
-                username: req.body.username
-            };
-            await req.session.save();
-            res.status(200).send({ done: true })
         } catch (error) {
             console.error(error)
             res.status(500).end(error.message)
