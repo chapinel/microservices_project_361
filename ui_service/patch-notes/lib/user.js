@@ -32,3 +32,19 @@ export async function validateUser({ username, password }) {
         console.log(error)
     }
 }
+
+export async function getUserServiceId (body) {
+    const url = 'https://galac-tus.herokapp.com/user'
+    try {
+      const response = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})
+      if (response.status === 201) {
+        const galactus = await response.json()
+        return galactus
+      } else {
+        return 'error'
+      }
+    } catch (error) {
+      console.error(error)
+      return error
+    }
+  }

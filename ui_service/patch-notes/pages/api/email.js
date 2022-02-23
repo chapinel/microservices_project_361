@@ -1,32 +1,35 @@
+import { getUserServiceId } from "../../lib/user"
+
+const addServiceId = async (body) => {
+  const url = process.env.DATABASE_URL + 'auth/add-mail-id'
+  try {
+    const response = await fetch(url, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})
+    if (response.status === 200){
+      console.log('success')
+      return response
+    } else {
+      console.log(response.status)
+      return 'error'
+    }
+  } catch (error) {
+    console.error(error)
+    return 'error'
+  }
+}
 
 export default async function helper(req, res){
     const formData = req.body
     const user = formData.name
-    try {
-        console.log('fetching galactus')
-        const response = await fetch('https://galac-tus.herokuapp.com/user', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData)})
-        if (response.status === 201) {
-          const data = await response.json()
-          console.log(data)
-          try {
-            console.log('updating user with id')
-            const url = process.env.DATABASE_URL + 'auth/add-mail-id'
-            const response = await fetch(url, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, id: data.id})})
-            if (response.status === 200){
-              console.log('success')
-              res.status(200).send({ done: true })
-            } else {
-                console.log(response.status)
-            }
-          } catch (error) {
-            console.log('error on auth update')
-            res.status(500).end(error.message)
-          }
-        } else {
-            console.log(response.status)
-        }
-      } catch (error) {
-        console.log('error on galactus')
-        res.status(500).end(error.message)
+
+    const galactus = await getUserServiceId(formData)
+    if (galactus !== 'error'){
+      const response = await addServiceId({user: user, id: data.id})
+      if (response.status === 200){
+        res.status(200).send({ done: true })
+      } else {
+        res.status(500).end(response.status)
       }
+    } else {
+      res.status(500).end(galactus)
+    }
 }
