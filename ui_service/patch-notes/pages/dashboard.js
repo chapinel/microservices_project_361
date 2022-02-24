@@ -380,7 +380,7 @@ export default function Home({user, data, userData, count}) {
             <p className={styles.notifInfo}>If you have notifications turned on for a game, we'll send you an email as soon as we know there's been an update!</p>
             <div className={styles.emailAddress}>
               <label>Email address</label>
-              <input type="text" value={userData[0]} disabled></input>
+              <input type="text" value={userData.email} disabled></input>
             </div>
             <p className={styles.emailDefault}>This is the email currently associated with your account. You can change it in user settings.</p>
             </>

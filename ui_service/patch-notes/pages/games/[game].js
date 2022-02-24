@@ -182,7 +182,7 @@ export default function Game ({user, userData, notif, game, url, notes}) {
               <path fill-rule="evenodd" clip-rule="evenodd" d="M1410 15.0001L288 15V10H0V8H288V0L1410 9.80884e-05V8H1455V0L1600 1.26763e-05V8H1646V0L1791 1.26763e-05V8H2917V0L3604 6.00594e-05V8H3764V10H3604V15.0001L2917 15V10H1791V15L1646 15V10H1600V15L1455 15V10H1410V15.0001Z" fill="#37DDC9"/>
               </svg>
             </div>
-            <div className={styles.search}><input onChange={handleSearchOnChange} placeholder="Search for a specific title"></input></div>
+            <div className={styles.search}><input onChange={handleSearchOnChange} type="text" placeholder="Search for a specific title"></input></div>
             {(!finalList) ? (<div>Loading...</div>)
             : (
               <div className={utilStyle.rowAcross}>
@@ -205,7 +205,7 @@ export default function Game ({user, userData, notif, game, url, notes}) {
                     <p className={styles.notifInfo}>If you have notifications turned on for a game, we'll send you an email as soon as we know there's been an update!</p>
                     <div className={styles.emailAddress}>
                     <label>Email address</label>
-                    <input type="text" value={userData[0]} disabled></input>
+                    <input type="text" value={userData.email} disabled></input>
                     </div>
                     <p className={styles.emailDefault}>This is the email currently associated with your account. You can change it in user settings.</p>
                     </>

@@ -102,3 +102,17 @@ input[type="checkbox"]:disabled {
   cursor: default;
   border-color: #424b53;
 }
+
+input[type="text"] {
+  background-color: #1a2c3d;
+  border: #424b53 1px solid;
+  color: white;
+}
+
+input[type="text"]:disabled {
+  color: grey;
+}
+
+label {
+  color: white;
+}
