@@ -103,8 +103,8 @@ input[type="checkbox"]:disabled {
   border-color: #424b53;
 }
 
-input[type="text"] {
-  background-color: #1a2c3d;
+input[type="text"], input[type="password"] {
+  background-color: #22384d;
   border: #424b53 1px solid;
   color: white;
 }

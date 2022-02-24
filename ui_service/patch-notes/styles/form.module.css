@@ -3,10 +3,8 @@
     min-width: 400px;
     max-width: 500px;
     margin: 24px auto;
-    border-radius: 10px;
-    background-color: white;
+    background-color: #1C2E41;
     padding: 48px;
-    color: black;
     display: flex;
     flex-direction: column;
 }

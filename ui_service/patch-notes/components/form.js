@@ -26,7 +26,7 @@ export default function Form({ logIn, onSubmit, errorMessage }) {
                         <input type="password" name="password" required/>
                     </div>
                     <div className={styles.button}>
-                        <button className={utilStyles.whiteBgButton} type="submit">Sign Me Up</button>
+                        <button className={utilStyles.buttonPrimary} type="submit">Sign Me Up</button>
                     </div>
                 </form>
                 <div className={styles.switchPages}>
@@ -49,7 +49,7 @@ export default function Form({ logIn, onSubmit, errorMessage }) {
                         <input type="password" name="password" required/>
                     </div>
                     <div className={styles.button}>
-                        <button className={utilStyles.whiteBgButton} type="submit">Log in</button>
+                        <button className={utilStyles.buttonPrimary} type="submit">Log in</button>
                     </div>
                 </form>
                 <div className={styles.switchPages}>
