@@ -34,7 +34,7 @@ export async function validateUser({ username, password }) {
 }
 
 export async function getUserServiceId (body) {
-    const url = 'https://galac-tus.herokapp.com/user'
+    const url = 'https://galac-tus.herokuapp.com/user'
     try {
       const response = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})
       if (response.status === 201) {
