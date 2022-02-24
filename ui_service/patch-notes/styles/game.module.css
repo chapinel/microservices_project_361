@@ -42,3 +42,7 @@
     font-style: italic;
     margin-bottom: 16px;
 }
+
+.hrule > svg {
+    width: 90vw;
+}

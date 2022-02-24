@@ -73,7 +73,7 @@ const getEachGame = async (listOfGames) => {
   for (const game of listOfGames) {
     const { name, url } = await getGameNameUrl(game.id)
     const { banner, date, count } = await getGameStats(game.id)
-    const cardData = {name: name, url: url, banner: banner, date: date, count: count, notifications: game.notifications ? "on" : "off",}
+    const cardData = {name: name, url: url, banner: banner, date: date, count: count, notifications: game.notifications ? "off" : "on",}
     listOfGameData.push(cardData)
   }
   return listOfGameData
@@ -313,24 +313,27 @@ export default function Home({user, data, userData, count}) {
         <div className={utilStyles.headingXl}>
           <p>YOUR GAMES</p>
         </div>
-        {count != 4 ? (
           <div className={styles.headerComponent}>
-            <button className={utilStyles.svgButton} onClick={() => setControlModal(true)}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus-square"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-            </button>
+            {count != 4 ? (<button className={utilStyles.buttonSecondary} onClick={() => setControlModal(true)}>Add</button>) 
+            : (
+              <>
+            <button className={utilStyles.disabledSecondaryButton} data-tip="You've added all currently available games. Looking for another game?<br />Send us an email at developers@patchporo.com - we're always considering new titles!">Add Game</button>
+            {componentMounted && <ReactTooltip effect="solid" place="bottom" multiline={true}/>}
+            </>
+            )}
           </div>
-        ) : (
-        <>
-        <button className={utilStyles.darkBgButtonDisabled} data-tip="You've added all currently available games. Looking for another game?<br />Send us an email at developers@patchporo.com - we're always considering new titles!">Add Game</button>
-        {componentMounted && <ReactTooltip effect="solid" place="bottom" multiline={true}/>}
-        </>)}
         </div>
         <div>
+        <div className={styles.hrule}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="1000" height="15" viewBox="0 0 3764 15" fill="none">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M1410 15.0001L288 15V10H0V8H288V0L1410 9.80884e-05V8H1455V0L1600 1.26763e-05V8H1646V0L1791 1.26763e-05V8H2917V0L3604 6.00594e-05V8H3764V10H3604V15.0001L2917 15V10H1791V15L1646 15V10H1600V15L1455 15V10H1410V15.0001Z" fill="#37DDC9"/>
+          </svg>
+        </div>
         {count === 0 ? (
           <div className={utilStyles.emptyState}>Add your first game to start tracking updates!</div>
         ) : (
             <div className={utilStyles.row}>
-              {data.map(game => <GameCard user={user.user} splash={game.banner} title={game.name} totalUpdates={game.count} date={game.date} url={game.url} notifications={game.notif} menuOption1={handleRemove} menuOption2={handleNotifications}/>)}
+              {data.map(game => <GameCard user={user.user} splash={game.banner} title={game.name} totalUpdates={game.count} date={game.date} url={game.url} notifications={game.notifications} menuOption1={handleRemove} menuOption2={handleNotifications}/>)}
             </div>
         )}
         </div>
@@ -346,7 +349,7 @@ export default function Home({user, data, userData, count}) {
           <div className={styles.modalSelection}>
             {allGames.map(name => <div className={styles.check}><label className={utilStyles.formControl} htmlFor={name}><input type="checkbox" onClick={handleGameAdd} disabled={chosenGames.includes(name[1])} id={name[0]}/>{name[1]}</label></div>)}
           </div>
-          <div className={styles.modalSubtext}>Don't see what you're looking for? Send us an <a>email</a> and let us know what games you'd like to track!</div>
+          <div className={styles.modalSubtext}>Don't see what you're looking for? Send us an <a href="mailto:chapinel@oregonstate.edu?subject = New Game Request">email</a> and let us know what games you'd like to track!</div>
           
         </Modal>
         <Modal

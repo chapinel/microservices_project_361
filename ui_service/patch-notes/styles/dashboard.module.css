@@ -3,6 +3,10 @@
     align-items: center;
 }
 
+.headerComponent > button {
+    margin-left: 16px;
+}
+
 .modalSelection {
     display: flex;
     flex-direction: column;
@@ -11,12 +15,13 @@
 .modalSubtext {
     margin-top: 16px;
     font-style: italic;
-    color: rgba(0,0,0,.5);
+    color: rgb(255, 255, 255, .75);
 }
 
 .check > input {
     margin: 8px;
     padding: 8px;
+    color: white;
 }
 
 .modalParagraphs {
@@ -86,4 +91,8 @@
     font-size: 1.1rem;
     font-weight: 500;
     margin-bottom: 16px;
+}
+
+.hrule > svg {
+    width: 90vw;
 }

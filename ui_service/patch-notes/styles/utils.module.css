@@ -13,7 +13,7 @@
     margin-right: 16px;
     font-family: 'Roboto Condensed';
     text-transform: uppercase;
-    color: #e9475d;
+    color: #37DDC9;
   }
   
   .headingLg {
@@ -73,45 +73,69 @@
   margin-bottom: 24px;
 }
 
-.darkBgButton, .whiteBgButton, .darkBgButtonDisabled, .whiteBgSecondaryButton, .darkBgSecondaryButton, .whiteBgButtonDisabled {
+.buttonPrimary {
+  color: #37DDC9;
+  border: 1px solid #37DDC9;
+}
+
+.buttonSecondary {
+  color: #F54670;
+  border: 1px solid #F54670;
+  margin-right: 12px;
+}
+
+.buttonPrimary, .buttonSecondary, .disabledSecondaryButton {
   padding: 12px 24px;
-  border: none;
-  border-radius: 3px;
-  color: white;
   text-transform: uppercase;
+  background: rgba(245, 70, 112, 0);
   font-weight: 700;
   font-family: inherit;
   letter-spacing: .1em;
   max-height: 40px;
+  position: relative;
+  z-index: 1;
+  transition: color 200ms ease-in;
 }
 
-.darkBgButton, .darkBgButtonDisabled {
-  background-color: #e9475d;
+.buttonPrimary::after {
+  background: #37DDC9;
 }
 
-.darkBgButtonDisabled, .whiteBgButtonDisabled {
-  opacity:75%;
+.buttonSecondary::after {
+  background: #F54670;
+}
+
+
+.buttonPrimary::after, .buttonSecondary::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: -1; 
+  transform: scaleX(0);
+  transition: transform 200ms ease-in;
+}
+
+.buttonPrimary:hover::after, .buttonSecondary:hover::after {
+  transform: scaleX(1);
+}
+
+.buttonPrimary:hover, .buttonSecondary:hover {
+  color: white;
+}
+
+.disabledSecondaryButton {
+  border: 1px solid #F54670;
+  color: #F54670;
+  opacity: 80%;
   cursor: default;
-}
-
-.darkBgSecondaryButton {
-  background-color: rgb(161, 161, 161);
-  margin-right: 12px;
 }
 
 .svgButton {
   background: none;
   border: none;
-}
-
-.whiteBgButton, .whiteBgButtonDisabled {
-  background: rgb(2,0,36);
-  background: linear-gradient(167deg, rgba(2,0,36,1) 0%, rgba(18,53,91,1) 38%, rgba(231,57,74,1) 100%);
-}
-
-.whiteBgSecondaryButton {
-  background-color: #be525f;
-  margin-right: 12px;
 }
 
 .emptyState {
@@ -127,7 +151,8 @@
   font-size: 1rem;
   display: grid;
   grid-template-columns: 1em auto;
-  gap: 0.5em;
+  gap: 1em;
   margin-bottom: 16px;
+  color: white;
 }
 

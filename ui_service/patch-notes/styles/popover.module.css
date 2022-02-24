@@ -1,18 +1,18 @@
 
 .popoverContainer {
     position: relative;
-    
 }
 
 .popoverContent {
     position: absolute;
-    background: white;
+    background: #1C2E41;
     width: 200px;
-    border-radius: 5px;
+    border-radius: 3px;
     top: calc(100% + 5px);
     right: calc(50%);
     display: block;
     overflow: hidden;
+    box-shadow: 2px 2px 6px 3px rgba(0, 0, 0, .3);
 }
 
 .popoverOption {
@@ -23,12 +23,12 @@
     font-size: .9rem;
     letter-spacing: .05em;
     text-align: left;
-    color: #C9384C;
+    color: #37DDC9;
     text-transform: uppercase;
     padding: 12px 24px;
     width: 100%;
 }
 
 .popoverOption:hover {
-    background: #fcebed;
+    background: rgba(55, 221, 201, .2);
 }

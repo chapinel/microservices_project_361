@@ -175,8 +175,8 @@ export default function Settings ({user, userEmail}) {
                             <input type="text" name="email" placeholder={userEmail}/>
                         </div>
                         <div className={styles.actionButtons}>
-                            <button onClick={() => setEditMode(false)} className={utilStyles.darkBgSecondaryButton}>Cancel</button>
-                            <button className={utilStyles.darkBgButton} type="submit">Submit Changes</button> 
+                            <button onClick={() => setEditMode(false)} className={utilStyles.buttonSecondary}>Cancel</button>
+                            <button className={utilStyles.buttonPrimary} type="submit">Submit Changes</button> 
                         </div>
                     </form>
                 </div>

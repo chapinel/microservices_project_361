@@ -1,11 +1,14 @@
 .container {
     height: 10vh;
     padding: 2rem;
-    color: white;
     font-weight: 700;
     letter-spacing: .2em;
     display: flex;
     justify-content: space-between;
+}
+
+.container a {
+    color: #F54670;
 }
 
 .userIcon {
