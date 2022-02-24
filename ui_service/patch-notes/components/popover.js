@@ -20,7 +20,7 @@ export default function Popover({open, children, onChange, options}){
             <div className={styles.popoverContainer}>
                 {openPopover && (
                 <div className={styles.popoverContent}>
-                    {options.map(option => <button className={styles.popoverOption} onClick={option.onClick}>{option.text}</button>)}
+                    {options.map(option => <button key={option.text} className={styles.popoverOption} onClick={option.onClick}>{option.text}</button>)}
                 </div>
                 )}
                 <div onClick={handleClick}>

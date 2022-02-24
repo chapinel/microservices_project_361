@@ -326,14 +326,14 @@ export default function Home({user, data, userData, count}) {
         <div>
         <div className={styles.hrule}>
           <svg xmlns="http://www.w3.org/2000/svg" width="1000" height="15" viewBox="0 0 3764 15" fill="none">
-          <path fill-rule="evenodd" clip-rule="evenodd" d="M1410 15.0001L288 15V10H0V8H288V0L1410 9.80884e-05V8H1455V0L1600 1.26763e-05V8H1646V0L1791 1.26763e-05V8H2917V0L3604 6.00594e-05V8H3764V10H3604V15.0001L2917 15V10H1791V15L1646 15V10H1600V15L1455 15V10H1410V15.0001Z" fill="#37DDC9"/>
+          <path fillRule="evenodd" clipRule="evenodd" d="M1410 15.0001L288 15V10H0V8H288V0L1410 9.80884e-05V8H1455V0L1600 1.26763e-05V8H1646V0L1791 1.26763e-05V8H2917V0L3604 6.00594e-05V8H3764V10H3604V15.0001L2917 15V10H1791V15L1646 15V10H1600V15L1455 15V10H1410V15.0001Z" fill="#37DDC9"/>
           </svg>
         </div>
         {count === 0 ? (
           <div className={utilStyles.emptyState}>Add your first game to start tracking updates!</div>
         ) : (
             <div className={utilStyles.row}>
-              {data.map(game => <GameCard user={user.user} splash={game.banner} title={game.name} totalUpdates={game.count} date={game.date} url={game.url} notifications={game.notifications} menuOption1={handleRemove} menuOption2={handleNotifications}/>)}
+              {data.map(game => <GameCard key={game.name} user={user.user} splash={game.banner} title={game.name} totalUpdates={game.count} date={game.date} url={game.url} notifications={game.notifications} menuOption1={handleRemove} menuOption2={handleNotifications}/>)}
             </div>
         )}
         </div>
@@ -347,9 +347,9 @@ export default function Home({user, data, userData, count}) {
           success={modalSuccess}
         >
           <div className={styles.modalSelection}>
-            {allGames.map(name => <div className={styles.check}><label className={utilStyles.formControl} htmlFor={name}><input type="checkbox" onClick={handleGameAdd} disabled={chosenGames.includes(name[1])} id={name[0]}/>{name[1]}</label></div>)}
+            {allGames.map(name => <div key={name} className={styles.check}><label className={utilStyles.formControl} htmlFor={name}><input type="checkbox" onClick={handleGameAdd} disabled={chosenGames.includes(name[1])} id={name[0]}/>{name[1]}</label></div>)}
           </div>
-          <div className={styles.modalSubtext}>Don't see what you're looking for? Send us an <a href="mailto:chapinel@oregonstate.edu?subject = New Game Request">email</a> and let us know what games you'd like to track!</div>
+          <div className={styles.modalSubtext}>Don&apos;t see what you&apos;re looking for? Send us an <a href="mailto:chapinel@oregonstate.edu?subject = New Game Request">email</a> and let us know what games you&apos;d like to track!</div>
           
         </Modal>
         <Modal
@@ -362,7 +362,7 @@ export default function Home({user, data, userData, count}) {
           success={modalSuccess}
         >
           <div className={styles.modalParagraphs}>
-            <p>Removing a game from your dashboard will mean that you can't receive notifications for it until you add it back.</p>
+            <p>Removing a game from your dashboard will mean that you can&apos;t receive notifications for it until you add it back.</p>
             <p>You can add a game back to your dashboard at any time and still be able to see all previous updates.</p>
           </div>
         </Modal>
@@ -377,7 +377,7 @@ export default function Home({user, data, userData, count}) {
         >
           {gameNotif[1] === "on" ? (
             <>
-            <p className={styles.notifInfo}>If you have notifications turned on for a game, we'll send you an email as soon as we know there's been an update!</p>
+            <p className={styles.notifInfo}>If you have notifications turned on for a game, we&apos;ll send you an email as soon as we know there&apos;s been an update!</p>
             <div className={styles.emailAddress}>
               <label>Email address</label>
               <input type="text" value={userData.email} disabled></input>
@@ -405,7 +405,7 @@ export default function Home({user, data, userData, count}) {
             <p className={styles.walkthroughHeader}>Great! You can get started in three easy steps:</p>
             <div className={styles.walkthroughInstruction}>
             <h1 className={utilStyles.headingMd}>Add a game</h1>
-            <p>Add as many or as few games as you'd like to your dashboard.</p>
+            <p>Add as many or as few games as you&apos;d like to your dashboard.</p>
             <div className={styles.walkthroughImg}>
                 <img src="/images/addAGame.gif"/>
             </div>
@@ -415,7 +415,7 @@ export default function Home({user, data, userData, count}) {
           {modalWalkthroughThirdScreen && (
               <div className={styles.walkthroughInstruction}>
               <h1 className={utilStyles.headingMd}>Click in to see more information</h1>
-              <p>Click into an individual game's page to see a list of its updates</p>
+              <p>Click into an individual game&apos;s page to see a list of its updates</p>
               <div className={styles.walkthroughImg}>
                 <img src="/images/clickIn.gif"/>
               </div>
@@ -425,7 +425,7 @@ export default function Home({user, data, userData, count}) {
           {modalWalkthroughFourthScreen && (
               <div className={styles.walkthroughInstruction}>
               <h1 className={utilStyles.headingMd}>Turn on notifications to get email updates</h1>
-              <p>When you have notifications turned on, we'll let you know whenever a game you're tracking posts something new!</p>
+              <p>When you have notifications turned on, we&apos;ll let you know whenever a game you&apos;re tracking posts something new!</p>
               <div className={styles.walkthroughImg}>
                 <img src="/images/notifications.gif"/>
               </div>
@@ -434,7 +434,7 @@ export default function Home({user, data, userData, count}) {
             
           {!modalWalkthroughSecondScreen && !modalWalkthroughThirdScreen && !modalWalkthroughFourthScreen && (
             <div className={styles.initialWalkthroughContent}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0C223B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0C223B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-map"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
             <h1 className={utilStyles.headingMd}>Welcome!</h1>
             <p>It looks like this is your first time here - would you like a quick overview of how Patch Poro works?</p>
             </div>
