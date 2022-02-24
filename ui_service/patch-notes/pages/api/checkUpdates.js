@@ -15,10 +15,10 @@ const getUserFromId = async(id) => {
 }
 
 const sendUserEmail = async (body) => {
-    const url = 'https://galac-tus.herokuapp.com/'
+    const url = 'https://galac-tus.herokuapp.com/email'
     try {
         const response = await fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})
-        if (response.status === 200){
+        if (response.status === 201 || response.status === 200){
             return 'success'
         } else {
             return 'error'
@@ -105,7 +105,7 @@ export default async function helper(req, res){
     for (const game of games){
         const date = await getLatestNoteDate(game[1])
         if (date !== 'error'){
-            const count = await checkForUpdates(game[1], date)
+            const count = await checkForUpdates(game[0], date)
             if (count > 0){
                 const users = await getUsersForGame(game[0])
                 if (users !== 'error'){
@@ -113,12 +113,20 @@ export default async function helper(req, res){
                     if (result === true){
                         res.status(200).send({done: true})
                         res.end()
+                    } else {
+                        res.status(500).end('error')
                     }
+                } else {
+                    res.status(500).end('error')
                 }
+            } else {
+                continue
             }
-        }
-
-        res.status(500).end('error')
-        
+        } else {
+            res.status(500).end('error')
+        } 
     }
+
+    res.status(200).send({done: true})
+
 }

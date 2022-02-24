@@ -56,9 +56,15 @@ export default function Login() {
         console.log(response)
 
         if (response === 'success') {
-            router.push({
-                pathname: '/dashboard',
-                query: { walkthrough: firstVisit },})
+            if (firstVisit) {
+                router.push({
+                    pathname: '/dashboard',
+                    query: { walkthrough: firstVisit },})
+            } else {
+                router.push({
+                    pathname: '/dashboard',
+                })
+            }
         } else {
             if (typeof response === "string" && (response.includes('username') || response.includes('password'))){
                 setErrorMessage(response)

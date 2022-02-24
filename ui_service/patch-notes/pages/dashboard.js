@@ -122,6 +122,8 @@ export const getServerSideProps = withIronSessionSsr(
 export default function Home({user, data, userData, count}) {
 
   const router = useRouter()
+  const walkthrough = router.query.walkthrough ? true : false
+  console.log(walkthrough)
   
   const [controlModal, setControlModal] = useState(false)
   const [controlRemoveModal, setControlRemoveModal] = useState(false)
@@ -130,8 +132,8 @@ export default function Home({user, data, userData, count}) {
   const [gameNotif, setGameNotif] = useState([])
   const [componentMounted, setComponentMounted] = useState(false)
   const [modalSuccess, setModalSuccess] = useState(false)
-  const [modalWalkthrough, setModalWalkthrough] = useState(router.query.walkthrough === true ? true : false)
-  const [modalWalkthroughFirstScreen, setModalWalkthroughFirstScreen]  = useState(router.query.walkthrough ? true : false)
+  const [modalWalkthrough, setModalWalkthrough] = useState(walkthrough)
+  const [modalWalkthroughFirstScreen, setModalWalkthroughFirstScreen]  = useState(walkthrough)
   const [modalWalkthroughSecondScreen, setModalWalkthroughSecondScreen] = useState(false)
   const [modalWalkthroughThirdScreen, setModalWalkthroughThirdScreen] = useState(false)
   const [modalWalkthroughFourthScreen, setModalWalkthroughFourthScreen] = useState(false)
@@ -304,6 +306,8 @@ export default function Home({user, data, userData, count}) {
       setModalWalkthrough(false)
     }
   }
+
+  console.log(modalWalkthrough)
   
   return (
     <>
@@ -434,7 +438,7 @@ export default function Home({user, data, userData, count}) {
             
           {!modalWalkthroughSecondScreen && !modalWalkthroughThirdScreen && !modalWalkthroughFourthScreen && (
             <div className={styles.initialWalkthroughContent}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0C223B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-map"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#F54670" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-map"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
             <h1 className={utilStyles.headingMd}>Welcome!</h1>
             <p>It looks like this is your first time here - would you like a quick overview of how Patch Poro works?</p>
             </div>
