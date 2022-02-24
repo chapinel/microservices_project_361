@@ -23,7 +23,7 @@ export default async function helper(req, res){
 
     const galactus = await getUserServiceId(formData)
     if (galactus !== 'error'){
-      const response = await addServiceId({user: user, id: data.id})
+      const response = await addServiceId({user: user, id: galactus.id})
       if (response.status === 200){
         res.status(200).send({ done: true })
       } else {
