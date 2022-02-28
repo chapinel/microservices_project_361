@@ -1,7 +1,6 @@
 import functools
 import requests
 import datetime
-from bs4 import BeautifulSoup
 
 from flask import (
     Blueprint, flash, g, redirect, request, session, jsonify
@@ -23,7 +22,7 @@ def rest_parse(post, game):
     date = date[0:10]
     post_data = {"title": title, "description": description, "url": url, "game": game, "banner": banner, "date": date}
     
-    requests.post('http://127.0.0.1:5000/note/add', data=post_data)
+    requests.post('https://cs-361-db-service.herokuapp.com/note/add', data=post_data)
 
 def rift_parse(post):
     title = post["title"]
@@ -33,13 +32,13 @@ def rift_parse(post):
     elif post["externalLink"] != "":
         url = post["externalLink"]
     else:
-        url = post["url"]["url"]
+        url = post["link"]["url"]
     banner = post["featuredImage"]["banner"]["url"]
     date = post["date"]
     date = date[0:10]
-    post_data = {"title": title, "description": description, "url": url, "banner": banner, "date": date}
+    post_data = {"title": title, "description": description, "url": url, "game": "rift", "banner": banner, "date": date}
 
-    requests.post('http://127.0.0.1:5000/note/add', data=post_data)
+    requests.post('https://cs-361-db-service.herokuapp.com/note/add', data=post_data)
 
 def json_parse(json_data, date, game):
     count = 0
@@ -47,7 +46,7 @@ def json_parse(json_data, date, game):
     if date is None:
         for i in range(10):
             if game == "rift":
-                rift_parse(json_data[i], game)
+                rift_parse(json_data[i])
             else:
                 rest_parse(json_data[i], game)
             count += 1
@@ -59,7 +58,7 @@ def json_parse(json_data, date, game):
                 break
             else:
                 if game == "rift":
-                    rift_parse(article, game)
+                    rift_parse(article)
                 else:
                     rest_parse(article, game)
                 count += 1
@@ -103,23 +102,3 @@ def get_latest():
         return response
     
     return (error, 500)
-
-# @bp.route('/get-note', methods=['GET'])
-# def get_note_text():
-#     url = request.args.get("url", None)
-#     error = None
-#     if url is None:
-#         error = "url is required"
-    
-#     if error is None:
-#         headers = {'User-Agent':'Mozilla/5.0'}
-#         htmlData = requests.get(url, headers=headers)
-#         soup = BeautifulSoup(htmlData.content,'lxml')
-#         body = soup.select('.type-article_html')
-#         if body == []:
-#             body = soup.find("div", {"id": "patch-notes-container"})
-#         body = str(body)
-#         response = jsonify( { "html": body } )
-#         response.headers.add('Access-Control-Allow-Origin', '*')
-#         return response
-#     return (error, 500)
