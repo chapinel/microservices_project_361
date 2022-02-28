@@ -36,7 +36,7 @@ export default function Nav({ }) {
     return (
         <nav>
             <div className={styles.container}>
-                <Link href="/dashboard">
+                <Link href="/">
                     <a>HOME</a>
                 </Link>
                 <div className={styles.userIcon}>
