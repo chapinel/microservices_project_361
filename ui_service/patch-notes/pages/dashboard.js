@@ -289,7 +289,7 @@ export default function Home({user, data, userData, count}) {
   }
 
   const handleNotifConfirm = () => {
-    addUserGameNotifications(gameNotif[0], user.username, userData[0], userData[1], gameNotif[1])
+    addUserGameNotifications(gameNotif[0], user.username, userData.email, userData.service_id, gameNotif[1])
   }
 
   const handleWalkthroughConfirm = () => {
