@@ -105,6 +105,11 @@ export default function Game ({user, userData, notif, game, url, notes}) {
     const [searchValue, setSearchValue] = useState("")
     const [controlNotifModal, setControlNotifModal] = useState(false)
     const [modalSuccess, setModalSuccess] = useState(false)
+    const [compareFunction, setCompareFunction] = useState(() => function(a, b){
+      if (a.date < b.date) return 1;
+      if (a.date > b.date) return -1;
+      return 0;
+    })
 
     const router = useRouter()
 
@@ -164,6 +169,28 @@ export default function Game ({user, userData, notif, game, url, notes}) {
         addUserGameNotifications(game, user.username, userData.email, userData.service_id, notif)
     }
 
+    const sortNotes = (sortObject, sortDirection) => {
+      if (sortDirection === 'desc'){
+        
+       setCompareFunction(() => function(a, b){
+          if (a[sortObject] < b[sortObject]) return 1;
+          if (a[sortObject] > b[sortObject]) return -1;
+          return 0;
+        })
+      } else {
+        setCompareFunction(() => function(a, b){
+          if (a[sortObject] > b[sortObject]) return 1;
+          if (a[sortObject] < b[sortObject]) return -1;
+          return 0;
+        })
+      }
+    }
+
+    const handleSelect = (e) => {
+      const parameters = e.target.value.split(" ")
+      sortNotes(parameters[0], parameters[1])
+    }
+
     return (
         <Layout loggedIn={true}>
         <section>
@@ -182,11 +209,19 @@ export default function Game ({user, userData, notif, game, url, notes}) {
               <path fillRule="evenodd" clipRule="evenodd" d="M1410 15.0001L288 15V10H0V8H288V0L1410 9.80884e-05V8H1455V0L1600 1.26763e-05V8H1646V0L1791 1.26763e-05V8H2917V0L3604 6.00594e-05V8H3764V10H3604V15.0001L2917 15V10H1791V15L1646 15V10H1600V15L1455 15V10H1410V15.0001Z" fill="#37DDC9"/>
               </svg>
             </div>
-            <div className={styles.search}><input onChange={handleSearchOnChange} type="text" placeholder="Search for a specific title"></input></div>
+            <div className={styles.listControls}>
+              <div className={styles.search}><input onChange={handleSearchOnChange} type="text" placeholder="Search for a specific title"></input></div>
+              <select onChange={handleSelect}>
+                <option value="date desc">date (newest to oldest)</option>
+                <option value="date asc">date (oldest to newest)</option>
+                <option value="title asc">name (a-z)</option>
+                <option value="title desc">name (z-a)</option>
+              </select>
+            </div>
             {(!finalList) ? (<div>Loading...</div>)
             : (
               <div className={utilStyle.rowAcross}>
-                {finalList.filter((note) => note.title.toLowerCase().includes(searchValue.toLowerCase())).map((note) => 
+                {finalList.filter((note) => note.title.toLowerCase().includes(searchValue.toLowerCase())).sort(compareFunction).map((note) => 
                     <PatchCard key={note.title} title={note.title} date={note.date} description={note.description} banner={note.banner} parentUrl={url} url={note.url} onClick={handleNoteClick}></PatchCard>
                 )}
               </div>

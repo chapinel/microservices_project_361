@@ -116,3 +116,13 @@ input[type="text"]:disabled {
 label {
   color: white;
 }
+
+select {
+  background: none;
+  border: #37DDC9 1px solid;
+  color: #37DDC9;
+  font-family: inherit;
+  text-transform: uppercase;
+  padding: 8px;
+  font-weight: 600;
+}

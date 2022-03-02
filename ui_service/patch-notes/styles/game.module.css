@@ -46,3 +46,10 @@
 .hrule > svg {
     width: 90vw;
 }
+
+.listControls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 95%;
+}
