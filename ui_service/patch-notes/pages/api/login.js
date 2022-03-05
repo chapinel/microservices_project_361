@@ -8,7 +8,6 @@ export default withIronSessionApiRoute(
     async function loginRoute(req, res) {
         try {
             const response = await validateUser(req.body)
-            const data = await response.json()
             if (response.status === 200){
                 req.session.user = {
                     id: 230,
@@ -16,8 +15,10 @@ export default withIronSessionApiRoute(
                 };
                 await req.session.save();
                 res.status(200).send({ done: true })
-            } else {
-                res.status(400).send({error: data.error})
+            } else if (response.status === 400) {
+                res.status(400).send({error: "Incorrect password"})
+            } else if (response.status === 406) {
+                res.status(400).send({error: "Incorrect username"})
             }
         } catch (error) {
             console.error(error)

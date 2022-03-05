@@ -1,9 +1,7 @@
-import functools
 import requests
-import time
 
 from flask import (
-    Blueprint, flash, g, redirect, request, session, jsonify
+    Blueprint, request, jsonify
 )
 
 bp = Blueprint('reddit', __name__, url_prefix='/reddit')
@@ -19,46 +17,55 @@ def check_keyword(text, title, keyword):
     
     return False
 
+def check_username(author, username):
+    if author.upper() == username.upper():
+        return True
+    return False
+
+
+def parse_post(post_data, text, username, keyword):
+
+    if username:
+        username_match = check_username(post_data["username"], username)
+    if keyword:
+        keyword_match = check_keyword(text, post_data["title"], keyword)
+    
+    if username and keyword:
+        if username_match and keyword_match:
+            return True
+    elif username:
+        if username_match:
+            return True
+    else:
+        if keyword_match:
+            return True
+    
+    return False
+
 @bp.route('/get', methods=['GET', 'POST'])
 def reddit():
     username = request.args.get("username", None)
     keyword = request.args.get("keyword", None)
-    error = None
 
     if username is None and keyword is None:
-        error = "Need to include either username or keyword"
+        return ("Need to include either username or keyword", 400)
     
-    if error is None:
+    url = "https://api.pushshift.io/reddit/search/submission/?subreddit=OSUOnlineCS&sort=desc&sort_type=created_utc&after=&before=&size=1000"
 
-        url = "https://api.pushshift.io/reddit/search/submission/?subreddit=OSUOnlineCS&sort=desc&sort_type=created_utc&after=&before=&size=1000"
-        
-        all_posts = dict()
+    page = requests.get(url)
+    posts = page.json()
+    matching_posts = []
 
-        page = requests.get(url)
-        posts = page.json()
-        post_no = 0
-        for item in posts["data"]:
-            title = item["title"]
-            text = item["selftext"]
-            author = item["author"]
-            url = item["url"]
-            post_data = {"title": title, "username": author, "url": url}
-            if username and keyword:
-                if author == username and (check_keyword(text, title, keyword)):
-                    all_posts[post_no] = post_data
-                    post_no += 1
-            elif username:
-                if author == username:
-                    all_posts[post_no] = post_data
-                    post_no += 1
-            else:
-                if (check_keyword(text, title, keyword)):
-                    all_posts[post_no] = post_data
-                    post_no += 1
-            
+    for item in posts["data"]:
 
-        response = jsonify( { "data": all_posts } )
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response
+        title = item["title"]
+        text = item["selftext"]
+        author = item["author"]
+        url = item["url"]
+        post_data = {"title": title, "username": author, "url": url}
 
-    return (error, 500)
+        if parse_post(post_data, text, username, keyword):
+            matching_posts.append(post_data)
+
+    response = jsonify( { "data": matching_posts } )
+    return response
