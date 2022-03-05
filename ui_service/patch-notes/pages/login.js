@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import Layout from '../components/layout'
-import Logo from '../components/logo'
 import Form from '../components/form'
 import styles from '../styles/signup.module.css'
 import utilStyles from '../styles/utils.module.css'
@@ -24,11 +23,8 @@ async function attemptLogin(body) {
             } else {
                 return "Oops - that password isn't correct."
             }
-        } else {
-            throw new Error (await res.text())
         }
     } catch (error) {
-        console.error(error)
         return error
     }
 }
@@ -38,13 +34,26 @@ export default function Login() {
 
     const [errorMessage, setErrorMessage] = useState('')
 
-    let firstVisit = false
+    let firstVisit = 'return'
     if (router.query.firstVisit === 'true'){
-        firstVisit = true
+        firstVisit = 'first'
     }
 
-    async function onSubmit(e){
-        console.log("submitting data")
+    const loginAttemptResponse = (response) => {
+        if (response === 'success') {
+            router.push({
+                pathname: '/',
+                query: { visit: firstVisit },})
+        } else {
+            if (typeof response === "string" && (response.includes('username') || response.includes('password'))){
+                setErrorMessage(response)
+            } else {
+                setErrorMessage('Oops - something went wrong. Please try again.')
+            }
+        }
+    }
+
+    const onSubmit = async(e) => {
         e.preventDefault()
 
         const body = {
@@ -53,25 +62,7 @@ export default function Login() {
         }
 
         const response = await attemptLogin(body)
-        console.log(response)
-
-        if (response === 'success') {
-            if (firstVisit) {
-                router.push({
-                    pathname: '/dashboard',
-                    query: { walkthrough: firstVisit },})
-            } else {
-                router.push({
-                    pathname: '/dashboard',
-                })
-            }
-        } else {
-            if (typeof response === "string" && (response.includes('username') || response.includes('password'))){
-                setErrorMessage(response)
-            } else {
-                setErrorMessage('Oops - something went wrong. Please try again.')
-            }
-        }
+        loginAttemptResponse(response)
     }
 
     return (

@@ -1,12 +1,11 @@
-import Image from 'next/image'
 import styles from '../styles/card.module.css'
 import Link from 'next/link'
 import Popover from './popover'
 import {useState} from 'react'
 
-export default function GameCard({ empty, title, date, splash, notifications, totalUpdates, url, menuOption1, menuOption2}) {
-    const updateStat = totalUpdates ? totalUpdates : '-'
-    const dateStat = date ? date : '-'
+export default function GameCard({ cardData, menuOption1, menuOption2 }) {
+    const updateStat = cardData.totalUpdates ? cardData.totalUpdates : '-'
+    const dateStat = cardData.date ? cardData.date : '-'
 
     const [controlPopover, setControlPopover] = useState(false)
 
@@ -20,30 +19,25 @@ export default function GameCard({ empty, title, date, splash, notifications, to
     const turnOnOffNotification = (e) => {
         setControlPopover(false)
         e.stopPropagation()
-        menuOption2(title, notifications)
+        menuOption2(cardData.title, cardData.notifications)
     }
 
     const removeGame = (e) => {
         setControlPopover(false)
         e.stopPropagation()
-        menuOption1(title)
+        menuOption1(cardData.title)
     }
 
-    const buttons = [{ text: `Turn ${notifications} notifications`, onClick: turnOnOffNotification}, {text: "Remove game", onClick: removeGame}]
+    const buttons = [{ text: `Turn ${cardData.notifications} notifications`, onClick: turnOnOffNotification}, {text: "Remove game", onClick: removeGame}]
 
     return (
         <>
-        { empty ? (
-            <div className={styles.emptyCard}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#d9d9d9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-plus"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </div>
-        ) : (
-        <Link href={`/games/${title}?url=${url}`}>
+        <Link href={`/games/${cardData.title}?url=${cardData.url}`}>
         <div className={styles.cardGrid}>
             <div className={styles.card}>
                 <div className={styles.titleSection}>
                     <div className={styles.title}>
-                        <p>{gameName[title]}</p>
+                        <p>{gameName[cardData.title]}</p>
                     </div>
                     <div className={styles.stat1}>
                         <p className={styles.statNum}>{dateStat}</p>
@@ -61,13 +55,10 @@ export default function GameCard({ empty, title, date, splash, notifications, to
                 </div>
             </div>
             <div className={styles.splashImage}>
-                <img src={splash}></img>
+                <img src={cardData.splash}></img>
             </div>
         </div>
         </Link>
-        )
-
-        }
       </>  
     )
 }

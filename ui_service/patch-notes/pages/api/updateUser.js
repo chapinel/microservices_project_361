@@ -23,20 +23,20 @@ async function helper(req, res){
 
     const galactus = await getUserServiceId({name: data.name, email: data.email})
 
-    if (galactus !== 'error'){
-      const response = await updateUserFields({user: data.old, id: galactus.id, name: data.name, email: data.email})
-      if (response === 'success') {
-        req.session.user = {
-          id: 230,
-          username: req.body.name
-        };
-        await req.session.save();
-        res.status(200).send({ done: true })
-      } else {
-        res.status(500).end(response)
-      }
-    } else {
+    if (galactus === 'error'){
       res.status(500).end(galactus)
+    }
+
+    const response = await updateUserFields({user: data.old, id: galactus.id, name: data.name, email: data.email})
+    if (response === 'success') {
+      req.session.user = {
+        id: 230,
+        username: req.body.name
+      };
+      await req.session.save();
+      res.status(200).send({ done: true })
+    } else {
+      res.status(500).end(response)
     }
 },
 {

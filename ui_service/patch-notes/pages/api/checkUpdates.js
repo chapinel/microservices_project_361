@@ -19,7 +19,6 @@ const sendUserEmail = async (body) => {
     const url = 'https://galac-tus.herokuapp.com/email'
     try {
         const response = await fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})
-        console.log('galactus response', response.status)
         if (response.status === 201 || response.status === 200){
             return 'success'
         } else {
@@ -36,7 +35,6 @@ async function sendEmails(listOfUsers, game){
         
         const userServiceId = await getUserFromId(user)
         if (userServiceId === 'error') {
-            console.log('error getting user service id')
             return false
         }
         if (userServiceId !== null){
@@ -44,7 +42,6 @@ async function sendEmails(listOfUsers, game){
             if (response === 'success'){
                 continue
             } else {
-                console.log('error sending user email')
                 return false
             }
         } else {
@@ -63,11 +60,9 @@ const getLatestNoteDate = async (game) => {
             const data = await response.json()
             return data.date
         } else {
-            console.log('error on fetching latest note date')
             return 'error'
         }
     } catch (error) {
-        console.error(error)
         return 'error'
     }
 }
@@ -80,11 +75,9 @@ const checkForUpdates = async (game, date) => {
             const data = await response.json()
             return data.count
         } else {
-            console.log('error on fetching game updates')
             return 'error'
         }
     } catch (error) {
-        console.error(error)
         return 'error'
     }
 }
@@ -97,11 +90,9 @@ const getUsersForGame = async (game) => {
             const data = await response.json()
             return data.users
         } else {
-            console.log('error on fetching users for game')
             return 'error'
         }
     } catch (error) {
-        console.error(error)
         return 'error'
     }
 }
@@ -110,35 +101,28 @@ export default async function helper(req, res){
     const games = [["valorant", 1, "Valorant"], ["league", 2, "League of Legends"], ["tft", 3, "Teamfight Tactics"], ["rift", 4, "Wild Rift"]]
  
     for (const game of games){
-        console.log('getting latest note date')
         const date = await getLatestNoteDate(game[1])
-        if (date !== 'error'){
-            console.log('getting count of updates')
-            const count = await checkForUpdates(game[0], date)
-            if (count > 0){
-                console.log('getting users for game')
-                const users = await getUsersForGame(game[0])
-                if (users !== 'error'){
-                    console.log('sending emails')
-                    const result = await sendEmails(users, game[2])
-                    if (result === true){
-                        res.status(200).send({done: true})
-                        return
-                    } else {
-                        console.log('error sending emails')
-                        res.status(500).end('error')
-                    }
-                } else {
-                    res.status(500).end('error')
-                }
-            } else {
-                continue
-            }
-        } else {
-            res.status(500).end('error')
-        } 
-    }
+        if (date === 'error'){
+            res.status(500).end('get date error')
+        }
 
+        const count = await checkForUpdates(game[0], date)
+        if (count === 0) {
+            continue
+        }
+
+        const users = await getUsersForGame(game[0])
+        if (users === 'error'){
+            res.status(500).end('get user error')
+        }
+
+        const result = await sendEmails(users, game[2])
+        if (result === true){
+            res.status(200).send({done: true})
+        } else {
+            res.status(500).end('send email error')
+        }
+    }
     res.status(200).send({done: true})
 
 }

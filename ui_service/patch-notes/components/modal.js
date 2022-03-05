@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from '../styles/modal.module.css'
 import utilstyles from '../styles/utils.module.css'
 

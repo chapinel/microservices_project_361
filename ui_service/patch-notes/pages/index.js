@@ -122,8 +122,7 @@ export const getServerSideProps = withIronSessionSsr(
 export default function Home({user, data, userData, count}) {
 
   const router = useRouter()
-  const walkthrough = router.query.walkthrough ? true : false
-  console.log(walkthrough)
+  const walkthrough = router.query.visit === 'first' ? true : false
   
   const [controlModal, setControlModal] = useState(false)
   const [controlRemoveModal, setControlRemoveModal] = useState(false)
@@ -163,6 +162,14 @@ export default function Home({user, data, userData, count}) {
     router.replace(router.asPath);
   }
 
+  const waitForSuccessMessage = (modalFunction) => {
+      setTimeout(() => {
+        modalFunction(false)
+        setModalSuccess(false)
+        refreshPageData()
+      }, 1000)
+  }
+
   async function addUserGameRelationship(gamesToAdd, user) {
     for (const game of gamesToAdd){
       const formData = {
@@ -178,12 +185,7 @@ export default function Home({user, data, userData, count}) {
         console.error(error)
       }
     }
-    // wait a bit so that the user can register the success message
-    setTimeout(() => {
-      setControlModal(false)
-      setModalSuccess(false)
-      refreshPageData()
-    }, 1000)
+    waitForSuccessMessage(setControlModal)
   }
 
   async function removeUserGameRelationship(gameToRemove, user) {
@@ -199,11 +201,7 @@ export default function Home({user, data, userData, count}) {
     } catch(error) {
         console.error(error)
     }
-    setTimeout(() => {
-      setControlRemoveModal(false)
-      setModalSuccess(false)
-      refreshPageData()
-    }, 1000)
+    waitForSuccessMessage(setControlRemoveModal)
   }
 
   async function getFirstServiceId (user, email) {
@@ -238,11 +236,7 @@ export default function Home({user, data, userData, count}) {
       const res = await fetch('/api/update-email', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
       if (res.status == 200) {
         setModalSuccess(true)
-        setTimeout(() => {
-          setControlNotifModal(false)
-          setModalSuccess(false)
-          refreshPageData()
-        }, 1000)
+        waitForSuccessMessage(setControlNotifModal)
       }
     } catch (error) {
       console.error(error)
@@ -307,8 +301,6 @@ export default function Home({user, data, userData, count}) {
     }
   }
 
-  console.log(modalWalkthrough)
-  
   return (
     <>
       <Layout loggedIn={true}>
@@ -337,7 +329,13 @@ export default function Home({user, data, userData, count}) {
           <div className={utilStyles.emptyState}>Add your first game to start tracking updates!</div>
         ) : (
             <div className={utilStyles.row}>
-              {data.map(game => <GameCard key={game.name} user={user.user} splash={game.banner} title={game.name} totalUpdates={game.count} date={game.date} url={game.url} notifications={game.notifications} menuOption1={handleRemove} menuOption2={handleNotifications}/>)}
+              {data.map(game => <GameCard 
+              key={game.name} 
+              cardData={
+                {title: game.name, date: game.date, splash: game.banner, notifications: game.notifications, url: game.url, totalUpdates: game.count}
+              }
+              menuOption1={handleRemove} menuOption2={handleNotifications}
+              />)}
             </div>
         )}
         </div>
