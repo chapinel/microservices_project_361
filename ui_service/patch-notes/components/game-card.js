@@ -1,6 +1,7 @@
 import styles from '../styles/card.module.css'
 import Link from 'next/link'
 import Popover from './popover'
+import Games from '../lib/game_data'
 import {useState} from 'react'
 
 export default function GameCard({ cardData, menuOption1, menuOption2 }) {
@@ -9,12 +10,7 @@ export default function GameCard({ cardData, menuOption1, menuOption2 }) {
 
     const [controlPopover, setControlPopover] = useState(false)
 
-    const gameName = {
-        "valorant": "Valorant",
-        "league": "League of Legends",
-        "tft": "Teamfight Tactics",
-        "rift": "Wild Rift"
-    }
+    const games = Games()
 
     const turnOnOffNotification = (e) => {
         setControlPopover(false)
@@ -37,7 +33,7 @@ export default function GameCard({ cardData, menuOption1, menuOption2 }) {
             <div className={styles.card}>
                 <div className={styles.titleSection}>
                     <div className={styles.title}>
-                        <p>{gameName[cardData.title]}</p>
+                        <p>{games[cardData.title]["name"]}</p>
                     </div>
                     <div className={styles.stat1}>
                         <p className={styles.statNum}>{dateStat}</p>

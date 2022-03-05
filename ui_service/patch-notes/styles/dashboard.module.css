@@ -33,66 +33,6 @@
     margin-bottom: 16px;
 }
 
-.notifInfo {
-    font-size: 1.2rem;
-    margin-bottom: 24px;
-}
-
-.emailAddress {
-    display: flex;
-    flex-direction: column;
-    margin: 16px 0px;
-}
-
-.emailAddress > input {
-    width: 50%;
-}
-
-.emailDefault {
-    font-size: .8rem;
-    opacity: 75%;
-    font-style: italic;
-    margin-bottom: 16px;
-}
-
-.initialWalkthroughContent {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-.initialWalkthroughContent > h1 {
-    margin: 16px;
-}
-
-.walkthroughInstruction {
-    margin-bottom: 16px;
-    width: 100%;
-}
-
-.walkthroughImg {
-    display:flex;
-    justify-content: center;
-    margin: 24px 0px;
-}
-
-.walkthroughImg > img {
-    width: 90%;
-    
-}
-
-.walkthroughInstruction > p {
-    margin: 12px 0px;
-}
-
-.walkthroughHeader {
-    font-size: 1.1rem;
-    font-weight: 500;
-    margin-bottom: 16px;
-}
-
 .hrule > svg {
     width: 90vw;
 }

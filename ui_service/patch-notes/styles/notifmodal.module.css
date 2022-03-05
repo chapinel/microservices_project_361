@@ -1,0 +1,21 @@
+.notifInfo {
+    font-size: 1.2rem;
+    margin-bottom: 24px;
+}
+
+.emailAddress {
+    display: flex;
+    flex-direction: column;
+    margin: 16px 0px;
+}
+
+.emailAddress > input {
+    width: 50%;
+}
+
+.emailDefault {
+    font-size: .8rem;
+    opacity: 75%;
+    font-style: italic;
+    margin-bottom: 16px;
+}

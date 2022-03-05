@@ -1,77 +1,26 @@
 import Layout from '../components/layout'
 import Modal from '../components/modal'
 import GameCard from '../components/game-card'
+import Games from '../lib/game_data'
+import Walkthrough from '../components/walkthrough'
+import Notifications from '../components/notifModal'
 import utilStyles from '../styles/utils.module.css'
 import styles from '../styles/dashboard.module.css'
 import { useRouter } from 'next/router'
 import ReactTooltip from 'react-tooltip'
 import { useEffect, useState } from 'react'
 import { withIronSessionSsr } from 'iron-session/next'
+import { getUserData } from '../lib/user'
+import { getUserGames, getGameNameUrl, getGameStats } from '../lib/get_game_info'
+import { addUpdateUserGameNotifications } from '../lib/user_game'
 
 // code to set up user session is modeled from the examples provided by NextJs: https://github.com/vvo/iron-session#usage-nextjs
 // and https://github.com/vercel/next.js/tree/canary/examples/with-passport
 
-const getUserData = async (username) => {
-  try {
-    const url = process.env.DATABASE_URL + `auth/get-one?user=${username}`   
-    const res = await fetch(url)
-    if (res.status == 200){
-      const data = await res.json()
-      return data
-    }
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-const getUserGames = async (username) => {
-  const listOfGameIDs = []
-
-  try {
-    const url = process.env.DATABASE_URL + `mail/get-games-for-user?user=${username}`  
-    const res = await fetch(url)
-    if (res.status === 200){
-      const data = await res.json()
-      for (const relationship of data.mail) {
-        listOfGameIDs.push({ id: relationship[0], notifications: relationship[2]})
-      }
-      return listOfGameIDs
-    }
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-const getGameNameUrl = async (gameId) => {
-  try {
-    const url = process.env.DATABASE_URL + `game/get-from-id?game=${gameId}`
-    const res = await fetch(url)
-    if (res.status === 200){
-      const data = await res.json()
-      return data
-    }
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-const getGameStats = async (gameId) => {
-  try {
-    const url = process.env.DATABASE_URL + `note/get-latest-and-count?game=${gameId}`
-    const res = await fetch(url)
-    if (res.status === 200){
-      const data = await res.json()
-      return data
-    }
-  } catch (error) {
-    console.error(error)
-  }
-}
-
 const getEachGame = async (listOfGames) => {
   const listOfGameData = []
   for (const game of listOfGames) {
-    const { name, url } = await getGameNameUrl(game.id)
+    const { name, url } = await getGameNameUrl(game.id, "id")
     const { banner, date, count } = await getGameStats(game.id)
     const cardData = {name: name, url: url, banner: banner, date: date, count: count, notifications: game.notifications ? "off" : "on",}
     listOfGameData.push(cardData)
@@ -138,17 +87,7 @@ export default function Home({user, data, userData, count}) {
   const [modalWalkthroughFourthScreen, setModalWalkthroughFourthScreen] = useState(false)
 
   // We need a mapping of game names for our checkbox selection in the Add Game modal
-  const allGames = [['valorant', 'Valorant'], ['league', 'League of Legends'], ['tft', 'Teamfight Tactics'], ['rift', 'Wild Rift']]
-  const chosenGames = []
-
-  for (const name of allGames) {
-    for (const game of data) {
-      if (game.name === name[0]) {
-        chosenGames.push(name[1])
-        break
-      }
-    }
-  }
+  const games = Games()
 
   // This will be how we track what games the user has selected when they go to add a game
   let gamesToAdd = []
@@ -160,6 +99,16 @@ export default function Home({user, data, userData, count}) {
 
   const refreshPageData = () => {
     router.replace(router.asPath);
+  }
+
+  // This function is used to disable or enable checkboxes in Add Game modal, depending on whether user already has them added
+  const checkIfChosen = (gameName) => {
+    for (const game of data){
+      if (game.name === gameName){
+        return true
+      }
+    }
+    return false
   }
 
   const waitForSuccessMessage = (modalFunction) => {
@@ -185,6 +134,8 @@ export default function Home({user, data, userData, count}) {
         console.error(error)
       }
     }
+    // reset the list of games that the user wants to add so it doesn't carry over to next time
+    gamesToAdd = []
     waitForSuccessMessage(setControlModal)
   }
 
@@ -204,42 +155,11 @@ export default function Home({user, data, userData, count}) {
     waitForSuccessMessage(setControlRemoveModal)
   }
 
-  async function getFirstServiceId (user, email) {
-    const formData = {
-      name: user,
-      email: email
-    }
-    try {
-      const res = await fetch('/api/email', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData)})
-      if (res.status === 200) {
-        return true
-      }
-    } catch (error) {
-      console.error(error)
-      return false
-    }
-  }
-
-  async function addUserGameNotifications(gameToNotify, user, email, service_id, mailChange) {
-    let mail;
-    mailChange === "on" ? mail = 1 : mail = 0
-    // First, we check to see if this is the first time a user has turned on notifications
-    // If it is, we need to make a call to Galactus to get a new service ID for them and update their user data in our DB
-    if (mail && service_id == null){
-      const response = await getFirstServiceId(user, email)
-      if (!response) {
-        console.log('There was an error getting and setting the service id')
-        return
-      }
-    }
-    try {
-      const res = await fetch('/api/update-email', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
-      if (res.status == 200) {
-        setModalSuccess(true)
-        waitForSuccessMessage(setControlNotifModal)
-      }
-    } catch (error) {
-      console.error(error)
+  async function addUserGameNotifications(notificationParameters) {
+    const response = await addUpdateUserGameNotifications(notificationParameters)
+    if (response === true){
+      setModalSuccess(true)
+      waitForSuccessMessage(setControlNotifModal)
     }
   }
 
@@ -253,13 +173,13 @@ export default function Home({user, data, userData, count}) {
     }
   }
 
-  const handleCancel = () => {
-    // reset the list of games that the user wants to add
+  const handleAddCancel = () => {
+    // reset the list of games that the user wants to add so it doesn't carry over after they cancel or close
     gamesToAdd = []
     setControlModal(false)
   }
 
-  const handleConfirm = () => {
+  const handleAddConfirm = () => {
     if (gamesToAdd.length === 0){
       console.log('no games to add')
     } else {
@@ -267,7 +187,7 @@ export default function Home({user, data, userData, count}) {
     }
   }
 
-  const handleRemove = (game) => {
+  const handleClickRemove = (game) => {
     setGameToRemove(game)
     setControlRemoveModal(true)
   }
@@ -276,14 +196,20 @@ export default function Home({user, data, userData, count}) {
     removeUserGameRelationship(gameToRemove, user.username)
   }
 
-  const handleNotifications = (game, type) => {
-    // "type" corresponds to whether we're turning it off or on
-    setGameNotif([game, type])
+  const handleClickNotifications = (game, turnOffOrOn) => {
+    setGameNotif({game: game, OffOrOn: turnOffOrOn})
     setControlNotifModal(true)
   }
 
   const handleNotifConfirm = () => {
-    addUserGameNotifications(gameNotif[0], user.username, userData.email, userData.service_id, gameNotif[1])
+    const parameters = {
+      gameToNotify: gameNotif.game,
+      user: user.username,
+      email: userData.email,
+      service_id: userData.service_id,
+      mailChange: gameNotif.OffOrOn
+    }
+    addUserGameNotifications(parameters)
   }
 
   const handleWalkthroughConfirm = () => {
@@ -334,34 +260,41 @@ export default function Home({user, data, userData, count}) {
               cardData={
                 {title: game.name, date: game.date, splash: game.banner, notifications: game.notifications, url: game.url, totalUpdates: game.count}
               }
-              menuOption1={handleRemove} menuOption2={handleNotifications}
+              menuOption1={handleClickRemove} menuOption2={handleClickNotifications}
               />)}
             </div>
         )}
         </div>
         <Modal
-          title="Add a game"
-          open={controlModal} 
-          onChange={() => setControlModal(false)}
-          onCancel={handleCancel}
-          onConfirm={handleConfirm}
-          confirmText="Add games"
-          success={modalSuccess}
+          modalData={{
+            title: "Add a game",
+            open: controlModal,
+            onCancel: handleAddCancel,
+            onConfirm: handleAddConfirm,
+            success: modalSuccess
+          }}
+          buttonText=
+          {{
+            confirmText: "Add games"
+          }}
         >
           <div className={styles.modalSelection}>
-            {allGames.map(name => <div key={name} className={styles.check}><label className={utilStyles.formControl} htmlFor={name}><input type="checkbox" onClick={handleGameAdd} disabled={chosenGames.includes(name[1])} id={name[0]}/>{name[1]}</label></div>)}
+            {Object.keys(games).map((game, i) => <div key={i} className={styles.check}><label className={utilStyles.formControl} htmlFor={games[game].name}><input type="checkbox" onClick={handleGameAdd} disabled={checkIfChosen(games[game].dbName)} id={games[game].dbName}/>{games[game].name}</label></div>)}
           </div>
           <div className={styles.modalSubtext}>Don&apos;t see what you&apos;re looking for? Send us an <a href="mailto:chapinel@oregonstate.edu?subject = New Game Request">email</a> and let us know what games you&apos;d like to track!</div>
           
         </Modal>
         <Modal
-          title="Are you sure?"
-          open={controlRemoveModal}
-          onChange={() => setControlRemoveModal(false)}
-          onCancel={() => setControlRemoveModal(false)}
-          onConfirm={handleRemoveConfirm}
-          confirmText="yes, i'm sure"
-          success={modalSuccess}
+          modalData={{
+            title: "Are you sure?",
+            open: controlRemoveModal,
+            onCancel: () => setControlRemoveModal(false),
+            onConfirm: handleRemoveConfirm,
+            success: modalSuccess
+          }}
+          buttonText={{
+            confirmText: "yes, i'm sure"
+          }}
         >
           <div className={styles.modalParagraphs}>
             <p>Removing a game from your dashboard will mean that you can&apos;t receive notifications for it until you add it back.</p>
@@ -369,77 +302,58 @@ export default function Home({user, data, userData, count}) {
           </div>
         </Modal>
         <Modal
-          title={`Turn ${gameNotif[1]} notifications`}
-          open={controlNotifModal}
-          onChange={() => setControlNotifModal(false)}
-          onCancel={() => setControlNotifModal(false)}
-          onConfirm={handleNotifConfirm}
-          confirmText={`Turn ${gameNotif[1]}`}
-          success={modalSuccess}
+          modalData={{
+            title: `Turn ${gameNotif.OffOrOn} notifications`,
+            open: controlNotifModal,
+            onCancel: () => setControlNotifModal(false),
+            onConfirm: handleNotifConfirm,
+            success: modalSuccess
+          }}
+          buttonText={{
+            confirmText: `Turn ${gameNotif.OffOrOn}`
+          }}
         >
-          {gameNotif[1] === "on" ? (
-            <>
-            <p className={styles.notifInfo}>If you have notifications turned on for a game, we&apos;ll send you an email as soon as we know there&apos;s been an update!</p>
-            <div className={styles.emailAddress}>
-              <label>Email address</label>
-              <input type="text" value={userData.email} disabled></input>
-            </div>
-            <p className={styles.emailDefault}>This is the email currently associated with your account. You can change it in user settings.</p>
-            </>
-          ) : (
-            <>
-              <p className={styles.notifInfo}>Are you sure? If you turn off notifications, you will no longer receive email updates.</p>
-              <p className={styles.notifInfo}>You can turn notifications back on at any time.</p>
-            </>
-          )}
+          <Notifications offOrOn={gameNotif.OffOrOn} email={userData.email}/>
         </Modal>
         <Modal
-          title=""
-          open={modalWalkthrough}
-          onChange={() => setModalWalkthrough(false)}
-          onCancel={() => setModalWalkthrough(false)}
-          onConfirm={handleWalkthroughConfirm}
-          confirmText={modalWalkthroughFirstScreen? "I'd Love That" : "Got It"}
-          cancelText={modalWalkthroughFirstScreen? "No Thanks" : "Cancel"}
+          modalData={{
+            title: "",
+            open: modalWalkthrough,
+            onCancel: () => setModalWalkthrough(false),
+            onConfirm: handleWalkthroughConfirm,
+            success: modalSuccess
+          }}
+          buttonText={{
+            confirmText: modalWalkthroughFirstScreen? "I'd Love That" : "Got It",
+            cancelText: modalWalkthroughFirstScreen? "No Thanks" : "Cancel"
+          }}
         >
           {modalWalkthroughSecondScreen && (
-            <>
-            <p className={styles.walkthroughHeader}>Great! You can get started in three easy steps:</p>
-            <div className={styles.walkthroughInstruction}>
-            <h1 className={utilStyles.headingMd}>Add a game</h1>
-            <p>Add as many or as few games as you&apos;d like to your dashboard.</p>
-            <div className={styles.walkthroughImg}>
-                <img src="/images/addAGame.gif"/>
-            </div>
-            </div>
-            </>
+            <Walkthrough screen="fourth" screenData={{
+              mainHeader: "Great! You can get started in three easy steps:",
+              heading: "Add a game", 
+              description: "Add as many or as few games as you&apos;d like to your dashboard.",
+              image: "/images/addAGame.gif"
+            }}/>
           )}
           {modalWalkthroughThirdScreen && (
-              <div className={styles.walkthroughInstruction}>
-              <h1 className={utilStyles.headingMd}>Click in to see more information</h1>
-              <p>Click into an individual game&apos;s page to see a list of its updates</p>
-              <div className={styles.walkthroughImg}>
-                <img src="/images/clickIn.gif"/>
-              </div>
-              </div>
+            <Walkthrough screen="fourth" screenData={{
+              heading: "Click in to see more information", 
+              description: "Click into an individual game's page to see a list of its updates",
+              image: "/images/clickIn.gif"
+            }}/>
           )}
 
           {modalWalkthroughFourthScreen && (
-              <div className={styles.walkthroughInstruction}>
-              <h1 className={utilStyles.headingMd}>Turn on notifications to get email updates</h1>
-              <p>When you have notifications turned on, we&apos;ll let you know whenever a game you&apos;re tracking posts something new!</p>
-              <div className={styles.walkthroughImg}>
-                <img src="/images/notifications.gif"/>
-              </div>
-              </div>
+            <Walkthrough screen="fourth" screenData={{
+              heading: "Turn on notifications to get email updates", 
+              description: "When you have notifications turned on, we'll let you know whenever a game you're tracking posts something new!",
+              image: "/images/notifications.gif"
+            }}/>
           )}
             
           {!modalWalkthroughSecondScreen && !modalWalkthroughThirdScreen && !modalWalkthroughFourthScreen && (
-            <div className={styles.initialWalkthroughContent}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#F54670" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-map"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-            <h1 className={utilStyles.headingMd}>Welcome!</h1>
-            <p>It looks like this is your first time here - would you like a quick overview of how Patch Poro works?</p>
-            </div>
+            <Walkthrough screen="first"/>
           )}
           
         </Modal>

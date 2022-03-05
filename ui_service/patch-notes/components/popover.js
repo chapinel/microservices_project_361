@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from '../styles/popover.module.css'
 
-export default function Popover({open, children, onChange, options}){
+export default function Popover({open, children, options}){
     const [componentMounted, setComponentMounted] = useState(false);
     const [openPopover, setOpenPopover] = useState(open);
 

@@ -1,0 +1,9 @@
+.container {
+    width: 10vw;
+    justify-content: center;
+    display: flex;
+}
+
+.container > img {
+    width: 50%;
+}

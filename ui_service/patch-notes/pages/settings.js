@@ -4,19 +4,7 @@ import Layout from '../components/layout'
 import { useState } from 'react'
 import { withIronSessionSsr } from 'iron-session/next'
 import { useRouter } from 'next/router'
-
-const getUserEmail = async (username) => {
-    try {
-        const url = process.env.DATABASE_URL + `auth/get-one?user=${username}`
-        const res = await fetch(url)
-        if (res.status == 200){
-          const data = await res.json()
-          return data.email
-        }
-      } catch (error) {
-        console.error(error)
-      }
-}
+import { getUserData } from '../lib/user'
 
 export const getServerSideProps = withIronSessionSsr(
     async function getServerSideProps({ req, query }) {
@@ -31,12 +19,12 @@ export const getServerSideProps = withIronSessionSsr(
         }
       }
 
-      const userEmail = await getUserEmail(user.username)
+      const userEmail = await getUserData(user.username)
         
       return {
         props: {
           user: user,
-          userEmail: userEmail,
+          userEmail: userEmail.email,
         },
       };
     },

@@ -6,60 +6,14 @@ import { withIronSessionSsr } from 'iron-session/next'
 import { useState } from 'react'
 import PatchCard from '../../components/patch-card'
 import Modal from '../../components/modal'
+import Games from '../../lib/game_data'
+import { getUserData } from '../../lib/user'
+import { getGameNameUrl, getUserGameNotifications, getGameNotes } from '../../lib/get_game_info'
+import { addUpdateUserGameNotifications } from '../../lib/user_game'
+import Notifications from '../../components/notifModal'
 
 // code to set up user session is modeled from the examples provided by NextJs: https://github.com/vvo/iron-session#usage-nextjs
 // and https://github.com/vercel/next.js/tree/canary/examples/with-passport
-const getUserData = async (username) => {
-  try {
-    const url = process.env.DATABASE_URL + `auth/get-one?user=${username}`   
-    const res = await fetch(url)
-    if (res.status == 200){
-      const data = await res.json()
-      return data
-    }
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-const getUserGameNotifications = async (username, game) => {
-  try {
-    const url = process.env.DATABASE_URL + `mail/get-mail?user=${username}&game=${game}`
-    const res = await fetch(url)
-    if (res.status === 200){
-        const data = await res.json()
-        return data.mail ? "off" : "on"
-    }
-  } catch (error) {
-  console.error(error)
-  }
-}
-
-const getGameUrl = async (game) => {
-  try{
-    const url = process.env.DATABASE_URL + `game/get-from-name?game=${game}`
-    const res = await fetch(url)
-    if (res.status === 200){
-        const data = await res.json()
-        return data.url
-  }
-  } catch (error) {
-      console.error(error)
-  }
-}
-
-const getGameNotes = async (game) => {
-  try{
-    const url = process.env.DATABASE_URL + `note/get?game=${game}`
-    const res = await fetch(url)
-    if (res.status === 200){
-      const data = await res.json()
-      return data.notes
-    }
-  } catch (error) {
-      console.error(error)
-  }
-}
 
 export const getServerSideProps = withIronSessionSsr(
     async function getServerSideProps({ req, query }) {
@@ -78,7 +32,7 @@ export const getServerSideProps = withIronSessionSsr(
 
       const userData = await getUserData(user.username)
       const gameNotifications = await getUserGameNotifications(user.username, game)
-      const gameUrl = await getGameUrl(game)
+      const gameUrl = await getGameNameUrl(game, "name")
       const notes = await getGameNotes(game)
         
       return {
@@ -87,7 +41,7 @@ export const getServerSideProps = withIronSessionSsr(
           userData: userData,
           notif: gameNotifications,
           game: game,
-          url: gameUrl,
+          url: gameUrl.url,
           notes: notes
         },
       };
@@ -115,44 +69,27 @@ export default function Game ({user, userData, notif, game, url, notes}) {
 
     const finalList = notes.filter(note => !(note.description.includes("This article will not be visible")))
 
-    const games = {
-      "valorant": "Valorant",
-      "league": "League of Legends",
-      "tft": "Teamfight Tactics",
-      "rift": "Wild Rift"
-    }
+    const games = Games()
 
     const refreshPageData = () => {
         router.replace(router.asPath);
     }
 
-    async function addUserGameNotifications(gameToNotify, user, email, service_id, notifChange) {
-        let mail;
-        notifChange === "on" ? mail = 1 : mail = 0
-        
-        // First, we check to see if this is the first time a user has turned on notifications
-        // If it is, we need to make a call to Galactus to get a new service ID for them and update their user data in our DB
-        if (mail && service_id === null){
-          const response = await getFirstServiceId(user, email)
-          if (!response) {
-            console.log('There was an error getting and setting the service id')
-            return
-          }
-        }
-        try {
-          const res = await fetch('/api/update-email', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({user: user, game: gameToNotify, mail: mail})})
-          if (res.status == 200) {
-            setModalSuccess(true)
-            setTimeout(() => {
-              setControlNotifModal(false)
-              setModalSuccess(false)
-              refreshPageData()
-            }, 1000)
-          }
-        } catch (error) {
-          console.error(error)
-        }
-  }
+    const waitForSuccessMessage = (modalFunction) => {
+      setTimeout(() => {
+        modalFunction(false)
+        setModalSuccess(false)
+        refreshPageData()
+      }, 1000)
+    }
+
+    async function addUserGameNotifications(parameters) {
+      const response = await addUpdateUserGameNotifications(parameters)
+      if (response === true){
+        setModalSuccess(true)
+        waitForSuccessMessage(setControlNotifModal)
+      }
+    }
     
     const handleSearchOnChange = (e) => {
         setSearchValue(e.target.value)
@@ -166,7 +103,14 @@ export default function Game ({user, userData, notif, game, url, notes}) {
     }
 
     const handleNotifConfirm = () => {
-        addUserGameNotifications(game, user.username, userData.email, userData.service_id, notif)
+      const parameters = {
+        gameToNotify: game,
+        user: user.username,
+        email: userData.email,
+        service_id: userData.service_id,
+        mailChange: notif
+      }
+      addUserGameNotifications(parameters)
     }
 
     const sortNotes = (sortObject, sortDirection) => {
@@ -195,7 +139,7 @@ export default function Game ({user, userData, notif, game, url, notes}) {
         <Layout loggedIn={true}>
         <section>
             <div className={utilStyle.headerWButton}>
-                <h1 className={utilStyle.headingXl}>{games[game]}</h1>
+                <h1 className={utilStyle.headingXl}>{games[game].name}</h1>
                 <div className={styles.headerButton}>
                       <button className={utilStyle.svgButton} data-tip="Tooltip for notifications" onClick={() => setControlNotifModal(true)}>
                         {notif == 'on' ? (<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F54670" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -222,35 +166,35 @@ export default function Game ({user, userData, notif, game, url, notes}) {
             : (
               <div className={utilStyle.rowAcross}>
                 {finalList.filter((note) => note.title.toLowerCase().includes(searchValue.toLowerCase())).sort(compareFunction).map((note) => 
-                    <PatchCard key={note.title} title={note.title} date={note.date} description={note.description} banner={note.banner} parentUrl={url} url={note.url} onClick={handleNoteClick}></PatchCard>
+                    <PatchCard key={note.title} 
+                    patchCardData={
+                      {
+                        title: note.title,
+                        date: note.date,
+                        description: note.description,
+                        banner: note.banner,
+                        parentUrl: url,
+                        url: note.url
+                      }
+                    }
+                    onClick={handleNoteClick}>
+                    </PatchCard>
                 )}
               </div>
             )}
             <Modal
-                title={`Turn ${notif} notifications`}
-                open={controlNotifModal}
-                onChange={() => setControlNotifModal(false)}
-                onCancel={() => setControlNotifModal(false)}
-                onConfirm={handleNotifConfirm}
-                confirmText={`Turn ${notif}`}
-                success={modalSuccess}
-                >
-                {notif === "on" ? (
-                    <>
-                    <p className={styles.notifInfo}>If you have notifications turned on for a game, we&apos;ll send you an email as soon as we know there&apos;s been an update!</p>
-                    <div className={styles.emailAddress}>
-                    <label>Email address</label>
-                    <input type="text" value={userData.email} disabled></input>
-                    </div>
-                    <p className={styles.emailDefault}>This is the email currently associated with your account. You can change it in user settings.</p>
-                    </>
-                ) : (
-                    <>
-                    <p className={styles.notifInfo}>Are you sure? If you turn off notifications, you will no longer receive email updates.</p>
-                    <p className={styles.notifInfo}>You can turn notifications back on at any time.</p>
-                    </>
-                )}
-                
+              modalData={{
+                title: `Turn ${notif} notifications`,
+                open: controlNotifModal,
+                onCancel: () => setControlNotifModal(false),
+                onConfirm: handleNotifConfirm,
+                success: modalSuccess
+              }}
+              buttonText={{
+                confirmText: `Turn ${notif}`
+              }}
+            >
+              <Notifications offOrOn={notif} email={userData.email}/>
             </Modal>
             
         </section>
