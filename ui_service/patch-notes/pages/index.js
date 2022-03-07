@@ -340,7 +340,7 @@ export default function Home({user, data, userData, count}) {
             <Walkthrough screen="third" screenData={{
               heading: "Click in to see more information", 
               description: "Click into an individual game's page to see a list of its updates",
-              image: "/images/clickin.gif"
+              image: "/images/clickmore.gif"
             }}/>
           )}
 
