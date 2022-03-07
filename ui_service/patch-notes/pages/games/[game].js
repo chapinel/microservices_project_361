@@ -176,13 +176,13 @@ export default function Game ({user, userData, notif, game, url, notes}) {
                 </button>
                 {openDropdown && (
                   <div className={utilStyle.selectDropdown}>
-                  <label className={utilStyle.selectLabel} for="date-desc"><p>date (newest to oldest)</p></label>
+                  <label className={utilStyle.selectLabel} htmlFor="date-desc"><p>date (newest to oldest)</p></label>
                   <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="date-desc" value="date desc"></input>
-                  <label className={utilStyle.selectLabel} for="date-asc"><p>date (oldest to newest)</p></label>
+                  <label className={utilStyle.selectLabel} htmlFor="date-asc"><p>date (oldest to newest)</p></label>
                   <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="date-asc" value="date asc"></input>
-                  <label className={utilStyle.selectLabel} for="title-desc"><p>title (a-z)</p></label>
+                  <label className={utilStyle.selectLabel} htmlFor="title-desc"><p>title (a-z)</p></label>
                   <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="title-desc" value="title desc"></input>
-                  <label className={utilStyle.selectLabel} for="title-asc"><p>title (z-a)</p></label>
+                  <label className={utilStyle.selectLabel} htmlFor="title-asc"><p>title (z-a)</p></label>
                   <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="title-asc" value="title asc"></input>
                   </div>
                 )}
