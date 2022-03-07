@@ -329,7 +329,7 @@ export default function Home({user, data, userData, count}) {
           }}
         >
           {modalWalkthroughSecondScreen && (
-            <Walkthrough screen="fourth" screenData={{
+            <Walkthrough screen="second" screenData={{
               mainHeader: "Great! You can get started in three easy steps:",
               heading: "Add a game", 
               description: "Add as many or as few games as you'd like to your dashboard.",
@@ -337,7 +337,7 @@ export default function Home({user, data, userData, count}) {
             }}/>
           )}
           {modalWalkthroughThirdScreen && (
-            <Walkthrough screen="fourth" screenData={{
+            <Walkthrough screen="third" screenData={{
               heading: "Click in to see more information", 
               description: "Click into an individual game's page to see a list of its updates",
               image: "/images/notifications.gif"
