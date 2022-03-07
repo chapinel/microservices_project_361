@@ -340,7 +340,7 @@ export default function Home({user, data, userData, count}) {
             <Walkthrough screen="fourth" screenData={{
               heading: "Click in to see more information", 
               description: "Click into an individual game's page to see a list of its updates",
-              image: <iframe class="imgur-embed" width="100%" height="770" frameborder="0" src="https://i.imgur.com/wPgZsxY.gifv#embed"></iframe>
+              image: "/images/notifications.gif"
             }}/>
           )}
 
