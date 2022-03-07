@@ -2,7 +2,7 @@ import styles from '../styles/form.module.css'
 import utilStyles from '../styles/utils.module.css'
 import Link from 'next/link'
 
-export default function Form({ logIn, onSubmit, errorMessage }) {
+export default function Form({ logIn, onSubmit, errorMessage, loading }) {
     return (
         <div className={styles.container}>
             <div className={styles.description}>
@@ -26,8 +26,12 @@ export default function Form({ logIn, onSubmit, errorMessage }) {
                         <input type="password" name="password" required/>
                     </div>
                     <div className={styles.button}>
-                        {!logIn ? (<button className={utilStyles.buttonPrimary} type="submit">Sign Me Up</button>) :
-                        (<button className={utilStyles.buttonPrimary} type="submit">Log in</button>)}
+                        {loading ? (
+                            <div className={utilStyles.loadingHeader}>{logIn ? ("Logging you in..."): ("Signing you up...")}</div>
+                        ) : (
+                            !logIn ? (<button className={utilStyles.buttonPrimary} type="submit">Sign Me Up</button>) :
+                            (<button className={utilStyles.buttonPrimary} type="submit">Log in</button>)
+                        )}
                     </div>
                 </form>
                 <div className={styles.switchPages}>

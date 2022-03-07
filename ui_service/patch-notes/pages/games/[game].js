@@ -137,8 +137,8 @@ export default function Game ({user, userData, notif, game, url, notes}) {
 
     const handleSelect = (e) => {
       const text = {
-        "title asc": "title (z-a)",
-        "title desc": "title (a-z)",
+        "title asc": "title (a-z)",
+        "title desc": "title (z-a)",
         "date asc": "date (oldest to newest)",
         "date desc": "date (newest to oldest)"
       }
@@ -180,19 +180,13 @@ export default function Game ({user, userData, notif, game, url, notes}) {
                   <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="date-desc" value="date desc"></input>
                   <label className={utilStyle.selectLabel} htmlFor="date-asc"><p>date (oldest to newest)</p></label>
                   <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="date-asc" value="date asc"></input>
-                  <label className={utilStyle.selectLabel} htmlFor="title-desc"><p>title (a-z)</p></label>
-                  <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="title-desc" value="title desc"></input>
-                  <label className={utilStyle.selectLabel} htmlFor="title-asc"><p>title (z-a)</p></label>
+                  <label className={utilStyle.selectLabel} htmlFor="title-asc"><p>title (a-z)</p></label>
                   <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="title-asc" value="title asc"></input>
+                  <label className={utilStyle.selectLabel} htmlFor="title-desc"><p>title (z-a)</p></label>
+                  <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="title-desc" value="title desc"></input>
                   </div>
                 )}
                 </div>
-              {/* <select onChange={handleSelect}>
-                <option value="date desc">date (newest to oldest)</option>
-                <option value="date asc">date (oldest to newest)</option>
-                <option value="title asc">name (a-z)</option>
-                <option value="title desc">name (z-a)</option>
-              </select> */}
             </div>
             {(!finalList) ? (<div>Loading...</div>)
             : (

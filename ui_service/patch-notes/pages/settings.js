@@ -81,6 +81,7 @@ export default function Settings ({user, userEmail}) {
 
     const [editMode, setEditMode] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
+    const [loading, setLoading] = useState(false)
 
     const router = useRouter()
     
@@ -89,7 +90,19 @@ export default function Settings ({user, userEmail}) {
         router.replace(router.asPath);
     }
 
+    const checkFormValues = (name, email) => {
+        if (name === '') {
+            if (email === ''){
+                setErrorMessage('You must change one or both values before submitting.')
+                return false
+            } 
+        } else if (email == '') {
+            return true
+        } 
+    }
+
     const submitUserChanges = async (e) => {
+        setLoading(true)
         e.preventDefault()
 
         setErrorMessage('')
@@ -99,7 +112,6 @@ export default function Settings ({user, userEmail}) {
 
         const check = checkFormValues(name, email)
         if (!check) {
-            setErrorMessage('You must change one or both values before submitting.')
             return
         } else if (check === true) {
             email = userEmail
@@ -109,9 +121,7 @@ export default function Settings ({user, userEmail}) {
 
         if (validName === true) {
             const body = {
-                old: user.username,
-                name: name,
-                email: email,
+                old: user.username, name: name, email: email,
             }
 
             const response = await updateUser(body)
@@ -124,6 +134,8 @@ export default function Settings ({user, userEmail}) {
         } else {
             setErrorMessage(validName)
         }
+
+        setLoading(false)
     }
 
     return (
@@ -162,10 +174,14 @@ export default function Settings ({user, userEmail}) {
                             <p className={utilStyles.headingMd}>Email</p>
                             <input type="text" name="email" placeholder={userEmail}/>
                         </div>
-                        <div className={styles.actionButtons}>
+                        {loading ? (
+                            <div className={utilStyles.loadingHeader}>Making changes...</div>
+                        ) : (
+                            <div className={styles.actionButtons}>
                             <button onClick={() => setEditMode(false)} className={utilStyles.buttonSecondary}>Cancel</button>
                             <button className={utilStyles.buttonPrimary} type="submit">Submit Changes</button> 
-                        </div>
+                            </div>
+                        )}
                     </form>
                 </div>
             )}

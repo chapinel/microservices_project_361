@@ -5,6 +5,19 @@ import Form from '../components/form'
 import styles from '../styles/signup.module.css'
 import utilStyles from '../styles/utils.module.css'
 
+const determineResponse = async(res) => {
+    if (res.status === 200){
+        return 'success'
+    } else if (res.status === 400) {
+        const data = await res.json()
+        console.log(data.error)
+        if (data.error === 'Incorrect username'){
+            return "Hmm...we couldn't find anyone by that username."
+        } else {
+            return "Oops - that password isn't correct."
+        }
+    }
+}
 async function attemptLogin(body) {
     try {
         const res = await fetch('/api/login', {
@@ -12,18 +25,8 @@ async function attemptLogin(body) {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(body),
         })
-
-        if (res.status === 200){
-            return 'success'
-        } else if (res.status === 400) {
-            const data = await res.json()
-            console.log(data.error)
-            if (data.error === 'Incorrect username'){
-                return "Hmm...we couldn't find anyone by that username."
-            } else {
-                return "Oops - that password isn't correct."
-            }
-        }
+        const response = determineResponse(res)
+        return response
     } catch (error) {
         return error
     }
@@ -33,6 +36,7 @@ export default function Login() {
     const router = useRouter()
 
     const [errorMessage, setErrorMessage] = useState('')
+    const [loading, setLoading] = useState(false)
 
     let firstVisit = 'return'
     if (router.query.firstVisit === 'true'){
@@ -45,6 +49,7 @@ export default function Login() {
                 pathname: '/',
                 query: { visit: firstVisit },})
         } else {
+            setLoading(false)
             if (typeof response === "string" && (response.includes('username') || response.includes('password'))){
                 setErrorMessage(response)
             } else {
@@ -54,6 +59,7 @@ export default function Login() {
     }
 
     const onSubmit = async(e) => {
+        setLoading(true)
         e.preventDefault()
 
         const body = {
@@ -72,7 +78,7 @@ export default function Login() {
                     <h1 className={utilStyles.headingXl}>Patch Poro</h1>
                     {router.query.firstVisit === 'true' && (<div className={styles.successMessage}>Account created! Log in to get started.</div>)}
                 </div>
-                <Form logIn={true} onSubmit={onSubmit} errorMessage={errorMessage}></Form>
+                <Form logIn={true} onSubmit={onSubmit} errorMessage={errorMessage} loading={loading}></Form>
             </div>
         </Layout>
     )

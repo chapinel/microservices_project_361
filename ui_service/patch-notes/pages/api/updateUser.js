@@ -17,6 +17,19 @@ const updateUserFields = async (body) => {
   
 }
 
+const sendResponse = async (res, req, response) => {
+  if (response === 'success') {
+    req.session.user = {
+      id: 230,
+      username: req.body.name
+    };
+    await req.session.save();
+    res.status(200).send({ done: true })
+  } else {
+    res.status(500).end(response)
+  }
+}
+
 export default withIronSessionApiRoute(
 async function helper(req, res){
     const data = req.body
@@ -28,16 +41,7 @@ async function helper(req, res){
     }
 
     const response = await updateUserFields({user: data.old, id: galactus.id, name: data.name, email: data.email})
-    if (response === 'success') {
-      req.session.user = {
-        id: 230,
-        username: req.body.name
-      };
-      await req.session.save();
-      res.status(200).send({ done: true })
-    } else {
-      res.status(500).end(response)
-    }
+    await sendResponse(res, req, response)
 },
 {
     cookieName: process.env.COOKIE,

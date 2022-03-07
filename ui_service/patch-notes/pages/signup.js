@@ -30,6 +30,7 @@ async function signUpUser(body) {
 export default function Signup() {
 
     const [errorMessage, setErrorMessage] = useState("")
+    const [loading, setLoading] = useState(false)
     const router = useRouter()
 
     const signupAttemptResponse = (response) => {
@@ -38,6 +39,7 @@ export default function Signup() {
                 pathname: '/login',
                 query: { firstVisit: true },})
         } else {
+            setLoading(false)
             if (response.includes('username')){
                 setErrorMessage(response)
             } else {
@@ -47,7 +49,7 @@ export default function Signup() {
     }
 
     async function onSubmit(e){
-        console.log("submitting data")
+        setLoading(true)
         e.preventDefault()
 
         const body = {
@@ -68,7 +70,7 @@ export default function Signup() {
                 <div className={styles.header}>
                     <h1 className={utilStyles.headingXl}>Patch Poro</h1>
                 </div>
-                <Form logIn={false} onSubmit={onSubmit} errorMessage={errorMessage}></Form>
+                <Form logIn={false} onSubmit={onSubmit} errorMessage={errorMessage} loading={loading}></Form>
             </div>
         </Layout>
     )
