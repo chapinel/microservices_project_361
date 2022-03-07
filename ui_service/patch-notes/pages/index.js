@@ -332,15 +332,15 @@ export default function Home({user, data, userData, count}) {
             <Walkthrough screen="fourth" screenData={{
               mainHeader: "Great! You can get started in three easy steps:",
               heading: "Add a game", 
-              description: "Add as many or as few games as you&apos;d like to your dashboard.",
-              image: "/images/addAGame.gif"
+              description: "Add as many or as few games as you'd like to your dashboard.",
+              image: "https://i.imgur.com/wPgZsxY.gifv"
             }}/>
           )}
           {modalWalkthroughThirdScreen && (
             <Walkthrough screen="fourth" screenData={{
               heading: "Click in to see more information", 
               description: "Click into an individual game's page to see a list of its updates",
-              image: "/images/clickIn.gif"
+              image: <iframe class="imgur-embed" width="100%" height="770" frameborder="0" src="https://i.imgur.com/wPgZsxY.gifv#embed"></iframe>
             }}/>
           )}
 

@@ -18,7 +18,7 @@ export default function Walkthrough({screen, screenData}){
             <h1 className={utilStyles.headingMd}>{screenData.heading}</h1>
             <p>{screenData.description}</p>
             <div className={styles.walkthroughImg}>
-            <img src={screenData.image}/>
+            <img src="https://i.imgur.com/wPgZsxY.gifv"/>
             </div>
             </div>
             </>
