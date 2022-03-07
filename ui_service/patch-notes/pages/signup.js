@@ -12,7 +12,6 @@ async function signUpUser(body) {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(body),
         })
-        // if user creation is successful, we'll navigate the user to the login page
         if (res.status === 200){
             return 'success'
         } else {
@@ -33,6 +32,20 @@ export default function Signup() {
     const [errorMessage, setErrorMessage] = useState("")
     const router = useRouter()
 
+    const signupAttemptResponse = (response) => {
+        if (response === 'success') {
+            router.push({
+                pathname: '/login',
+                query: { firstVisit: true },})
+        } else {
+            if (response.includes('username')){
+                setErrorMessage(response)
+            } else {
+                setErrorMessage('Oops - something went wrong. Please try again.')
+            }
+        }
+    }
+
     async function onSubmit(e){
         console.log("submitting data")
         e.preventDefault()
@@ -44,18 +57,7 @@ export default function Signup() {
         }
 
         const response = await signUpUser(body)
-
-        if (response !== 'success') {
-            if (response.includes('username')){
-                setErrorMessage(response)
-            } else {
-                setErrorMessage('Oops - something went wrong. Please try again.')
-            }
-        } else {
-            router.push({
-                pathname: '/login',
-                query: { firstVisit: true},})
-        }
+        signupAttemptResponse(response)
         
     }
 

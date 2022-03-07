@@ -80,6 +80,7 @@ export default function Home({user, data, userData, count}) {
   const [gameNotif, setGameNotif] = useState([])
   const [componentMounted, setComponentMounted] = useState(false)
   const [modalSuccess, setModalSuccess] = useState(false)
+  const [modalLoading, setModalLoading] = useState(false)
   const [modalWalkthrough, setModalWalkthrough] = useState(walkthrough)
   const [modalWalkthroughFirstScreen, setModalWalkthroughFirstScreen]  = useState(walkthrough)
   const [modalWalkthroughSecondScreen, setModalWalkthroughSecondScreen] = useState(false)
@@ -120,6 +121,7 @@ export default function Home({user, data, userData, count}) {
   }
 
   async function addUserGameRelationship(gamesToAdd, user) {
+    setModalLoading(true)
     for (const game of gamesToAdd){
       const formData = {
         user: user,
@@ -128,6 +130,7 @@ export default function Home({user, data, userData, count}) {
       try {
         const res = await fetch('api/add-user-game', { method: 'POST', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
         if (res.status === 200){
+          setModalLoading(false)
           setModalSuccess(true)
         }
       } catch(error){
@@ -140,6 +143,7 @@ export default function Home({user, data, userData, count}) {
   }
 
   async function removeUserGameRelationship(gameToRemove, user) {
+    setModalLoading(true)
     const formData = {
       user: user,
       game: gameToRemove
@@ -147,6 +151,7 @@ export default function Home({user, data, userData, count}) {
     try {
       const res = await fetch('api/delete-user-game', { method: 'POST', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
       if (res.status === 200) {
+        setModalLoading(false)
         setModalSuccess(true)
       } 
     } catch(error) {
@@ -156,8 +161,10 @@ export default function Home({user, data, userData, count}) {
   }
 
   async function addUserGameNotifications(notificationParameters) {
+    setModalLoading(true)
     const response = await addUpdateUserGameNotifications(notificationParameters)
     if (response === true){
+      setModalLoading(false)
       setModalSuccess(true)
       waitForSuccessMessage(setControlNotifModal)
     }
@@ -271,7 +278,8 @@ export default function Home({user, data, userData, count}) {
             open: controlModal,
             onCancel: handleAddCancel,
             onConfirm: handleAddConfirm,
-            success: modalSuccess
+            success: modalSuccess,
+            loading: modalLoading,
           }}
           buttonText=
           {{
@@ -290,7 +298,8 @@ export default function Home({user, data, userData, count}) {
             open: controlRemoveModal,
             onCancel: () => setControlRemoveModal(false),
             onConfirm: handleRemoveConfirm,
-            success: modalSuccess
+            success: modalSuccess,
+            loading: modalLoading,
           }}
           buttonText={{
             confirmText: "yes, i'm sure"
@@ -307,7 +316,8 @@ export default function Home({user, data, userData, count}) {
             open: controlNotifModal,
             onCancel: () => setControlNotifModal(false),
             onConfirm: handleNotifConfirm,
-            success: modalSuccess
+            success: modalSuccess,
+            loading: modalLoading,
           }}
           buttonText={{
             confirmText: `Turn ${gameNotif.OffOrOn}`
@@ -321,7 +331,6 @@ export default function Home({user, data, userData, count}) {
             open: modalWalkthrough,
             onCancel: () => setModalWalkthrough(false),
             onConfirm: handleWalkthroughConfirm,
-            success: modalSuccess
           }}
           buttonText={{
             confirmText: modalWalkthroughFirstScreen? "I'd Love That" : "Got It",

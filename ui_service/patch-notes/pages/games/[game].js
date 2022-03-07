@@ -59,6 +59,9 @@ export default function Game ({user, userData, notif, game, url, notes}) {
     const [searchValue, setSearchValue] = useState("")
     const [controlNotifModal, setControlNotifModal] = useState(false)
     const [modalSuccess, setModalSuccess] = useState(false)
+    const [modalLoading, setModalLoading] = useState(false)
+    const [selectText, setSelectText] = useState("sort by: date (newest to oldest)")
+    const [openDropdown, setOpenDropdown] = useState(false)
     const [compareFunction, setCompareFunction] = useState(() => function(a, b){
       if (a.date < b.date) return 1;
       if (a.date > b.date) return -1;
@@ -84,8 +87,10 @@ export default function Game ({user, userData, notif, game, url, notes}) {
     }
 
     async function addUserGameNotifications(parameters) {
+      setModalLoading(true)
       const response = await addUpdateUserGameNotifications(parameters)
       if (response === true){
+        setModalLoading(false)
         setModalSuccess(true)
         waitForSuccessMessage(setControlNotifModal)
       }
@@ -131,6 +136,14 @@ export default function Game ({user, userData, notif, game, url, notes}) {
     }
 
     const handleSelect = (e) => {
+      const text = {
+        "title asc": "title (z-a)",
+        "title desc": "title (a-z)",
+        "date asc": "date (oldest to newest)",
+        "date desc": "date (newest to oldest)"
+      }
+      setSelectText("sort by: " + text[e.target.value])
+      setOpenDropdown(false)
       const parameters = e.target.value.split(" ")
       sortNotes(parameters[0], parameters[1])
     }
@@ -155,12 +168,31 @@ export default function Game ({user, userData, notif, game, url, notes}) {
             </div>
             <div className={styles.listControls}>
               <div className={styles.search}><input onChange={handleSearchOnChange} type="text" placeholder="Search for a specific title"></input></div>
-              <select onChange={handleSelect}>
+                <div className={utilStyle.selectContainer}>
+                <button className={utilStyle.buttonSelect} onClick={() => setOpenDropdown(!openDropdown)}>
+                  {selectText}
+                  {openDropdown ? (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-chevron-up"><polyline points="18 15 12 9 6 15"/></svg>) :(
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" stroke-linecap="round" strokeLinejoin="round" className="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"/></svg>)}
+                </button>
+                {openDropdown && (
+                  <div className={utilStyle.selectDropdown}>
+                  <label className={utilStyle.selectLabel} for="date-desc"><p>date (newest to oldest)</p></label>
+                  <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="date-desc" value="date desc"></input>
+                  <label className={utilStyle.selectLabel} for="date-asc"><p>date (oldest to newest)</p></label>
+                  <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="date-asc" value="date asc"></input>
+                  <label className={utilStyle.selectLabel} for="title-desc"><p>title (a-z)</p></label>
+                  <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="title-desc" value="title desc"></input>
+                  <label className={utilStyle.selectLabel} for="title-asc"><p>title (z-a)</p></label>
+                  <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="title-asc" value="title asc"></input>
+                  </div>
+                )}
+                </div>
+              {/* <select onChange={handleSelect}>
                 <option value="date desc">date (newest to oldest)</option>
                 <option value="date asc">date (oldest to newest)</option>
                 <option value="title asc">name (a-z)</option>
                 <option value="title desc">name (z-a)</option>
-              </select>
+              </select> */}
             </div>
             {(!finalList) ? (<div>Loading...</div>)
             : (
@@ -188,7 +220,8 @@ export default function Game ({user, userData, notif, game, url, notes}) {
                 open: controlNotifModal,
                 onCancel: () => setControlNotifModal(false),
                 onConfirm: handleNotifConfirm,
-                success: modalSuccess
+                success: modalSuccess,
+                loading: modalLoading
               }}
               buttonText={{
                 confirmText: `Turn ${notif}`

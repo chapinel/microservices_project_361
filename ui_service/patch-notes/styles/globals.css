@@ -126,3 +126,13 @@ select {
   padding: 8px;
   font-weight: 600;
 }
+
+select > option {
+  background-color: #0F1923;
+  font-weight: 600;
+}
+
+/* select option:checked,
+select option:hover {
+    box-shadow: 0 0 10px 100px #000 inset;
+} */
