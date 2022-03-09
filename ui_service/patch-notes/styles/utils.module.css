@@ -34,6 +34,14 @@
     font-size: 1.2rem;
     letter-spacing: 0.1em;
   }
+
+  .note {
+    color: #37DDC9;
+    opacity: 80%;
+    font-size: .8rem;
+    font-style: italic;
+    margin-top: 8px;
+  }
   
   .borderCircle {
     border-radius: 9999px;

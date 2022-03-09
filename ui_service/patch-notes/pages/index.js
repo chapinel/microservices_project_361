@@ -345,7 +345,7 @@ export default function Home({user, data, userData, count}) {
           <div className={styles.modalSubtext}>
             Don&apos;t see what you&apos;re looking for? 
             Send us an <a href="mailto:chapinel@oregonstate.edu?subject = New Game Request">email</a> 
-            and let us know what games you&apos;d like to track!
+             and let us know what games you&apos;d like to track!
           </div>
         </Modal>
         <Modal

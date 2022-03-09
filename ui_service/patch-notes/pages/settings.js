@@ -169,6 +169,7 @@ export default function Settings ({user, userEmail}) {
                     <div>
                         <p className={utilStyles.headingMd}>Email</p>
                         <p>{userEmail}</p>
+                        <p className={utilStyles.note}>Note: changing your email will affect any game you have notifications turned on for</p>
                     </div>
                 </div>
             ) : (
