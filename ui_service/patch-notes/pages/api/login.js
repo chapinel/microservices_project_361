@@ -1,7 +1,8 @@
 import { validateUser } from "../../lib/user";
 import { withIronSessionApiRoute } from 'iron-session/next';
 
-// code to set up user session is modeled from the examples provided by NextJs: https://github.com/vvo/iron-session#usage-nextjs
+// code to set up user session is modeled from the examples provided by NextJs: 
+// https://github.com/vvo/iron-session#usage-nextjs
 // and https://github.com/vercel/next.js/tree/canary/examples/with-passport
 
 const sendResponse = async (req, res, response) => {

@@ -4,7 +4,11 @@ import { getUserServiceId } from '../../lib/user';
 const updateUserFields = async (body) => {
   const url = process.env.DATABASE_URL + `auth/update-all`
   try {
-    const response = await fetch(url, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})
+    const response = await fetch(url, { 
+      method: 'PUT', 
+      headers: {'Content-Type': 'application/json'}, 
+      body: JSON.stringify(body)
+    })
     if (response.status === 200) {
       return 'success'
     } else {
@@ -40,7 +44,9 @@ async function helper(req, res){
       res.status(500).end(galactus)
     }
 
-    const response = await updateUserFields({user: data.old, id: galactus.id, name: data.name, email: data.email})
+    const response = await updateUserFields(
+      {user: data.old, id: galactus.id, name: data.name, email: data.email}
+    )
     await sendResponse(res, req, response)
 },
 {

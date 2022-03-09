@@ -4,7 +4,11 @@ async function getFirstServiceId (user, email) {
       email: email
     }
     try {
-      const res = await fetch('/api/email', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData)})
+      const res = await fetch('/api/email', {
+          method: 'POST', 
+          headers: {'Content-Type': 'application/json'}, 
+          body: JSON.stringify(formData)
+        })
       if (res.status === 200) {
         return true
       }

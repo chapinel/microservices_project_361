@@ -23,7 +23,11 @@ export async function createUser({username, email, password}) {
 
     try {
         const url = process.env.DATABASE_URL + 'auth/add'
-        const response = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
+        const response = await fetch(url, { 
+          method: 'POST', 
+          headers: {'Content-Type': 'application/json',}, 
+          body: JSON.stringify(formData) 
+        })
         return response
     } catch (error) {
         console.log(error)
@@ -39,7 +43,11 @@ export async function validateUser({ username, password }) {
 
     try {
         const url = process.env.DATABASE_URL + 'auth/login'
-        const response = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
+        const response = await fetch(url, { 
+          method: 'POST', 
+          headers: {'Content-Type': 'application/json',}, 
+          body: JSON.stringify(formData) 
+        })
         return response
     } catch (error) {
         console.log(error)
@@ -49,7 +57,11 @@ export async function validateUser({ username, password }) {
 export async function getUserServiceId (body) {
     const url = 'https://galac-tus.herokuapp.com/user'
     try {
-      const response = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})
+      const response = await fetch(url, { 
+        method: 'POST', 
+        headers: {'Content-Type': 'application/json'}, 
+        body: JSON.stringify(body)
+      })
       if (response.status === 201) {
         const galactus = await response.json()
         return galactus

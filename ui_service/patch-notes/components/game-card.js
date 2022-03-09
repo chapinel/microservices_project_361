@@ -24,7 +24,10 @@ export default function GameCard({ cardData, menuOption1, menuOption2 }) {
         menuOption1(cardData.title)
     }
 
-    const buttons = [{ text: `Turn ${cardData.notifications} notifications`, onClick: turnOnOffNotification}, {text: "Remove game", onClick: removeGame}]
+    const buttons = [
+        { text: `Turn ${cardData.notifications} notifications`, onClick: turnOnOffNotification}, 
+        {text: "Remove game", onClick: removeGame}
+    ]
 
     return (
         <>
@@ -45,7 +48,21 @@ export default function GameCard({ cardData, menuOption1, menuOption2 }) {
                     </div>
                     <div className={styles.more}>
                         <Popover open={controlPopover} options={buttons}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#37DDC9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-more-vertical"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                        <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="24" 
+                        height="24" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="#37DDC9" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        className="feather feather-more-vertical">
+                            <circle cx="12" cy="12" r="1"></circle>
+                            <circle cx="12" cy="5" r="1"></circle>
+                            <circle cx="12" cy="19" r="1"></circle>
+                        </svg>
                         </Popover>
                     </div>
                 </div>

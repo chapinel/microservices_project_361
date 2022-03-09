@@ -12,7 +12,8 @@ import { getGameNameUrl, getUserGameNotifications, getGameNotes } from '../../li
 import { addUpdateUserGameNotifications } from '../../lib/user_game'
 import Notifications from '../../components/notifModal'
 
-// code to set up user session is modeled from the examples provided by NextJs: https://github.com/vvo/iron-session#usage-nextjs
+// code to set up user session is modeled from the examples provided by NextJs: 
+// https://github.com/vvo/iron-session#usage-nextjs
 // and https://github.com/vercel/next.js/tree/canary/examples/with-passport
 
 export const getServerSideProps = withIronSessionSsr(
@@ -154,44 +155,157 @@ export default function Game ({user, userData, notif, game, url, notes}) {
             <div className={utilStyle.headerWButton}>
                 <h1 className={utilStyle.headingXl}>{games[game].name}</h1>
                 <div className={styles.headerButton}>
-                      <button className={utilStyle.svgButton} data-tip="Tooltip for notifications" onClick={() => setControlNotifModal(true)}>
-                        {notif == 'on' ? (<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F54670" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                        ):( <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F54670" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-bell-off"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                      <button 
+                      className={utilStyle.svgButton} 
+                      data-tip="Tooltip for notifications" 
+                      onClick={() => setControlNotifModal(true)}>
+                        {notif == 'on' ? (
+                        <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="28" 
+                        height="28" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="#F54670" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        className="feather feather-bell">
+                          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                        </svg>
+                        ):( 
+                        <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="28" 
+                        height="28" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="#F54670" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        className="feather feather-bell-off">
+                          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                          <path d="M18.63 13A17.89 17.89 0 0 1 18 8"/>
+                          <path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/>
+                          <path d="M18 8a6 6 0 0 0-9.33-5"/>
+                          <line x1="1" y1="1" x2="23" y2="23"/>
+                        </svg>
                         )}
                       </button>
                 </div>
             </div>
             <div className={styles.hrule}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="1000" height="15" viewBox="0 0 3764 15" fill="none">
-              <path fillRule="evenodd" clipRule="evenodd" d="M1410 15.0001L288 15V10H0V8H288V0L1410 9.80884e-05V8H1455V0L1600 1.26763e-05V8H1646V0L1791 1.26763e-05V8H2917V0L3604 6.00594e-05V8H3764V10H3604V15.0001L2917 15V10H1791V15L1646 15V10H1600V15L1455 15V10H1410V15.0001Z" fill="#37DDC9"/>
+              <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="1000" height="15" 
+              viewBox="0 0 3764 15" 
+              fill="none">
+                <path 
+                fillRule="evenodd" 
+                clipRule="evenodd" 
+                d="M1410 15.0001L288 
+                15V10H0V8H288V0L1410 
+                9.80884e-05V8H1455V0L1600 
+                1.26763e-05V8H1646V0L1791 
+                1.26763e-05V8H2917V0L3604 
+                6.00594e-05V8H3764V10H3604V15.0001L2917 
+                15V10H1791V15L1646 
+                15V10H1600V15L1455 
+                15V10H1410V15.0001Z" 
+                fill="#37DDC9"/>
               </svg>
             </div>
             <div className={styles.listControls}>
-              <div className={styles.search}><input onChange={handleSearchOnChange} type="text" placeholder="Search for a specific title"></input></div>
-                <div className={utilStyle.selectContainer}>
-                <button className={utilStyle.buttonSelect} onClick={() => setOpenDropdown(!openDropdown)}>
-                  {selectText}
-                  {openDropdown ? (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-chevron-up"><polyline points="18 15 12 9 6 15"/></svg>) :(
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"/></svg>)}
-                </button>
-                {openDropdown && (
-                  <div className={utilStyle.selectDropdown}>
-                  <label className={utilStyle.selectLabel} htmlFor="date-desc"><p>date (newest to oldest)</p></label>
-                  <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="date-desc" value="date desc"></input>
-                  <label className={utilStyle.selectLabel} htmlFor="date-asc"><p>date (oldest to newest)</p></label>
-                  <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="date-asc" value="date asc"></input>
-                  <label className={utilStyle.selectLabel} htmlFor="title-asc"><p>title (a-z)</p></label>
-                  <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="title-asc" value="title asc"></input>
-                  <label className={utilStyle.selectLabel} htmlFor="title-desc"><p>title (z-a)</p></label>
-                  <input className={utilStyle.selectRadio} onClick={handleSelect} name="sort" type="radio" id="title-desc" value="title desc"></input>
-                  </div>
+              <div className={styles.search}>
+                <input onChange={handleSearchOnChange} type="text" placeholder="Search for a specific title"></input>
+              </div>
+              <div className={utilStyle.selectContainer}>
+              <button className={utilStyle.buttonSelect} onClick={() => setOpenDropdown(!openDropdown)}>
+                {selectText}
+                {openDropdown ? (
+                <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className="feather feather-chevron-up">
+                  <polyline points="18 15 12 9 6 15"/>
+                  </svg>) : (
+                <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className="feather feather-chevron-down">
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
                 )}
+              </button>
+              {openDropdown && (
+                <div className={utilStyle.selectDropdown}>
+                  <label className={utilStyle.selectLabel} htmlFor="date-desc">
+                    <p>date (newest to oldest)</p>
+                  </label>
+                  <input 
+                  className={utilStyle.selectRadio} 
+                  onClick={handleSelect} 
+                  name="sort" 
+                  type="radio" 
+                  id="date-desc" 
+                  value="date desc"
+                  />
+                  <label className={utilStyle.selectLabel} htmlFor="date-asc">
+                    <p>date (oldest to newest)</p>
+                  </label>
+                  <input 
+                  className={utilStyle.selectRadio} 
+                  onClick={handleSelect} 
+                  name="sort" 
+                  type="radio" 
+                  id="date-asc" 
+                  value="date asc"/>
+                  <label className={utilStyle.selectLabel} htmlFor="title-asc">
+                    <p>title (a-z)</p>
+                  </label>
+                  <input 
+                  className={utilStyle.selectRadio} 
+                  onClick={handleSelect} 
+                  name="sort" 
+                  type="radio" 
+                  id="title-asc" 
+                  value="title asc"/>
+                  <label className={utilStyle.selectLabel} htmlFor="title-desc">
+                    <p>title (z-a)</p>
+                  </label>
+                  <input 
+                  className={utilStyle.selectRadio}
+                  onClick={handleSelect} 
+                  name="sort" 
+                  type="radio" 
+                  id="title-desc" 
+                  value="title desc"/>
                 </div>
+              )}
+              </div>
             </div>
             {(!finalList) ? (<div>Loading...</div>)
             : (
               <div className={utilStyle.rowAcross}>
-                {finalList.filter((note) => note.title.toLowerCase().includes(searchValue.toLowerCase())).sort(compareFunction).map((note) => 
+                {finalList.filter(
+                  (note) => 
+                  note.title.toLowerCase().includes(searchValue.toLowerCase())).sort(compareFunction).map((note) => 
                     <PatchCard key={note.title} 
                     patchCardData={
                       {

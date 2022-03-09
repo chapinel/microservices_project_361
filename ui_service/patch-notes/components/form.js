@@ -6,7 +6,10 @@ export default function Form({ logIn, onSubmit, errorMessage, loading }) {
     return (
         <div className={styles.container}>
             <div className={styles.description}>
-                <p>With Patch Poro, quickly check to see if any of your favorite Riot Games titles have had updates posted.</p>
+                <p>
+                    With Patch Poro, quickly check to see if any of 
+                    your favorite Riot Games titles have had updates posted.
+                </p>
             </div>
                 <>
                 {errorMessage && (<div className={styles.error}>{errorMessage}</div>)}
@@ -27,10 +30,14 @@ export default function Form({ logIn, onSubmit, errorMessage, loading }) {
                     </div>
                     <div className={styles.button}>
                         {loading ? (
-                            <div className={utilStyles.loadingHeader}>{logIn ? ("Logging you in..."): ("Signing you up...")}</div>
+                            <div className={utilStyles.loadingHeader}>
+                                {logIn ? 
+                                ("Logging you in...") : ("Signing you up...")}
+                            </div>
                         ) : (
-                            !logIn ? (<button className={utilStyles.buttonPrimary} type="submit">Sign Me Up</button>) :
-                            (<button className={utilStyles.buttonPrimary} type="submit">Log in</button>)
+                            <button className={utilStyles.buttonPrimary} type="submit">
+                                {!logIn ? ("Sign Me Up") : ("Log in")}
+                            </button>
                         )}
                     </div>
                 </form>

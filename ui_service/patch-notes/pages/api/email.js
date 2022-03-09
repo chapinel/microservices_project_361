@@ -3,7 +3,11 @@ import { getUserServiceId } from "../../lib/user"
 const addServiceId = async (body) => {
   const url = process.env.DATABASE_URL + 'auth/add-mail-id'
   try {
-    const response = await fetch(url, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})
+    const response = await fetch(url, { 
+      method: 'PUT', 
+      headers: {'Content-Type': 'application/json'}, 
+      body: JSON.stringify(body)
+    })
     if (response.status === 200){
       console.log('success')
       return response

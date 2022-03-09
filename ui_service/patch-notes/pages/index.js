@@ -14,7 +14,8 @@ import { getUserData } from '../lib/user'
 import { getUserGames, getGameNameUrl, getGameStats } from '../lib/get_game_info'
 import { addUpdateUserGameNotifications } from '../lib/user_game'
 
-// code to set up user session is modeled from the examples provided by NextJs: https://github.com/vvo/iron-session#usage-nextjs
+// code to set up user session is modeled from the examples provided by NextJs: 
+// https://github.com/vvo/iron-session#usage-nextjs
 // and https://github.com/vercel/next.js/tree/canary/examples/with-passport
 
 const getEachGame = async (listOfGames) => {
@@ -22,7 +23,14 @@ const getEachGame = async (listOfGames) => {
   for (const game of listOfGames) {
     const { name, url } = await getGameNameUrl(game.id, "id")
     const { banner, date, count } = await getGameStats(game.id)
-    const cardData = {name: name, url: url, banner: banner, date: date, count: count, notifications: game.notifications ? "off" : "on",}
+    const cardData = {
+      name: name, 
+      url: url, 
+      banner: banner, 
+      date: date, 
+      count: count, 
+      notifications: game.notifications ? "off" : "on",
+    }
     listOfGameData.push(cardData)
   }
   return listOfGameData
@@ -102,7 +110,8 @@ export default function Home({user, data, userData, count}) {
     router.replace(router.asPath);
   }
 
-  // This function is used to disable or enable checkboxes in Add Game modal, depending on whether user already has them added
+  // This function is used to disable or enable checkboxes in Add Game modal, 
+  // depending on whether user already has them added
   const checkIfChosen = (gameName) => {
     for (const game of data){
       if (game.name === gameName){
@@ -128,7 +137,11 @@ export default function Home({user, data, userData, count}) {
         game: game
       }
       try {
-        const res = await fetch('api/add-user-game', { method: 'POST', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
+        const res = await fetch('api/add-user-game', { 
+          method: 'POST', 
+          headers: {'Content-Type': 'application/json',}, 
+          body: JSON.stringify(formData) 
+        })
         if (res.status === 200){
           setModalLoading(false)
           setModalSuccess(true)
@@ -149,7 +162,11 @@ export default function Home({user, data, userData, count}) {
       game: gameToRemove
     }
     try {
-      const res = await fetch('api/delete-user-game', { method: 'POST', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(formData) })
+      const res = await fetch('api/delete-user-game', { 
+        method: 'POST', 
+        headers: {'Content-Type': 'application/json',}, 
+        body: JSON.stringify(formData) 
+      })
       if (res.status === 200) {
         setModalLoading(false)
         setModalSuccess(true)
@@ -243,10 +260,22 @@ export default function Home({user, data, userData, count}) {
           <p>YOUR GAMES</p>
         </div>
           <div className={styles.headerComponent}>
-            {count != 4 ? (<button className={utilStyles.buttonSecondary} onClick={() => setControlModal(true)}>Add</button>) 
+            {count != 4 ? (
+            <button 
+            className={utilStyles.buttonSecondary} 
+            onClick={() => setControlModal(true)}>
+              Add
+            </button>
+            ) 
             : (
               <>
-            <button className={utilStyles.disabledSecondaryButton} data-tip="You've added all currently available games. Looking for another game?<br />Send us an email at developers@patchporo.com - we're always considering new titles!">Add Game</button>
+            <button 
+              className={utilStyles.disabledSecondaryButton} 
+              data-tip="You've added all currently available games. 
+              Looking for another game?<br />
+              Send us an email at chapinel@oregonstate.edu - we're always considering new titles!">
+                Add Game
+              </button>
             {componentMounted && <ReactTooltip effect="solid" place="bottom" multiline={true}/>}
             </>
             )}
@@ -255,19 +284,32 @@ export default function Home({user, data, userData, count}) {
         <div>
         <div className={styles.hrule}>
           <svg xmlns="http://www.w3.org/2000/svg" width="1000" height="15" viewBox="0 0 3764 15" fill="none">
-          <path fillRule="evenodd" clipRule="evenodd" d="M1410 15.0001L288 15V10H0V8H288V0L1410 9.80884e-05V8H1455V0L1600 1.26763e-05V8H1646V0L1791 1.26763e-05V8H2917V0L3604 6.00594e-05V8H3764V10H3604V15.0001L2917 15V10H1791V15L1646 15V10H1600V15L1455 15V10H1410V15.0001Z" fill="#37DDC9"/>
+          <path fillRule="evenodd" clipRule="evenodd" 
+          d="M1410 15.0001L288 15V10H0V8H288V0L1410 9.80884e-05V8H1455V0L1600 
+          1.26763e-05V8H1646V0L1791 1.26763e-05V8H2917V0L3604 
+          6.00594e-05V8H3764V10H3604V15.0001L2917 15V10H1791V15L1646 15V10H1600V15L1455 15V10H1410V15.0001Z" 
+          fill="#37DDC9"/>
           </svg>
         </div>
         {count === 0 ? (
           <div className={utilStyles.emptyState}>Add your first game to start tracking updates!</div>
         ) : (
             <div className={utilStyles.row}>
-              {data.map(game => <GameCard 
-              key={game.name} 
-              cardData={
-                {title: game.name, date: game.date, splash: game.banner, notifications: game.notifications, url: game.url, totalUpdates: game.count}
-              }
-              menuOption1={handleClickRemove} menuOption2={handleClickNotifications}
+              {data.sort(
+                function(a, b){if (a.date < b.date) return 1;if (a.date > b.date) return -1;return 0;}
+                ).map(
+                  game => <GameCard 
+                    key={game.name} 
+                    cardData={
+                      { title: game.name, 
+                        date: game.date, 
+                        splash: game.banner, 
+                        notifications: game.notifications, 
+                        url: game.url, 
+                        totalUpdates: game.count}
+                    }
+                    menuOption1={handleClickRemove} 
+                    menuOption2={handleClickNotifications}
               />)}
             </div>
         )}
@@ -287,10 +329,24 @@ export default function Home({user, data, userData, count}) {
           }}
         >
           <div className={styles.modalSelection}>
-            {Object.keys(games).map((game, i) => <div key={i} className={styles.check}><label className={utilStyles.formControl} htmlFor={games[game].name}><input type="checkbox" onClick={handleGameAdd} disabled={checkIfChosen(games[game].dbName)} id={games[game].dbName}/>{games[game].name}</label></div>)}
+            {Object.keys(games).map(
+              (game, i) => 
+              <div 
+              key={i} 
+              className={styles.check}>
+                <label className={utilStyles.formControl} htmlFor={games[game].name}>
+                  <input type="checkbox" onClick={handleGameAdd} disabled={checkIfChosen(games[game].dbName)} 
+                  id={games[game].dbName}/>
+                  {games[game].name}
+                </label>
+              </div>
+            )}
           </div>
-          <div className={styles.modalSubtext}>Don&apos;t see what you&apos;re looking for? Send us an <a href="mailto:chapinel@oregonstate.edu?subject = New Game Request">email</a> and let us know what games you&apos;d like to track!</div>
-          
+          <div className={styles.modalSubtext}>
+            Don&apos;t see what you&apos;re looking for? 
+            Send us an <a href="mailto:chapinel@oregonstate.edu?subject = New Game Request">email</a> 
+            and let us know what games you&apos;d like to track!
+          </div>
         </Modal>
         <Modal
           modalData={{
@@ -306,8 +362,12 @@ export default function Home({user, data, userData, count}) {
           }}
         >
           <div className={styles.modalParagraphs}>
-            <p>Removing a game from your dashboard will mean that you can&apos;t receive notifications for it until you add it back.</p>
-            <p>You can add a game back to your dashboard at any time and still be able to see all previous updates.</p>
+            <p>Removing a game from your dashboard will mean 
+              that you can&apos;t receive notifications for it until you add it back.
+            </p>
+            <p>You can add a game back to your dashboard at any time and 
+              still be able to see all previous updates.
+            </p>
           </div>
         </Modal>
         <Modal
@@ -356,7 +416,8 @@ export default function Home({user, data, userData, count}) {
           {modalWalkthroughFourthScreen && (
             <Walkthrough screen="fourth" screenData={{
               heading: "Turn on notifications to get email updates", 
-              description: "When you have notifications turned on, we'll let you know whenever a game you're tracking posts something new!",
+              description: 
+              "When you have notifications turned on, we'll let you know whenever a game you're tracking posts something new!",
               image: "/images/notifications.gif"
             }}/>
           )}

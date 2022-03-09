@@ -1,3 +1,4 @@
+import Games from "../../lib/game_data"
 
 const getUserFromId = async(id) => {
     const url = process.env.DATABASE_URL + `auth/get-one-id?user=${id}`
@@ -18,7 +19,11 @@ const sendUserEmail = async (body) => {
     console.log('sendUserEmail body', body)
     const url = 'https://galac-tus.herokuapp.com/email'
     try {
-        const response = await fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)})
+        const response = await fetch(url, {
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify(body)
+        })
         if (response.status === 201 || response.status === 200){
             return 'success'
         } else {
@@ -98,25 +103,25 @@ const getUsersForGame = async (game) => {
 }
 
 export default async function helper(req, res){
-    const games = [["valorant", 1, "Valorant"], ["league", 2, "League of Legends"], ["tft", 3, "Teamfight Tactics"], ["rift", 4, "Wild Rift"]]
- 
-    for (const game of games){
-        const date = await getLatestNoteDate(game[1])
+    const games = Games()
+    const game_names = Object.keys(games)
+    for (const game of game_names){
+        const date = await getLatestNoteDate(String(games[game].id))
         if (date === 'error'){
             res.status(500).end('get date error')
         }
 
-        const count = await checkForUpdates(game[0], date)
+        const count = await checkForUpdates(games[game].dbName, date)
         if (count === 0) {
             continue
         }
 
-        const users = await getUsersForGame(game[0])
+        const users = await getUsersForGame(games[game].dbName)
         if (users === 'error'){
             res.status(500).end('get user error')
         }
 
-        const result = await sendEmails(users, game[2])
+        const result = await sendEmails(users, games[game].name)
         if (result === true){
             res.status(200).send({done: true})
         } else {

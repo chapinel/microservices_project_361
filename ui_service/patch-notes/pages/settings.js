@@ -65,7 +65,11 @@ const checkValidUsername = async (name) => {
 
 const updateUser = async (body) => {
     try {
-        const response = await fetch('/api/updateUser', { method: 'POST', headers: {'Content-Type': 'application/json',}, body: JSON.stringify(body) })
+        const response = await fetch('/api/updateUser', { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json',}, 
+            body: JSON.stringify(body) 
+        })
         if (response.status === 200){
             return true
         } else {
@@ -145,7 +149,11 @@ export default function Settings ({user, userEmail}) {
                 <h1 className={utilStyles.headingXl}>User Settings</h1>
                 <div className={styles.headerSvg}>
                     {!editMode && (
-                        <button className={utilStyles.buttonSecondary} onClick={() => setEditMode(true)}>Edit</button>
+                        <button 
+                        className={utilStyles.buttonSecondary} 
+                        onClick={() => setEditMode(true)}>
+                            Edit
+                        </button>
                     )}
                 </div>
             </div>
@@ -178,8 +186,16 @@ export default function Settings ({user, userEmail}) {
                             <div className={utilStyles.loadingHeader}>Making changes...</div>
                         ) : (
                             <div className={styles.actionButtons}>
-                            <button onClick={() => setEditMode(false)} className={utilStyles.buttonSecondary}>Cancel</button>
-                            <button className={utilStyles.buttonPrimary} type="submit">Submit Changes</button> 
+                            <button 
+                            onClick={() => setEditMode(false)} 
+                            className={utilStyles.buttonSecondary}>
+                                Cancel
+                            </button>
+                            <button 
+                            className={utilStyles.buttonPrimary} 
+                            type="submit">
+                                Submit Changes
+                            </button> 
                             </div>
                         )}
                     </form>

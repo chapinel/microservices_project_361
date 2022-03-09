@@ -76,7 +76,10 @@ export default function Login() {
             <div className={styles.container}>
                 <div className={styles.header}>
                     <h1 className={utilStyles.headingXl}>Patch Poro</h1>
-                    {router.query.firstVisit === 'true' && (<div className={styles.successMessage}>Account created! Log in to get started.</div>)}
+                    {router.query.firstVisit === 'true' && (
+                    <div className={styles.successMessage}>
+                        Account created! Log in to get started.
+                    </div>)}
                 </div>
                 <Form logIn={true} onSubmit={onSubmit} errorMessage={errorMessage} loading={loading}></Form>
             </div>
