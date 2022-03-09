@@ -57,6 +57,8 @@ def parse_note(note, game):
 def get_last_10(json_data, game):
     count = 0
     for i in range(10):
+        if "This article will not be visible" in json_data[i]["description"]:
+            continue
         parse_note(json_data[i], game)
         count += 1
     
@@ -68,6 +70,8 @@ def get_any_after_date(json_data, date, game):
         article_date = article["date"][0:10]
         if datetime.datetime.strptime(article_date, "%Y-%m-%d") <= datetime.datetime.strptime(date, "%Y-%m-%d"):
             break
+        elif "This article will not be visible" in article["description"]:
+            continue
         else:
             parse_note(article, game)
             count += 1
