@@ -130,11 +130,6 @@ def update_user_game():
     game = data["game"]
     mail = data["mail"]
     error = None
-
-    if not user:
-        error = ('username is required', 400)
-    elif not game:
-        error = ('game is required', 400)
     
     if error is None:
         game_id = get_game_id_by_name(game)

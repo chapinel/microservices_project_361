@@ -28,11 +28,12 @@ async function signUpUser(body) {
 }
 
 export default function Signup() {
-
+    //VARIABLES
     const [errorMessage, setErrorMessage] = useState("")
     const [loading, setLoading] = useState(false)
     const router = useRouter()
 
+    //HELPER FUNCTIONS
     const signupAttemptResponse = (response) => {
         if (response === 'success') {
             router.push({
@@ -62,7 +63,6 @@ export default function Signup() {
         signupAttemptResponse(response)
         
     }
-
 
     return (
         <Layout>

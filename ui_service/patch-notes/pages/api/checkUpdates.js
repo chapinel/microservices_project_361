@@ -109,6 +109,7 @@ export default async function helper(req, res){
         const date = await getLatestNoteDate(String(games[game].id))
         if (date === 'error'){
             res.status(500).end('get date error')
+            return
         }
 
         const count = await checkForUpdates(games[game].dbName, date)
@@ -119,15 +120,19 @@ export default async function helper(req, res){
         const users = await getUsersForGame(games[game].dbName)
         if (users === 'error'){
             res.status(500).end('get user error')
+            return
         }
 
         const result = await sendEmails(users, games[game].name)
         if (result === true){
             res.status(200).send({done: true})
+            return
         } else {
             res.status(500).end('send email error')
+            return
         }
     }
     res.status(200).send({done: true})
+    return
 
 }

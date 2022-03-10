@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react'
 import { withIronSessionSsr } from 'iron-session/next'
 import { getUserData } from '../lib/user'
 import { getUserGames, getGameNameUrl, getGameStats } from '../lib/get_game_info'
-import { addUpdateUserGameNotifications } from '../lib/user_game'
+import { updateUserGameNotifications, addUserGame, removeUserGame } from '../lib/user_game'
 
 // code to set up user session is modeled from the examples provided by NextJs: 
 // https://github.com/vvo/iron-session#usage-nextjs
@@ -77,7 +77,7 @@ export const getServerSideProps = withIronSessionSsr(
 )
 
 export default function Home({user, data, userData, count}) {
-
+  // VARIABLES
   const router = useRouter()
   const walkthrough = router.query.visit === 'first' ? true : false
   
@@ -95,10 +95,7 @@ export default function Home({user, data, userData, count}) {
   const [modalWalkthroughThirdScreen, setModalWalkthroughThirdScreen] = useState(false)
   const [modalWalkthroughFourthScreen, setModalWalkthroughFourthScreen] = useState(false)
 
-  // We need a mapping of game names for our checkbox selection in the Add Game modal
   const games = Games()
-
-  // This will be how we track what games the user has selected when they go to add a game
   let gamesToAdd = []
 
   // We need this check to make sure that the Tooltip component loads properly
@@ -106,13 +103,16 @@ export default function Home({user, data, userData, count}) {
     setComponentMounted(true)
   }, [])
 
+  // HELPER FUNCTIONS
   const refreshPageData = () => {
     router.replace(router.asPath);
   }
 
-  // This function is used to disable or enable checkboxes in Add Game modal, 
-  // depending on whether user already has them added
-  const checkIfChosen = (gameName) => {
+  const resetGamesToAdd = () => {
+    gamesToAdd = []
+  }
+
+  const checkIfGameAlreadyChosen = (gameName) => {
     for (const game of data){
       if (game.name === gameName){
         return true
@@ -129,66 +129,50 @@ export default function Home({user, data, userData, count}) {
       }, 1000)
   }
 
-  async function addUserGameRelationship(gamesToAdd, user) {
+  const addUserGameRelationship = async (gamesToAdd, user) => {
     setModalLoading(true)
     for (const game of gamesToAdd){
-      const formData = {
-        user: user,
-        game: game
-      }
-      try {
-        const res = await fetch('api/add-user-game', { 
-          method: 'POST', 
-          headers: {'Content-Type': 'application/json',}, 
-          body: JSON.stringify(formData) 
-        })
-        if (res.status === 200){
-          setModalLoading(false)
-          setModalSuccess(true)
-        }
-      } catch(error){
-        console.error(error)
-      }
-    }
-    // reset the list of games that the user wants to add so it doesn't carry over to next time
-    gamesToAdd = []
-    waitForSuccessMessage(setControlModal)
-  }
-
-  async function removeUserGameRelationship(gameToRemove, user) {
-    setModalLoading(true)
-    const formData = {
-      user: user,
-      game: gameToRemove
-    }
-    try {
-      const res = await fetch('api/delete-user-game', { 
-        method: 'POST', 
-        headers: {'Content-Type': 'application/json',}, 
-        body: JSON.stringify(formData) 
-      })
-      if (res.status === 200) {
+      const response = await addUserGame({user: user, game: game})
+      console.log(response)
+      if (response === true){
         setModalLoading(false)
         setModalSuccess(true)
-      } 
-    } catch(error) {
-        console.error(error)
-    }
-    waitForSuccessMessage(setControlRemoveModal)
+        resetGamesToAdd()
+        waitForSuccessMessage(setControlModal)
+      } else {
+        setModalLoading(false)
+        console.error('error adding game')
+      }
+    } 
   }
 
-  async function addUserGameNotifications(notificationParameters) {
+  const removeUserGameRelationship = async (gameToRemove, user) => {
     setModalLoading(true)
-    const response = await addUpdateUserGameNotifications(notificationParameters)
+    const response = await removeUserGame({user: user, game: gameToRemove})
+    if (response === true){
+      setModalLoading(false)
+      setModalSuccess(true)
+      waitForSuccessMessage(setControlRemoveModal)
+    } else {
+      setModalLoading(false)
+      console.error('error removing game')
+    }
+  }
+
+  const changeUserGameNotifications = async (notificationParameters) => {
+    setModalLoading(true)
+    const response = await updateUserGameNotifications(notificationParameters)
     if (response === true){
       setModalLoading(false)
       setModalSuccess(true)
       waitForSuccessMessage(setControlNotifModal)
+    } else {
+      setModalLoading(false)
+      console.error('error changing notifications')
     }
   }
 
-  // This function gets called whenever a user checks or unchecks a game in the Add Game modal
-  const handleGameAdd = (e) => {
+  const handleGameCheckUncheck = (e) => {
     const game = e.target.id
     if (gamesToAdd.includes(game)){
       gamesToAdd = gamesToAdd.filter(name => name != game)
@@ -198,8 +182,7 @@ export default function Home({user, data, userData, count}) {
   }
 
   const handleAddCancel = () => {
-    // reset the list of games that the user wants to add so it doesn't carry over after they cancel or close
-    gamesToAdd = []
+    resetGamesToAdd()
     setControlModal(false)
   }
 
@@ -233,7 +216,7 @@ export default function Home({user, data, userData, count}) {
       service_id: userData.service_id,
       mailChange: gameNotif.OffOrOn
     }
-    addUserGameNotifications(parameters)
+    changeUserGameNotifications(parameters)
   }
 
   const handleWalkthroughConfirm = () => {
@@ -335,7 +318,7 @@ export default function Home({user, data, userData, count}) {
               key={i} 
               className={styles.check}>
                 <label className={utilStyles.formControl} htmlFor={games[game].name}>
-                  <input type="checkbox" onClick={handleGameAdd} disabled={checkIfChosen(games[game].dbName)} 
+                  <input type="checkbox" onClick={handleGameCheckUncheck} disabled={checkIfGameAlreadyChosen(games[game].dbName)} 
                   id={games[game].dbName}/>
                   {games[game].name}
                 </label>

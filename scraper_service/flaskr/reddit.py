@@ -23,12 +23,12 @@ def check_username(author, username):
     return False
 
 
-def parse_post(post_data, text, username, keyword):
+def parse_post(post_data, username, keyword):
 
     if username:
         username_match = check_username(post_data["username"], username)
     if keyword:
-        keyword_match = check_keyword(text, post_data["title"], keyword)
+        keyword_match = check_keyword(post_data["text"], post_data["title"], keyword)
     
     if username and keyword:
         if username_match and keyword_match:
@@ -41,6 +41,14 @@ def parse_post(post_data, text, username, keyword):
             return True
     
     return False
+
+def get_post_data(post):
+    title = post["title"]
+    text = post["selftext"]
+    author = post["author"]
+    url = post["url"]
+
+    return {"title": title, "text": text, "username": author, "url": url}
 
 @bp.route('/get', methods=['GET', 'POST'])
 def reddit():
@@ -58,14 +66,10 @@ def reddit():
 
     for item in posts["data"]:
 
-        title = item["title"]
-        text = item["selftext"]
-        author = item["author"]
-        url = item["url"]
-        post_data = {"title": title, "username": author, "url": url}
+        post_data = get_post_data(item)
 
-        if parse_post(post_data, text, username, keyword):
-            matching_posts.append(post_data)
+        if parse_post(post_data, username, keyword):
+            matching_posts.append( { "title": post_data["title"], "username": post_data["author"], "url": post_data["url"] } )
 
     response = jsonify( { "data": matching_posts } )
     return response

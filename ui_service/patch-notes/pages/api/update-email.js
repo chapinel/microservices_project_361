@@ -9,6 +9,8 @@ export default async function handler(req, res) {
         })
         if (response.status === 200){
             res.status(200).send({ done: true })
+        } else {
+            res.status(500).end('error updating')
         }
     } catch (error) {
         console.error(error)

@@ -30,7 +30,6 @@ export const getServerSideProps = withIronSessionSsr(
       }
 
       const game = query.game
-
       const userData = await getUserData(user.username)
       const gameNotifications = await getUserGameNotifications(user.username, game)
       const gameUrl = await getGameNameUrl(game, "name")
@@ -38,11 +37,8 @@ export const getServerSideProps = withIronSessionSsr(
         
       return {
         props: {
-          user: user,
-          userData: userData,
-          notif: gameNotifications,
-          game: game,
-          url: gameUrl.url,
+          user: {user: user.username, email: userData.email, service_id: userData.service_id},
+          game: {game: game, url: gameUrl.url, notif: gameNotifications},
           notes: notes
         },
       };
@@ -56,7 +52,8 @@ export const getServerSideProps = withIronSessionSsr(
     }
 )
 
-export default function Game ({user, userData, notif, game, url, notes}) {
+export default function Game ({user, game, notes}) {
+    //VARIABLES  
     const [searchValue, setSearchValue] = useState("")
     const [controlNotifModal, setControlNotifModal] = useState(false)
     const [modalSuccess, setModalSuccess] = useState(false)
@@ -70,11 +67,11 @@ export default function Game ({user, userData, notif, game, url, notes}) {
     })
 
     const router = useRouter()
-
     const finalList = notes.filter(note => !(note.description.includes("This article will not be visible")))
-
     const games = Games()
 
+
+    // HELPER FUNCTIONS
     const refreshPageData = () => {
         router.replace(router.asPath);
     }
@@ -87,7 +84,7 @@ export default function Game ({user, userData, notif, game, url, notes}) {
       }, 1000)
     }
 
-    async function addUserGameNotifications(parameters) {
+    const addUserGameNotifications = async (parameters) => {
       setModalLoading(true)
       const response = await addUpdateUserGameNotifications(parameters)
       if (response === true){
@@ -110,11 +107,11 @@ export default function Game ({user, userData, notif, game, url, notes}) {
 
     const handleNotifConfirm = () => {
       const parameters = {
-        gameToNotify: game,
-        user: user.username,
-        email: userData.email,
-        service_id: userData.service_id,
-        mailChange: notif
+        gameToNotify: game.game,
+        user: user.user,
+        email: user.email,
+        service_id: user.service_id,
+        mailChange: game.notif
       }
       addUserGameNotifications(parameters)
     }
@@ -153,13 +150,13 @@ export default function Game ({user, userData, notif, game, url, notes}) {
         <Layout loggedIn={true}>
         <section>
             <div className={utilStyle.headerWButton}>
-                <h1 className={utilStyle.headingXl}>{games[game].name}</h1>
+                <h1 className={utilStyle.headingXl}>{games[game.game].name}</h1>
                 <div className={styles.headerButton}>
                       <button 
                       className={utilStyle.svgButton} 
                       data-tip="Tooltip for notifications" 
                       onClick={() => setControlNotifModal(true)}>
-                        {notif == 'on' ? (
+                        {game.notif == 'on' ? (
                         <svg 
                         xmlns="http://www.w3.org/2000/svg" 
                         width="28" 
@@ -313,7 +310,7 @@ export default function Game ({user, userData, notif, game, url, notes}) {
                         date: note.date,
                         description: note.description,
                         banner: note.banner,
-                        parentUrl: url,
+                        parentUrl: game.url,
                         url: note.url
                       }
                     }
@@ -324,7 +321,7 @@ export default function Game ({user, userData, notif, game, url, notes}) {
             )}
             <Modal
               modalData={{
-                title: `Turn ${notif} notifications`,
+                title: `Turn ${game.notif} notifications`,
                 open: controlNotifModal,
                 onCancel: () => setControlNotifModal(false),
                 onConfirm: handleNotifConfirm,
@@ -332,10 +329,10 @@ export default function Game ({user, userData, notif, game, url, notes}) {
                 loading: modalLoading
               }}
               buttonText={{
-                confirmText: `Turn ${notif}`
+                confirmText: `Turn ${game.notif}`
               }}
             >
-              <Notifications offOrOn={notif} email={userData.email}/>
+              <Notifications offOrOn={game.notif} email={user.email}/>
             </Modal>
             
         </section>

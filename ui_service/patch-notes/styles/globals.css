@@ -1,7 +1,5 @@
 html,
 body {
-  /* background: rgb(2,0,36);
-  background: linear-gradient(167deg, rgba(2,0,36,1) 0%, rgb(18, 51, 87) 38%, rgb(112, 27, 37) 100%); */
   background: #0F1923;
   background-attachment: fixed;  
   padding: 0;
@@ -116,23 +114,3 @@ input[type="text"]:disabled {
 label {
   color: white;
 }
-
-select {
-  background: none;
-  border: #37DDC9 1px solid;
-  color: #37DDC9;
-  font-family: inherit;
-  text-transform: uppercase;
-  padding: 8px;
-  font-weight: 600;
-}
-
-select > option {
-  background-color: #0F1923;
-  font-weight: 600;
-}
-
-/* select option:checked,
-select option:hover {
-    box-shadow: 0 0 10px 100px #000 inset;
-} */

@@ -5,13 +5,15 @@ from flask import Blueprint, request, jsonify
 bp = Blueprint('game', __name__, url_prefix='/game')
 
 def get_game_info(game, query_type):
+    if not game:
+        return ("Must include game identifier", 400)
     if query_type == "name":
         game = Game.query.filter_by(name=game).first()
     else:
         game = Game.query.filter_by(id=game).first()
     
     if game is None:
-        return game
+        return ("Game not found", 406)
     else:
         return { "id": game.id, "name": game.name, "url": game.url }
 
@@ -34,38 +36,18 @@ def add_game():
 @bp.route('/get-from-name', methods=['GET'])
 def get_game_name():
     game = request.args.get('game', None)
-    error = None
+    
+    response = get_game_info(game, "name")
 
-    if not game:
-        error = ('Must include game name', 400)
-    
-    if error is None:
-       game = get_game_info(game, "name")
-       if game is None:
-           error = ("Game not found", 406)
-       else:
-           response = jsonify(game)
-           return response
-    
-    return error
+    return response
 
 @bp.route('/get-from-id', methods=['GET'])
 def get_game_id():
     game_id = request.args.get("game", None)
-    error = None
-
-    if not game_id:
-        error = ("Must include game id", 400)
     
-    if error is None:
-        game = get_game_info(game_id, "id")
-        if game is None:
-            error = ("Game not found", 406)
-        else:
-            response = jsonify(game)
-            return response
-        
-    return error
+    response = get_game_info(game_id, "id")
+
+    return response
 
 @bp.route('/get-all', methods=['GET'])
 def get_games():

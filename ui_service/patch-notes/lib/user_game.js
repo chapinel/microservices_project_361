@@ -18,7 +18,26 @@ async function getFirstServiceId (user, email) {
     }
   }
 
-export async function addUpdateUserGameNotifications(notificationParameters){
+async function updateMailRelationship(body) {
+    try {
+        const res = await fetch('/api/update-email', 
+        { 
+          method: 'POST', 
+          headers: {'Content-Type': 'application/json'}, 
+          body: JSON.stringify(body)
+        })
+      if (res.status == 200) {
+        return true
+      } else {
+          return false
+      }
+    } catch (error) {
+        console.error(error)
+        return false
+    }
+}
+
+export async function updateUserGameNotifications(notificationParameters){
     let mail;
     notificationParameters.mailChange === "on" ? mail = 1 : mail = 0
     // First, we check to see if this is the first time a user has turned on notifications
@@ -31,14 +50,44 @@ export async function addUpdateUserGameNotifications(notificationParameters){
       }
     }
     // in either case, we need to update our DB relationship for this user/game to reflect the new notification status
-    try {
-      const res = await fetch('/api/update-email', 
-      { method: 'POST', headers: {'Content-Type': 'application/json'}, 
-      body: JSON.stringify({user: notificationParameters.user, game: notificationParameters.gameToNotify, mail: mail})
-        })
-      if (res.status == 200) {
+    const update = await updateMailRelationship({
+        user: notificationParameters.user, 
+        game: notificationParameters.gameToNotify, 
+        mail: mail
+    })
+    if (update === true) {
         return true
-      }
+    } else {
+        return false
+    }
+}
+
+export async function addUserGame(body) {
+    try {
+        const response = await fetch('api/add-user-game', { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json',}, 
+            body: JSON.stringify(body) 
+        })
+        if (response.status === 200){
+            return true
+        }
+    } catch (error) {
+        console.error(error)
+        return false
+    }
+}
+
+export async function removeUserGame(body) {
+    try {
+        const response = await fetch('api/delete-user-game', { 
+            method: 'DELETE', 
+            headers: {'Content-Type': 'application/json',}, 
+            body: JSON.stringify(body) 
+        })
+        if (response.status === 200){
+            return true
+        }
     } catch (error) {
         console.error(error)
         return false

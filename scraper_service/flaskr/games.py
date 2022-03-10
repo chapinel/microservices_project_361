@@ -7,33 +7,47 @@ from flask import (
 
 bp = Blueprint('games', __name__, url_prefix='/games')
 
-def get_rift_url(note):
-    if note["youtubeLink"] != "":
-        url = note["youtubeLink"]
-    elif note["externalLink"] != "":
-        url = note["externalLink"]
+json_keys = {
+    "youtube": {
+        "rift": "youtubeLink",
+        "other": "youtube_link"
+    }, 
+    "external": {
+        "rift": "externalLink",
+        "other": "external_link"
+    }, 
+    "link": {
+        "rift": "link",
+        "other": "url"
+    }
+}
+
+urls = {
+        "valorant": "https://playvalorant.com/page-data/en-us/news/game-updates/page-data.json",
+        "league": "https://www.leagueoflegends.com/page-data/en-us/news/game-updates/page-data.json",
+        "tft": "https://teamfighttactics.leagueoflegends.com/page-data/en-us/news/page-data.json",
+        "rift": "https://wildrift.leagueoflegends.com/page-data/en-us/news/page-data.json",
+}
+
+def get_url(note, type, game):
+    youtube = json_keys["youtube"][type]
+    external = json_keys["external"][type]
+    link = json_keys["link"][type]
+
+    if game != "valorant" and note[youtube] != "":
+        url = note[youtube]
+    elif note[external] != "":
+        url = note[external]
     else:
-        url = note["link"]["url"]
+        url = note[link]["url"]
     
     return url
 
-def get_rift_banner(note):
-    banner = note["featuredImage"]["banner"]["url"]
-
-    return banner
-
-def get_non_rift_url(note, game):
-    if game != "valorant" and note["youtube_link"] != "":
-        url = note["youtube_link"]
-    elif note["external_link"] != "":
-        url = note["external_link"]
+def get_banner(note, game):
+    if game == "rift":
+        banner = note["featuredImage"]["banner"]["url"]
     else:
-        url = note["url"]["url"]
-    
-    return url
-
-def get_non_rift_banner(note):
-    banner = note["banner"]["url"]
+        banner = note["banner"]["url"]
 
     return banner
 
@@ -42,12 +56,11 @@ def parse_note(note, game):
     description = note["description"]
     date = note["date"]
     date = date[0:10]
+    banner = get_banner(note, game)
     if game == "rift":
-        url = get_rift_url(note)
-        banner = get_rift_banner(note)
+        url = get_url(note, "rift", "rift")
     else:
-        url = get_non_rift_url(note, game)
-        banner = get_non_rift_banner(note)
+        url = get_url(note, "other", game)
     
     post_data = {"title": title, "description": description, "url": url, "game": game, "banner": banner, "date": date}
 
@@ -106,12 +119,6 @@ def get_json_data(date, game, posts):
 def get_latest():
     game = request.args.get("game", None)
     date = request.args.get("date", None)
-    urls = {
-        "valorant": "https://playvalorant.com/page-data/en-us/news/game-updates/page-data.json",
-        "league": "https://www.leagueoflegends.com/page-data/en-us/news/game-updates/page-data.json",
-        "tft": "https://teamfighttactics.leagueoflegends.com/page-data/en-us/news/page-data.json",
-        "rift": "https://wildrift.leagueoflegends.com/page-data/en-us/news/page-data.json",
-    }
     error = None
 
     if game is None:

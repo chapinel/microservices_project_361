@@ -37,17 +37,6 @@ export const getServerSideProps = withIronSessionSsr(
     }
 )
 
-const checkFormValues = (name, email) => {
-    if (name === '') {
-        if (email === ''){
-            console.log('no changes made')
-            return false
-        } 
-    } else if (email == '') {
-        return true
-    } 
-}
-
 const checkValidUsername = async (name) => {
     try {
         const url = `/api/get-user-data?user=${name}`
@@ -94,7 +83,7 @@ export default function Settings ({user, userEmail}) {
         router.replace(router.asPath);
     }
 
-    const checkFormValues = (name, email) => {
+    const checkFormValuesEmpty = (name, email) => {
         if (name === '') {
             if (email === ''){
                 setErrorMessage('You must change one or both values before submitting.')
@@ -114,7 +103,7 @@ export default function Settings ({user, userEmail}) {
         let name = e.currentTarget.username.value;
         let email = e.currentTarget.email.value;
 
-        const check = checkFormValues(name, email)
+        const check = checkFormValuesEmpty(name, email)
         if (!check) {
             return
         } else if (check === true) {
@@ -129,6 +118,7 @@ export default function Settings ({user, userEmail}) {
             }
 
             const response = await updateUser(body)
+            setLoading(false)
             if(response === true){
                 refreshData()
             } else {
@@ -138,8 +128,6 @@ export default function Settings ({user, userEmail}) {
         } else {
             setErrorMessage(validName)
         }
-
-        setLoading(false)
     }
 
     return (
@@ -169,7 +157,9 @@ export default function Settings ({user, userEmail}) {
                     <div>
                         <p className={utilStyles.headingMd}>Email</p>
                         <p>{userEmail}</p>
-                        <p className={utilStyles.note}>Note: changing your email will affect any game you have notifications turned on for</p>
+                        <p className={utilStyles.note}>
+                            Note: changing your email will affect any game you have notifications turned on for
+                        </p>
                     </div>
                 </div>
             ) : (

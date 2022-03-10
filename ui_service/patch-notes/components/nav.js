@@ -5,10 +5,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 
 export default function Nav({ }) {
+    // VARIABLES
     const [controlPopover, setControlPopover] = useState(false)
-
     const router = useRouter()
 
+    // HELPER FUNCTIONS
     const goToSettings = (e) => {
         setControlPopover(false)
         e.stopPropagation()
@@ -30,7 +31,11 @@ export default function Nav({ }) {
         }
     }
 
-    const buttons = [{ text: "User Settings", onClick: goToSettings}, {text: "Log Out", onClick: logOutUser}]
+    // variable defined here so that functions will be initialized
+    const buttons = [
+        { text: "User Settings", onClick: goToSettings}, 
+        {text: "Log Out", onClick: logOutUser}
+    ]
 
     return (
         <nav>

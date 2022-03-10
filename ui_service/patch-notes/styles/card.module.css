@@ -28,7 +28,6 @@
     align-self: center;
     height: 150px;
     cursor: pointer;
-    /* background: linear-gradient(312deg, rgba(2,0,36,1) 0%, rgba(18,53,91,1) 38%, rgba(233,89,103,1) 100%); */
     display: flex;
     justify-content: flex-end;
     padding-right: 30px;

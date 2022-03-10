@@ -18,7 +18,8 @@ const determineResponse = async(res) => {
         }
     }
 }
-async function attemptLogin(body) {
+
+const attemptLogin = async(body) => {
     try {
         const res = await fetch('/api/login', {
             method: 'POST',
@@ -33,11 +34,14 @@ async function attemptLogin(body) {
 }
 
 export default function Login() {
-    const router = useRouter()
-
+    //VARIABLES
     const [errorMessage, setErrorMessage] = useState('')
     const [loading, setLoading] = useState(false)
 
+    // HELPER FUNCTIONS
+    const router = useRouter()
+
+    // variables defined here because router must be defined
     let firstVisit = 'return'
     if (router.query.firstVisit === 'true'){
         firstVisit = 'first'

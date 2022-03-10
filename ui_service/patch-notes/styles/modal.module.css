@@ -74,8 +74,6 @@
 
 @keyframes colorchange {
     0% { color: #37DDC9; }
-    /* 10% { color: #37DDC9; }
-    15% { color: #def7f4; } */
     100% { color: #134d46; }
 }
 

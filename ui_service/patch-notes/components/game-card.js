@@ -5,13 +5,13 @@ import Games from '../lib/game_data'
 import {useState} from 'react'
 
 export default function GameCard({ cardData, menuOption1, menuOption2 }) {
+    // VARIABLES
     const updateStat = cardData.totalUpdates ? cardData.totalUpdates : '-'
     const dateStat = cardData.date ? cardData.date : '-'
-
+    const games = Games()
     const [controlPopover, setControlPopover] = useState(false)
 
-    const games = Games()
-
+    // HELPER FUNCTIONS
     const turnOnOffNotification = (e) => {
         setControlPopover(false)
         e.stopPropagation()
@@ -24,6 +24,7 @@ export default function GameCard({ cardData, menuOption1, menuOption2 }) {
         menuOption1(cardData.title)
     }
 
+    // variable declared here so that functions will be initialized before attaching to object
     const buttons = [
         { text: `Turn ${cardData.notifications} notifications`, onClick: turnOnOffNotification}, 
         {text: "Remove game", onClick: removeGame}

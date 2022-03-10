@@ -2,7 +2,7 @@ import styles from '../styles/patch.module.css'
 
 
 export default function PatchCard({patchCardData, onClick}) {
-
+    // VARIABLES
     let noteUrl; 
     if (patchCardData.url.includes("youtube") || patchCardData.url.includes("https")) {
         noteUrl = patchCardData.url
@@ -10,6 +10,7 @@ export default function PatchCard({patchCardData, onClick}) {
         noteUrl = patchCardData.parentUrl + patchCardData.url
     }
 
+    // HELPER FUNCTIONS
     const handlePanel = () => {
         console.log(noteUrl);
         onClick(noteUrl)
