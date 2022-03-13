@@ -4,12 +4,12 @@ import styles from '../../styles/game.module.css'
 import Layout from '../../components/layout'
 import { withIronSessionSsr } from 'iron-session/next'
 import { useState } from 'react'
-import PatchCard from '../../components/patch-card'
+import PatchCard from '../../components/patchCard'
 import Modal from '../../components/modal'
-import Games from '../../lib/game_data'
+import Games from '../../lib/gameData'
 import { getUserData } from '../../lib/user'
-import { getGameNameUrl, getUserGameNotifications, getGameNotes } from '../../lib/get_game_info'
-import { addUpdateUserGameNotifications } from '../../lib/user_game'
+import { getGameNameUrl, getUserGameNotifications, getGameNotes } from '../../lib/getGameInfo'
+import { updateUserGameNotifications } from '../../lib/userGame'
 import Notifications from '../../components/notifModal'
 
 // code to set up user session is modeled from the examples provided by NextJs: 
@@ -86,7 +86,7 @@ export default function Game ({user, game, notes}) {
 
     const addUserGameNotifications = async (parameters) => {
       setModalLoading(true)
-      const response = await addUpdateUserGameNotifications(parameters)
+      const response = await updateUserGameNotifications(parameters)
       if (response === true){
         setModalLoading(false)
         setModalSuccess(true)

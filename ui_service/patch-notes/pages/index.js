@@ -1,7 +1,7 @@
 import Layout from '../components/layout'
 import Modal from '../components/modal'
-import GameCard from '../components/game-card'
-import Games from '../lib/game_data'
+import GameCard from '../components/gameCard'
+import Games from '../lib/gameData'
 import Walkthrough from '../components/walkthrough'
 import Notifications from '../components/notifModal'
 import utilStyles from '../styles/utils.module.css'
@@ -11,8 +11,8 @@ import ReactTooltip from 'react-tooltip'
 import { useEffect, useState } from 'react'
 import { withIronSessionSsr } from 'iron-session/next'
 import { getUserData } from '../lib/user'
-import { getUserGames, getGameNameUrl, getGameStats } from '../lib/get_game_info'
-import { updateUserGameNotifications, addUserGame, removeUserGame } from '../lib/user_game'
+import { getUserGames, getGameNameUrl, getGameStats } from '../lib/getGameInfo'
+import { updateUserGameNotifications, addUserGame, removeUserGame } from '../lib/userGame'
 
 // code to set up user session is modeled from the examples provided by NextJs: 
 // https://github.com/vvo/iron-session#usage-nextjs

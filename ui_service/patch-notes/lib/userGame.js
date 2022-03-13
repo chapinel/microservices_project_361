@@ -20,7 +20,7 @@ async function getFirstServiceId (user, email) {
 
 async function updateMailRelationship(body) {
     try {
-        const res = await fetch('/api/update-email', 
+        const res = await fetch('/api/updateEmail', 
         { 
           method: 'POST', 
           headers: {'Content-Type': 'application/json'}, 
@@ -64,7 +64,7 @@ export async function updateUserGameNotifications(notificationParameters){
 
 export async function addUserGame(body) {
     try {
-        const response = await fetch('api/add-user-game', { 
+        const response = await fetch('api/addUserGame', { 
             method: 'POST', 
             headers: {'Content-Type': 'application/json',}, 
             body: JSON.stringify(body) 
@@ -80,7 +80,7 @@ export async function addUserGame(body) {
 
 export async function removeUserGame(body) {
     try {
-        const response = await fetch('api/delete-user-game', { 
+        const response = await fetch('api/deleteUserGame', { 
             method: 'DELETE', 
             headers: {'Content-Type': 'application/json',}, 
             body: JSON.stringify(body) 

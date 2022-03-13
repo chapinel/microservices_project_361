@@ -1,4 +1,4 @@
-import Games from "../../lib/game_data"
+import Games from "../../lib/gameData"
 
 const getUserFromId = async(id) => {
     const url = process.env.DATABASE_URL + `auth/get-one-id?user=${id}`

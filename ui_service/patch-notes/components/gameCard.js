@@ -1,7 +1,7 @@
 import styles from '../styles/card.module.css'
 import Link from 'next/link'
 import Popover from './popover'
-import Games from '../lib/game_data'
+import Games from '../lib/gameData'
 import {useState} from 'react'
 
 export default function GameCard({ cardData, menuOption1, menuOption2 }) {

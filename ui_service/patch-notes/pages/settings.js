@@ -39,7 +39,7 @@ export const getServerSideProps = withIronSessionSsr(
 
 const checkValidUsername = async (name) => {
     try {
-        const url = `/api/get-user-data?user=${name}`
+        const url = `/api/getUserData?user=${name}`
         const response = await fetch(url)
         if (response.status === 200){
             return 'Oops - it looks like that username is already taken. Try a different one.'
@@ -71,11 +71,12 @@ const updateUser = async (body) => {
 }
 
 export default function Settings ({user, userEmail}) {
-
+    //VARIABLES
     const [editMode, setEditMode] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
     const [loading, setLoading] = useState(false)
 
+    // HELPER FUNCTIONS
     const router = useRouter()
     
     const refreshData = () => {
@@ -105,6 +106,7 @@ export default function Settings ({user, userEmail}) {
 
         const check = checkFormValuesEmpty(name, email)
         if (!check) {
+            setLoading(false)
             return
         } else if (check === true) {
             email = userEmail
@@ -126,6 +128,7 @@ export default function Settings ({user, userEmail}) {
             }
 
         } else {
+            setLoading(false)
             setErrorMessage(validName)
         }
     }
